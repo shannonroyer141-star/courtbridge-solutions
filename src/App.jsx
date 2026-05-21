@@ -1,102 +1,45 @@
-import { useState, useEffect } from "react";
-import { supabase } from "./supabase";
+import React, { useState, useEffect } from 'react';
+import { supabase } from './supabase';
+import Dashboard from './screens/Dashboard';
+import CheckIn from './screens/CheckIn';
+import Clients from './screens/Clients';
+import Alerts from './screens/Alerts';
 
 export default function App() {
-  const [session, setSession] = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [user, setUser] = useState(null);
+  const [currentScreen, setCurrentScreen] = useState('dashboard');
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session) fetchProfile(session.user.id);
+      setUser(session?.user ?? null);
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (session) fetchProfile(session.user.id);
-    });
-    return () => subscription.unsubscribe();
   }, []);
 
-  const fetchProfile = async (userId) => {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
-    setProfile(data);
-  };
-
-  const handleLogin = async () => {
-    setError("");
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) setError(error.message);
-  };
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setProfile(null);
-  };
-
-  if (session && profile) {
-    if (profile.role === "provider") {
-      return (
-        <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
-          <h1>🏛️ CourtBridge Solutions</h1>
-          <p>Welcome, {profile.full_name} — <strong>Provider</strong></p>
-          <hr />
-          <h2>📋 Provider Dashboard</h2>
-          <p>✅ Client list and check-in alerts coming next!</p>
-          <button onClick={handleLogout} style={{ marginTop: "1rem", padding: "0.5rem 1rem" }}>
-            Log Out
-          </button>
-        </div>
-      );
-    }
-    if (profile.role === "client") {
-      return (
-        <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
-          <h1>🏛️ CourtBridge Solutions</h1>
-          <p>Welcome, {profile.full_name} — <strong>Client</strong></p>
-          <hr />
-          <h2>📍 Check-In</h2>
-          <p>✅ Check-in with GPS coming next!</p>
-          <button onClick={handleLogout} style={{ marginTop: "1rem", padding: "0.5rem 1rem" }}>
-            Log Out
-          </button>
-        </div>
-      );
-    }
-  }
-
-  if (session && !profile) {
-    return <p style={{ padding: "2rem" }}>Loading...</p>;
+  if (!user) {
+    return (
+      <div style={{ padding: "20px", textAlign: "center" }}>
+        <h1 style={{ color: "#1B3A6B" }}>CourtBridge Solutions</h1>
+        <p>Please log in to continue.</p>
+      </div>
+    );
   }
 
   return (
-    <div style={{ padding: "2rem", fontFamily: "sans-serif", maxWidth: "400px" }}>
-      <h1>🏛️ CourtBridge Solutions</h1>
-      <h2>Login</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        style={{ display: "block", marginBottom: "0.5rem", width: "100%", padding: "0.5rem" }}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        style={{ display: "block", marginBottom: "0.5rem", width: "100%", padding: "0.5rem" }}
-      />
-      <button onClick={handleLogin} style={{ padding: "0.5rem 1rem" }}>
-        Log In
-      </button>
+    <div style={{ display: "flex", height: "100vh" }}>
+      <nav style={{ background: "#1B3A6B", width: "200px", padding: "20px", display: "flex", flexDirection: "column", gap: "10px" }}>
+        <h2 style={{ color: "white", fontSize: "14px", marginBottom: "20px" }}>CourtBridge Solutions</h2>
+        <button onClick={() => setCurrentScreen('dashboard')} style={{ color: "white", background: "none", border: "none", cursor: "pointer", textAlign: "left", padding: "10px", fontSize: "16px" }}>📊 Dashboard</button>
+        <button onClick={() => setCurrentScreen('checkin')} style={{ color: "white", background: "none", border: "none", cursor: "pointer", textAlign: "left", padding: "10px", fontSize: "16px" }}>📍 Check In</button>
+        <button onClick={() => setCurrentScreen('clients')} style={{ color: "white", background: "none", border: "none", cursor: "pointer", textAlign: "left", padding: "10px", fontSize: "16px" }}>👥 Clients</button>
+        <button onClick={() => setCurrentScreen('alerts')} style={{ color: "white", background: "none", border: "none", cursor: "pointer", textAlign: "left", padding: "10px", fontSize: "16px" }}>🔔 Alerts</button>
+      </nav>
+
+      <div style={{ flex: 1, padding: "20px", overflowY: "auto" }}>
+        {currentScreen === 'dashboard' && <Dashboard />}
+        {currentScreen === 'checkin' && <CheckIn />}
+        {currentScreen === 'clients' && <Clients />}
+        {currentScreen === 'alerts' && <Alerts />}
+      </div>
     </div>
   );
 }

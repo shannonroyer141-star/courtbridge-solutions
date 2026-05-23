@@ -10,6 +10,7 @@ export default function CheckIn() {
     setMessage('');
 
     navigator.geolocation.getCurrentPosition(
+      
       async (position) => {
         const { latitude, longitude } = position.coords;
         const now = new Date().toISOString();

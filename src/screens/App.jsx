@@ -156,7 +156,6 @@ export default function App() {
         </div>
 
         <div style={{ padding: '8px 0', flex: 1 }}>
-          {/* Always visible top items */}
           {[
             { id: 'alerts', label: 'Alerts', icon: '🔔' },
             { id: 'calendar', label: 'Calendar', icon: '📅' },
@@ -198,12 +197,11 @@ export default function App() {
             { id: 'sms', label: 'SMS Alerts', icon: '📱' },
           ]} />
 
-          <NavFolder icon="⚙️" label="Admin" screen={screen} setScreen={setScreen} items={[
-            { id: 'orgadmin', label: 'Org Admin', icon: '🏢' },
+          <NavFolder icon="⚙️" label="Settings" screen={screen} setScreen={setScreen} items={[
             { id: 'settings', label: 'Settings', icon: '⚙️' },
+            { id: 'orgadmin', label: 'Org Admin', icon: '🏢' },
             { id: 'legal', label: 'Legal Docs', icon: '📜' },
             { id: 'policies', label: 'Policies', icon: '📋' },
-            { id: 'noncompete', label: 'Non-Compete', icon: '✍️' },
             { id: 'providerguide', label: 'Provider Guide', icon: '📖' },
             { id: 'sop', label: 'SOPs', icon: '📋' },
           ]} />

@@ -190,7 +190,7 @@ export default function App() {
             { id: 'programs', label: 'Programs', icon: '🏛️' },
             { id: 'sms', label: 'SMS Alerts', icon: '📱' },
           ]} />
-          <NavFolder icon="⚙️" label="Settings" screen={screen} setScreen={setScreen} items={[
+          <NavFolder icon="⚙️" label="Admin" screen={screen} setScreen={setScreen} items={[
             { id: 'orgadmin', label: 'Org Admin', icon: '🏢' },
             { id: 'settings', label: 'Settings', icon: '⚙️' },
             { id: 'legal', label: 'Legal Docs', icon: '📜' },

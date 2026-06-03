@@ -58,6 +58,7 @@ function NavFolder({ icon, label, items, screen, setScreen, defaultOpen }) {
 
 export default function App() {
   const [user, setUser] = useState(null);
+  const [userRole, setUserRole] = useState(null);
   const [screen, setScreen] = useState('alerts');
   const [selectedClientId, setSelectedClientId] = useState(null);
   const [email, setEmail] = useState('');
@@ -66,13 +67,13 @@ export default function App() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user ?? null));
+    supabase.auth.getSession().then(async ({ data: { session } }) => { const u = session?.user ?? null; setUser(u); if (u) { const { data: p } = await supabase.from("profiles").select("role").eq("id", u.id).single(); setUserRole(p?.role || "provider"); } });
   }, []);
 
   async function handleLogin() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) setError('Invalid email or password.');
-    else { const { data: { session } } = await supabase.auth.getSession(); setUser(session?.user ?? null); }
+    else { const { data: { session } } = await supabase.auth.getSession(); const u = session?.user ?? null; setUser(u); if (u) { const { data: p } = await supabase.from("profiles").select("role").eq("id", u.id).single(); setUserRole(p?.role || "provider"); } }
   }
 
   async function handleSignUp() {
@@ -108,6 +109,8 @@ export default function App() {
       </div>
     </div>
   );
+
+  if (userRole === "client") return <ClientAppDashboard />;
 
   function renderScreen() {
     if (screen === 'profile' && selectedClientId) return <ClientProfile clientId={selectedClientId} onBack={() => setScreen('clients')} />;

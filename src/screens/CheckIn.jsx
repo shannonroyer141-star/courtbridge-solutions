@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../supabase';
+import { supabase } from '../supabaseClient';
 
 export default function CheckIn() {
   const [location, setLocation] = useState(null);
+  const [address, setAddress] = useState('');
   const [checkInTime, setCheckInTime] = useState('');
   const [status, setStatus] = useState('');
   const [saving, setSaving] = useState(false);
@@ -17,56 +18,97 @@ export default function CheckIn() {
   function getLocation() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        pos => setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        () => setStatus('Could not get location. Please allow location access.')
+        (pos) => {
+          const lat = pos.coords.latitude.toFixed(6);
+          const lng = pos.coords.longitude.toFixed(6);
+          setLocation({ lat, lng });
+          reverseGeocode(lat, lng);
+        },
+        () => {
+          setLocation({ lat: 'Unavailable', lng: '' });
+          setAddress('Location unavailable');
+        }
       );
     }
   }
 
+  async function reverseGeocode(lat, lng) {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
+      const data = await res.json();
+      if (data && data.display_name) {
+        setAddress(data.display_name);
+      }
+    } catch {
+      setAddress(`${lat}, ${lng}`);
+    }
+  }
+
   async function fetchHistory() {
-    const { data } = await supabase.from('Check_ins').select('*').order('created_at', { ascending: false }).limit(5);
+    const { data } = await supabase
+      .from('checkins')
+      .select('*')
+      .order('checked_in_at', { ascending: false })
+      .limit(5);
     if (data) setHistory(data);
   }
 
   async function handleCheckIn() {
-    if (!location) { setStatus('Waiting for GPS location...'); return; }
+    if (!location || location.lat === 'Unavailable') {
+      setStatus('Waiting for GPS...');
+      return;
+    }
     setSaving(true);
-    const { error } = await supabase.from('Check_ins').insert([{
+    setStatus('');
+    const { error } = await supabase.from('checkins').insert([{
+      checked_in_at: new Date().toISOString(),
       latitude: location.lat,
       longitude: location.lng,
-      check_in_time: new Date().toISOString(),
     }]);
     setSaving(false);
-    if (error) setStatus('Error: ' + error.message);
-    else { setStatus('Check-in saved!'); fetchHistory(); }
+    if (error) {
+      setStatus('Error: ' + error.message);
+    } else {
+      setStatus('✅ Check-in saved!');
+      fetchHistory();
+    }
   }
 
   return (
-    <div style={{ padding: '30px', maxWidth: '600px' }}>
-      <h1 style={{ color: '#1B3A6B', marginBottom: '30px' }}>Check-In</h1>
-      <div style={{ background: 'white', border: '1px solid #ddd', borderRadius: '12px', padding: '25px', marginBottom: '20px' }}>
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ fontWeight: 'bold', color: '#555' }}>Check-In Time</label>
-          <div style={{ padding: '12px', background: '#f4f6f9', borderRadius: '8px', marginTop: '5px' }}>{checkInTime}</div>
-        </div>
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ fontWeight: 'bold', color: '#555' }}>Location (GPS)</label>
-          <div style={{ padding: '12px', background: '#f4f6f9', borderRadius: '8px', marginTop: '5px' }}>
-            {location ? `${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}` : 'Capturing location...'}
+    <div style={{ padding: '24px', maxWidth: '600px' }}>
+      <h1 style={{ color: '#1B3A6B', marginBottom: '24px' }}>Check-In</h1>
+      <div style={{ background: 'white', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', marginBottom: '16px' }}>
+        <div style={{ marginBottom: '16px' }}>
+          <label style={{ fontWeight: '600', color: '#333', display: 'block', marginBottom: '6px' }}>Check-In Time</label>
+          <div style={{ padding: '12px', background: '#f5f5f5', borderRadius: '8px', color: '#555' }}>
+            {checkInTime || 'Loading...'}
           </div>
         </div>
-        <button onClick={handleCheckIn} disabled={saving} style={{ width: '100%', padding: '15px', background: saving ? '#999' : '#27AE60', color: 'white', border: 'none', borderRadius: '8px', fontSize: '18px', cursor: 'pointer', fontWeight: 'bold' }}>
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{ fontWeight: '600', color: '#333', display: 'block', marginBottom: '6px' }}>Location</label>
+          <div style={{ padding: '12px', background: '#f5f5f5', borderRadius: '8px', color: '#555', fontSize: '14px' }}>
+            {address || (location ? `${location.lat}, ${location.lng}` : 'Getting location...')}
+          </div>
+        </div>
+        <button
+          onClick={handleCheckIn}
+          disabled={saving}
+          style={{ width: '100%', padding: '14px', background: saving ? '#aaa' : '#16a34a', color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: '600', cursor: saving ? 'not-allowed' : 'pointer' }}
+        >
           {saving ? 'Saving...' : '✅ Check In Now'}
         </button>
-        {status && <p style={{ marginTop: '15px', textAlign: 'center', color: status.includes('saved') ? '#27AE60' : '#E74C3C' }}>{status}</p>}
+        {status && (
+          <p style={{ marginTop: '12px', textAlign: 'center', color: status.startsWith('Error') ? '#dc2626' : '#16a34a', fontWeight: '600' }}>
+            {status}
+          </p>
+        )}
       </div>
       {history.length > 0 && (
         <div>
-          <h2 style={{ color: '#1B3A6B', marginBottom: '15px' }}>Recent Check-Ins</h2>
-          {history.map(h => (
-            <div key={h.id} style={{ background: 'white', border: '1px solid #ddd', borderRadius: '8px', padding: '15px', marginBottom: '10px' }}>
-              <p style={{ margin: 0, fontWeight: 'bold' }}>{new Date(h.check_in_time || h.created_at).toLocaleString()}</p>
-              <p style={{ margin: '5px 0 0', color: '#666', fontSize: '14px' }}>{h.latitude}, {h.longitude}</p>
+          <h3 style={{ color: '#1B3A6B', marginBottom: '8px' }}>Recent Check-Ins</h3>
+          {history.map((h, i) => (
+            <div key={i} style={{ padding: '10px 14px', background: 'white', borderRadius: '8px', marginBottom: '6px', fontSize: '14px', color: '#555', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+              {new Date(h.checked_in_at || h.created_at).toLocaleString()} — {h.latitude ? `${h.latitude}, ${h.longitude}` : 'No location'}
             </div>
           ))}
         </div>

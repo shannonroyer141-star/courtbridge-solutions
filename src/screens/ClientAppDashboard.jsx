@@ -139,8 +139,8 @@ export default function ClientAppDashboard() {
     const { error } = await supabase.from('checkins').insert([{
       client_id: user.id,
       checked_in_at: new Date().toISOString(),
-      latitude: location.lat,
-      longitude: location.lng,
+      latitude: location?.lat,
+      longitude: location?.lng,
     }]);
     if (error) { setCheckInStatus('error'); return; }
     setCheckInStatus('done');
@@ -170,7 +170,6 @@ export default function ClientAppDashboard() {
   return (
     <div style={{ background: '#F4F6F9', minHeight: '100vh', maxWidth: '480px', margin: '0 auto', fontFamily: 'system-ui, sans-serif' }}>
 
-      {/* Header */}
       <div style={{ background: pop.color, padding: '20px 20px 24px', color: 'white' }}>
         <div style={{ fontSize: '11px', opacity: 0.7, marginBottom: '4px' }}>CourtBridge Solutions</div>
         <div style={{ fontSize: '13px', opacity: 0.8, marginBottom: '12px' }}>{pop.label}</div>
@@ -188,13 +187,11 @@ export default function ClientAppDashboard() {
 
       <div style={{ padding: '16px' }}>
 
-        {/* Daily Affirmation */}
         <div style={{ background: 'white', borderRadius: '14px', padding: '18px', marginBottom: '14px', borderLeft: '4px solid ' + pop.color }}>
           <div style={{ fontSize: '11px', fontWeight: '600', color: pop.color, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Today's Affirmation</div>
           <div style={{ fontSize: '15px', color: '#2C3E50', lineHeight: '1.5', fontStyle: 'italic' }}>{affirmation}</div>
         </div>
 
-        {/* Check In Button */}
         {checkedInToday ? (
           <div style={{ background: '#eafaf1', border: '2px solid #27AE60', borderRadius: '14px', padding: '18px', marginBottom: '14px', textAlign: 'center' }}>
             <div style={{ fontSize: '28px', marginBottom: '4px' }}>✅</div>
@@ -218,7 +215,6 @@ export default function ClientAppDashboard() {
           </div>
         )}
 
-        {/* Safe Word for CATCH Court */}
         {isCatch && (
           <div style={{ background: '#FEF9EC', border: '1px solid #F39C12', borderRadius: '14px', padding: '14px', marginBottom: '14px' }}>
             <div style={{ fontSize: '11px', fontWeight: '600', color: '#B7770D', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Safety Word</div>
@@ -226,7 +222,6 @@ export default function ClientAppDashboard() {
           </div>
         )}
 
-        {/* Upcoming Court Dates */}
         {courtDates.length > 0 && (
           <div style={{ background: 'white', borderRadius: '14px', padding: '16px', marginBottom: '14px' }}>
             <div style={{ fontSize: '13px', fontWeight: '600', color: '#2C3E50', marginBottom: '10px' }}>⚖️ Upcoming Court Dates</div>
@@ -244,7 +239,6 @@ export default function ClientAppDashboard() {
           </div>
         )}
 
-        {/* Upcoming Drug Tests */}
         {drugTests.length > 0 && (
           <div style={{ background: 'white', borderRadius: '14px', padding: '16px', marginBottom: '14px' }}>
             <div style={{ fontSize: '13px', fontWeight: '600', color: '#2C3E50', marginBottom: '10px' }}>🧪 Recent Drug Tests</div>
@@ -262,7 +256,6 @@ export default function ClientAppDashboard() {
           </div>
         )}
 
-        {/* Open Tasks */}
         {tasks.length > 0 && (
           <div style={{ background: 'white', borderRadius: '14px', padding: '16px', marginBottom: '14px' }}>
             <div style={{ fontSize: '13px', fontWeight: '600', color: '#2C3E50', marginBottom: '10px' }}>📋 Tasks To Complete</div>
@@ -278,7 +271,6 @@ export default function ClientAppDashboard() {
           </div>
         )}
 
-        {/* Check-In History */}
         {checkIns.length > 0 && (
           <div style={{ background: 'white', borderRadius: '14px', padding: '16px', marginBottom: '14px' }}>
             <div style={{ fontSize: '13px', fontWeight: '600', color: '#2C3E50', marginBottom: '10px' }}>📅 Recent Check-Ins</div>
@@ -291,7 +283,7 @@ export default function ClientAppDashboard() {
           </div>
         )}
 
-        {/* Empty state */}
+        {checkIns.length === 0 && tasks.length === 0 && courtDates.length === 0 && (
           <div style={{ background: 'white', borderRadius: '14px', padding: '24px', textAlign: 'center', marginBottom: '14px' }}>
             <div style={{ fontSize: '32px', marginBottom: '8px' }}>👋</div>
             <div style={{ fontWeight: 'bold', color: '#2C3E50', fontSize: '16px', marginBottom: '4px' }}>Welcome to CourtBridge</div>

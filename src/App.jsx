@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from './supabase';
-import Dashboard from './screens/Dashboard';
+import ProviderDashboard from './screens/ProviderDashboard';
 import CheckIn from './screens/CheckIn';
 import Clients from './screens/Clients';
 import Alerts from './screens/Alerts';
@@ -31,6 +31,7 @@ import DocumentUpload from './screens/DocumentUpload';
 import ViolationReport from './screens/ViolationReport';
 import CompletionCertificate from './screens/CompletionCertificate';
 import SMSAlerts from './screens/SMSAlerts';
+import ClientAppDashboard from './screens/ClientAppDashboard';
 
 function NavFolder({ icon, label, items, screen, setScreen, defaultOpen }) {
   const [open, setOpen] = useState(defaultOpen || false);
@@ -56,10 +57,42 @@ function NavFolder({ icon, label, items, screen, setScreen, defaultOpen }) {
   );
 }
 
+function PlaceholderScreen({ title, description }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', color: '#666' }}>
+      <div style={{ fontSize: '48px', marginBottom: '16px' }}>🚧</div>
+      <h2 style={{ color: '#1B3A6B', marginBottom: '8px' }}>{title}</h2>
+      <p style={{ fontSize: '14px', color: '#999' }}>{description || 'This feature is being built. Check back soon.'}</p>
+    </div>
+  );
+}
+
+function SuggestionsScreen() {
+  const [suggestion, setSuggestion] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  return (
+    <div style={{ padding: '40px', maxWidth: '600px', margin: '0 auto' }}>
+      <h2 style={{ color: '#1B3A6B' }}>Sensitive Records — Coming in Phase 3</h2>
+      <p style={{ color: '#666', marginBottom: '24px' }}>This section will house sensitive client information. We want to build it right — tell us what you need.</p>
+      {submitted ? (
+        <div style={{ background: '#e8f5e9', padding: '20px', borderRadius: '8px', color: '#2e7d32' }}>Thank you! Your suggestion has been noted.</div>
+      ) : (
+        <div>
+          <textarea placeholder="What would you like to see in Sensitive Records?" value={suggestion} onChange={e => setSuggestion(e.target.value)}
+            style={{ width: '100%', height: '120px', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px', boxSizing: 'border-box', marginBottom: '12px' }} />
+          <button onClick={() => suggestion.trim() && setSubmitted(true)}
+            style={{ padding: '12px 24px', background: '#1B3A6B', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', cursor: 'pointer' }}>
+            Submit Suggestion
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function App() {
   const [user, setUser] = useState(null);
-  const [userRole, setUserRole] = useState(null);
-  const [screen, setScreen] = useState('alerts');
+  const [screen, setScreen] = useState('dashboard');
   const [selectedClientId, setSelectedClientId] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -67,13 +100,13 @@ export default function App() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => { const u = session?.user ?? null; setUser(u); if (u) { const { data: p } = await supabase.from("profiles").select("role").eq("id", u.id).single(); setUserRole(p?.role || "provider"); } });
+    supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user ?? null));
   }, []);
 
   async function handleLogin() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) setError('Invalid email or password.');
-    else { const { data: { session } } = await supabase.auth.getSession(); const u = session?.user ?? null; setUser(u); if (u) { const { data: p } = await supabase.from("profiles").select("role").eq("id", u.id).single(); setUserRole(p?.role || "provider"); } }
+    else { const { data: { session } } = await supabase.auth.getSession(); setUser(session?.user ?? null); }
   }
 
   async function handleSignUp() {
@@ -110,42 +143,48 @@ export default function App() {
     </div>
   );
 
-  if (userRole === "client") return <ClientAppDashboard />;
-
   function renderScreen() {
     if (screen === 'profile' && selectedClientId) return <ClientProfile clientId={selectedClientId} onBack={() => setScreen('clients')} />;
     switch (screen) {
-      case 'alerts': return <Alerts />;
+      case 'dashboard': return <ProviderDashboard />;
       case 'calendar': return <Calendar />;
-      case 'dashboard': return <Dashboard />;
       case 'checkin': return <CheckIn />;
       case 'clients': return <Clients onSelectClient={id => { setSelectedClientId(id); setScreen('profile'); }} />;
-      case 'invite': return <ClientInvite />;
       case 'messages': return <Messages />;
       case 'contactlog': return <ContactLog />;
-      case 'drugtests': return <DrugTests />;
-      case 'meetings': return <MeetingLog />;
-      case 'povisits': return <POVisits />;
-      case 'cps': return <CPSTracking />;
       case 'documents': return <DocumentUpload />;
       case 'reports': return <Reports />;
-      case 'courtdates': return <CourtDates />;
+      case 'alerts': return <Alerts />;
       case 'violations': return <ViolationReport />;
-      case 'certificates': return <CompletionCertificate />;
       case 'chart': return <ComplianceChart />;
       case 'map': return <MapView />;
       case 'tasks': return <Tasks />;
       case 'programs': return <Programs />;
       case 'sms': return <SMSAlerts />;
-      case 'orgadmin': return <OrgAdmin />;
-      case 'policies': return <Policies />;
-      case 'legal': return <Legal />;
-      case 'noncompete': return <NonCompete />;
-      case 'providerguide': return <ProviderGuide />;
       case 'sop': return <SOP />;
-      case 'affirmations': return <Affirmations />;
+      case 'providerguide': return <ProviderGuide />;
+      case 'orgadmin': return <OrgAdmin />;
+      case 'invite': return <ClientInvite />;
+      case 'certificates': return <CompletionCertificate />;
+      case 'legal': return <Legal />;
+      case 'policies': return <Policies />;
       case 'settings': return <Settings />;
-      default: return <Alerts />;
+      case 'affirmations': return <Affirmations />;
+      case 'sensitive': return <SuggestionsScreen />;
+      case 'assessments': return <PlaceholderScreen title="Assessments" description="Phase 2 feature — standardized assessment tools coming soon." />;
+      case 'granttracking': return <PlaceholderScreen title="Grant Tracking" description="Phase 3 feature — grant planning and tracking coming soon." />;
+      case 'auditreadiness': return <PlaceholderScreen title="Audit Readiness" description="Phase 3 feature — audit readiness scoring coming soon." />;
+      case 'orgSettings': return <PlaceholderScreen title="Org Settings" description="Configure your organization details." />;
+      case 'usermanagement': return <PlaceholderScreen title="User Management" description="Add and manage staff members." />;
+      case 'paymentplans': return <PlaceholderScreen title="Payment Plans" description="Manage billing and payment plans." />;
+      case 'billinghistory': return <PlaceholderScreen title="Billing History" description="View invoices and payment records." />;
+      case 'checkinfreq': return <Settings />;
+      case 'alertprefs': return <PlaceholderScreen title="Alert Preferences" description="Configure when and how you receive alerts." />;
+      case 'notifemail': return <PlaceholderScreen title="Notification Email" description="Set where missed check-in alerts are sent." />;
+      case 'programhours': return <PlaceholderScreen title="Program Hours" description="Set operating hours for GPS validation." />;
+      case 'account': return <PlaceholderScreen title="Account" description="Manage your password and profile." />;
+      case 'clientdashboard': return <ClientAppDashboard />;
+      default: return <ProviderDashboard />;
     }
   }
 
@@ -158,9 +197,8 @@ export default function App() {
         </div>
         <div style={{ padding: '8px 0', flex: 1 }}>
           {[
-            { id: 'alerts', label: 'Alerts', icon: '🔔' },
-            { id: 'calendar', label: 'Calendar', icon: '📅' },
             { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+            { id: 'calendar', label: 'Calendar', icon: '📅' },
           ].map(item => (
             <button key={item.id} onClick={() => setScreen(item.id)}
               style={{ width: '100%', textAlign: 'left', padding: '10px 16px', background: screen === item.id ? 'rgba(255,255,255,0.15)' : 'none', border: 'none', color: screen === item.id ? 'white' : 'rgba(255,255,255,0.8)', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: screen === item.id ? 'bold' : 'normal' }}>
@@ -168,42 +206,53 @@ export default function App() {
             </button>
           ))}
           <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', margin: '8px 0' }} />
-          <NavFolder icon="👥" label="Clients" screen={screen} setScreen={setScreen} defaultOpen={true} items={[
-            { id: 'clients', label: 'All Clients', icon: '👤' },
-            { id: 'invite', label: 'Invite Client', icon: '📨' },
-            { id: 'messages', label: 'Messages', icon: '✉️' },
-            { id: 'contactlog', label: 'Contact Log', icon: '📞' },
-            { id: 'drugtests', label: 'Drug Tests', icon: '🧪' },
-            { id: 'meetings', label: 'Meeting Log', icon: '🤝' },
-            { id: 'povisits', label: 'PO Visits', icon: '👮' },
-            { id: 'cps', label: 'CPS Cases', icon: '👨‍👩‍👧' },
-            { id: 'documents', label: 'Documents', icon: '📁' },
-          ]} />
-          <NavFolder icon="⚖️" label="Court & Compliance" screen={screen} setScreen={setScreen} items={[
-            { id: 'checkin', label: 'Check-In', icon: '📍' },
-            { id: 'courtdates', label: 'Court Dates', icon: '⚖️' },
+          <NavFolder icon="⚖️" label="Client Compliance" screen={screen} setScreen={setScreen} items={[
+            { id: 'checkin', label: 'Client Check-Ins', icon: '📍' },
+            { id: 'alerts', label: 'Alerts', icon: '🔔' },
+            { id: 'map', label: 'Map View', icon: '🗺️' },
             { id: 'reports', label: 'Reports', icon: '📄' },
             { id: 'violations', label: 'Violations', icon: '🚨' },
-            { id: 'certificates', label: 'Certificates', icon: '🎓' },
             { id: 'chart', label: 'Compliance Chart', icon: '📈' },
-            { id: 'map', label: 'Map View', icon: '🗺️' },
+          ]} />
+          <NavFolder icon="👥" label="Clients" screen={screen} setScreen={setScreen} items={[
+            { id: 'clients', label: 'All Clients', icon: '👤' },
+            { id: 'messages', label: 'Messages', icon: '✉️' },
+            { id: 'contactlog', label: 'Contact Log', icon: '📞' },
+            { id: 'documents', label: 'Documents', icon: '📁' },
           ]} />
           <NavFolder icon="📋" label="Operations" screen={screen} setScreen={setScreen} items={[
             { id: 'tasks', label: 'Tasks', icon: '✅' },
             { id: 'programs', label: 'Programs', icon: '🏛️' },
             { id: 'sms', label: 'SMS Alerts', icon: '📱' },
+            { id: 'sop', label: 'SOPs', icon: '📋' },
+            { id: 'providerguide', label: 'Provider Guide', icon: '📖' },
+          ]} />
+          <NavFolder icon="🏢" label="Admin" screen={screen} setScreen={setScreen} items={[
+            { id: 'orgSettings', label: 'Org Settings', icon: '🏢' },
+            { id: 'usermanagement', label: 'User Management', icon: '👨‍💼' },
+            { id: 'invite', label: 'Client Invites', icon: '📨' },
+            { id: 'paymentplans', label: 'Payment Plans', icon: '💳' },
+            { id: 'billinghistory', label: 'Billing History', icon: '🧾' },
+            { id: 'certificates', label: 'Certificate of Completion', icon: '🎓' },
           ]} />
           <NavFolder icon="⚙️" label="Settings" screen={screen} setScreen={setScreen} items={[
-            { id: 'orgadmin', label: 'Org Admin', icon: '🏢' },
-            { id: 'settings', label: 'Settings', icon: '⚙️' },
-            { id: 'legal', label: 'Legal Docs', icon: '📜' },
-            { id: 'policies', label: 'Policies', icon: '📋' },
-            { id: 'noncompete', label: 'Non-Compete', icon: '✍️' },
-            { id: 'providerguide', label: 'Provider Guide', icon: '📖' },
-            { id: 'sop', label: 'SOPs', icon: '📋' },
+            { id: 'checkinfreq', label: 'Check-In Frequency', icon: '⏱️' },
+            { id: 'alertprefs', label: 'Alert Preferences', icon: '🔔' },
+            { id: 'notifemail', label: 'Notification Email', icon: '📧' },
+            { id: 'programhours', label: 'Program Hours', icon: '🕐' },
+            { id: 'account', label: 'Account', icon: '👤' },
           ]} />
           <NavFolder icon="💙" label="Wellness" screen={screen} setScreen={setScreen} items={[
             { id: 'affirmations', label: 'Affirmations', icon: '💙' },
+          ]} />
+          <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', margin: '8px 0' }} />
+          <NavFolder icon="🔮" label="Phase 2" screen={screen} setScreen={setScreen} items={[
+            { id: 'assessments', label: 'Assessments', icon: '📝' },
+          ]} />
+          <NavFolder icon="🚀" label="Phase 3" screen={screen} setScreen={setScreen} items={[
+            { id: 'sensitive', label: 'Sensitive Records', icon: '🔒' },
+            { id: 'granttracking', label: 'Grant Tracking', icon: '💰' },
+            { id: 'auditreadiness', label: 'Audit Readiness', icon: '✅' },
           ]} />
         </div>
         <div style={{ padding: '12px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>

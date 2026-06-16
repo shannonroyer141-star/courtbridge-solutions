@@ -32,6 +32,7 @@ import ViolationReport from './screens/ViolationReport';
 import CompletionCertificate from './screens/CompletionCertificate';
 import SMSAlerts from './screens/SMSAlerts';
 import ClientAppDashboard from './screens/ClientAppDashboard';
+import Assessments from './screens/Assessments';
 
 function NavFolder({ icon, label, items, screen, setScreen, defaultOpen }) {
   const [open, setOpen] = useState(defaultOpen || false);
@@ -170,8 +171,8 @@ export default function App() {
       case 'policies': return <Policies />;
       case 'settings': return <Settings />;
       case 'affirmations': return <Affirmations />;
+      case 'assessments': return <Assessments />;
       case 'sensitive': return <SuggestionsScreen />;
-      case 'assessments': return <PlaceholderScreen title="Assessments" description="Phase 2 feature — standardized assessment tools coming soon." />;
       case 'granttracking': return <PlaceholderScreen title="Grant Tracking" description="Phase 3 feature — grant planning and tracking coming soon." />;
       case 'auditreadiness': return <PlaceholderScreen title="Audit Readiness" description="Phase 3 feature — audit readiness scoring coming soon." />;
       case 'orgSettings': return <PlaceholderScreen title="Org Settings" description="Configure your organization details." />;

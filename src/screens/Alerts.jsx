@@ -16,10 +16,27 @@ export default function Alerts() {
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
     setCurrentUser(user);
-    const { data: clientData } = await supabase.from('clients').select('*');
-    const { data: checkInData } = await supabase.from('checkins').select('*').order('checked_in_at', { ascending: false });
-    if (clientData) setClients(clientData);
-    if (checkInData) setCheckIns(checkInData);
+
+    // Only fetch clients belonging to this provider
+    const { data: clientData } = await supabase
+      .from('clients')
+      .select('*')
+      .eq('provider_id', user.id);
+
+    // Only fetch check-ins for this provider's clients
+    const clientIds = (clientData || []).map(c => c.id);
+    let checkInData = [];
+    if (clientIds.length > 0) {
+      const { data } = await supabase
+        .from('checkins')
+        .select('*')
+        .in('client_id', clientIds)
+        .order('checked_in_at', { ascending: false });
+      checkInData = data || [];
+    }
+
+    setClients(clientData || []);
+    setCheckIns(checkInData);
     setLoading(false);
   }
 

@@ -178,146 +178,197 @@ export default function App() {
     }
   }
 
-  const ni = (id) => ({
-    display: 'block',
-    padding: '5px 10px',
-    fontSize: 13,
-    fontWeight: activeScreen === id ? 600 : 400,
-    color: activeScreen === id ? '#FFFFFF' : 'rgba(255,255,255,0.55)',
-    background: activeScreen === id ? 'rgba(255,255,255,0.1)' : 'transparent',
-    borderLeft: activeScreen === id ? '2px solid rgba(255,255,255,0.85)' : '2px solid transparent',
-    borderRadius: '0 5px 5px 0',
-    cursor: 'pointer',
-    letterSpacing: '0.01em',
-    transition: 'background 0.1s, color 0.1s',
-    fontFamily: NAV_FONT,
-  });
+  const Ic = ({ d, size = 14 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+      style={{ flexShrink: 0, display: 'block' }}>
+      {d}
+    </svg>
+  );
 
-  const niSub = (id) => ({
-    ...ni(id),
-    padding: '4px 10px 4px 22px',
-    fontSize: 12,
-    color: activeScreen === id ? '#FFFFFF' : 'rgba(255,255,255,0.45)',
-  });
-
-  const sectionLabel = {
-    padding: '14px 10px 4px',
-    fontSize: 10,
-    fontWeight: 600,
-    color: 'rgba(255,255,255,0.3)',
-    textTransform: 'uppercase',
-    letterSpacing: '0.08em',
-    fontFamily: NAV_FONT,
-    userSelect: 'none',
+  const ICONS = {
+    dashboard:   <><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></>,
+    calendar:    <><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></>,
+    compliance:  <><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></>,
+    clients:     <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></>,
+    operations:  <><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></>,
+    admin:       <><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/><line x1="12" y1="12" x2="12" y2="22"/></>,
+    wellness:    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>,
+    settings:    <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.82 1.17V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-2.82-1.17l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></>,
+    logout:      <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></>,
+    chevronDown:  <polyline points="6 9 12 15 18 9"/>,
+    chevronRight: <polyline points="9 18 15 12 9 6"/>,
+    menu:        <><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></>,
   };
 
-  const groupToggle = (menu) => ({
+  const navItem = (id) => ({
     display: 'flex',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '5px 10px',
+    gap: 8,
+    padding: '6px 10px',
     fontSize: 13,
-    color: expandedMenus[menu] ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.5)',
+    fontWeight: activeScreen === id ? 500 : 400,
+    color: activeScreen === id ? '#FFFFFF' : '#374151',
+    background: activeScreen === id ? BLUE : 'transparent',
+    borderRadius: 6,
     cursor: 'pointer',
+    margin: '1px 6px',
     fontFamily: NAV_FONT,
     letterSpacing: '0.01em',
-    borderLeft: '2px solid transparent',
+    userSelect: 'none',
   });
 
+  const subItem = (id) => ({
+    display: 'flex',
+    alignItems: 'center',
+    padding: '5px 10px 5px 30px',
+    fontSize: 12.5,
+    fontWeight: activeScreen === id ? 500 : 400,
+    color: activeScreen === id ? '#FFFFFF' : '#6B7280',
+    background: activeScreen === id ? BLUE : 'transparent',
+    borderRadius: 6,
+    cursor: 'pointer',
+    margin: '1px 6px',
+    fontFamily: NAV_FONT,
+    userSelect: 'none',
+  });
+
+  const groupRow = (menu) => ({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '6px 10px',
+    fontSize: 13,
+    fontWeight: 400,
+    color: '#374151',
+    borderRadius: 6,
+    cursor: 'pointer',
+    margin: '1px 6px',
+    fontFamily: NAV_FONT,
+    userSelect: 'none',
+  });
+
+  const divider = { margin: '5px 12px', borderTop: '1px solid #E5E7EB' };
+
+  const userInitial = session?.user?.email?.[0]?.toUpperCase() || 'P';
+  const userEmail = session?.user?.email || '';
+
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: NAV_FONT, background: '#F5F6F8' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: NAV_FONT, background: '#F8F9FA' }}>
 
-      {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 40 }} />}
+      {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: 40 }} />}
 
-      <div style={{ width: 216, minHeight: '100vh', background: BLUE, position: 'fixed', top: 0, left: sidebarOpen ? 0 : -216, zIndex: 50, transition: 'left 0.22s ease', overflowY: 'auto', display: 'flex', flexDirection: 'column', borderRight: '1px solid rgba(255,255,255,0.06)' }} className="sidebar">
+      <div style={{ width: 216, minHeight: '100vh', background: '#F8F9FA', borderRight: '1px solid #E5E7EB', position: 'fixed', top: 0, left: sidebarOpen ? 0 : -216, zIndex: 50, transition: 'left 0.22s ease', overflowY: 'auto', display: 'flex', flexDirection: 'column' }} className="sidebar">
 
-        <div style={{ padding: '16px 12px 12px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-          <div style={{ color: '#FFFFFF', fontSize: 14, fontWeight: 700, letterSpacing: '-0.2px' }}>CourtBridge</div>
-          <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 2 }}>Provider Platform</div>
+        <div style={{ padding: '15px 16px 13px', borderBottom: '1px solid #E5E7EB' }}>
+          <div style={{ color: BLUE, fontSize: 15, fontWeight: 700, letterSpacing: '-0.3px' }}>CourtBridge</div>
+          <div style={{ color: '#9CA3AF', fontSize: 11, marginTop: 1 }}>Provider Platform</div>
         </div>
 
-        <div style={{ flex: 1, padding: '8px 0' }}>
+        <div style={{ flex: 1, paddingTop: 8, paddingBottom: 8 }}>
 
-          <div style={sectionLabel}>Overview</div>
-          <div style={ni('dashboard')} onClick={() => navTo('dashboard')}>Dashboard</div>
-          <div style={ni('calendar')} onClick={() => navTo('calendar')}>Calendar</div>
-
-          <div style={sectionLabel}>Compliance</div>
-          <div style={groupToggle('compliance')} onClick={() => toggleMenu('compliance')}>
-            <span>Client Compliance</span>
-            <span style={{ fontSize: 9, opacity: 0.6 }}>{expandedMenus.compliance ? '▲' : '▼'}</span>
+          <div style={navItem('dashboard')} onClick={() => navTo('dashboard')}>
+            <Ic d={ICONS.dashboard} /><span>Dashboard</span>
           </div>
-          {expandedMenus.compliance && (
-            <>
-              <div style={niSub('alerts')} onClick={() => navTo('alerts')}>Alerts</div>
-              <div style={niSub('checkin')} onClick={() => navTo('checkin')}>Check-Ins</div>
-              <div style={niSub('mapview')} onClick={() => navTo('mapview')}>Map View</div>
-              <div style={niSub('reports')} onClick={() => navTo('reports')}>Reports</div>
-              <div style={niSub('compliancechart')} onClick={() => navTo('compliancechart')}>Compliance Chart</div>
-              <div style={niSub('drugtests')} onClick={() => navTo('drugtests')}>Drug Tests</div>
-              <div style={niSub('violationreport')} onClick={() => navTo('violationreport')}>Violations</div>
-            </>
-          )}
-
-          <div style={sectionLabel}>Clients</div>
-          <div style={groupToggle('clients')} onClick={() => toggleMenu('clients')}>
-            <span>Client Management</span>
-            <span style={{ fontSize: 9, opacity: 0.6 }}>{expandedMenus.clients ? '▲' : '▼'}</span>
+          <div style={navItem('calendar')} onClick={() => navTo('calendar')}>
+            <Ic d={ICONS.calendar} /><span>Calendar</span>
           </div>
-          {expandedMenus.clients && (
-            <>
-              <div style={niSub('clients')} onClick={() => navTo('clients')}>All Clients</div>
-              <div style={niSub('messages')} onClick={() => navTo('messages')}>Messages</div>
-              <div style={niSub('contactlog')} onClick={() => navTo('contactlog')}>Contact Log</div>
-              <div style={niSub('meetinglog')} onClick={() => navTo('meetinglog')}>Meeting Log</div>
-              <div style={niSub('courtdates')} onClick={() => navTo('courtdates')}>Court Dates</div>
-              <div style={niSub('povisits')} onClick={() => navTo('povisits')}>PO Visits</div>
-              <div style={niSub('cpstracking')} onClick={() => navTo('cpstracking')}>CPS Tracking</div>
-            </>
-          )}
 
-          <div style={sectionLabel}>Operations</div>
-          <div style={groupToggle('operations')} onClick={() => toggleMenu('operations')}>
-            <span>Operations</span>
-            <span style={{ fontSize: 9, opacity: 0.6 }}>{expandedMenus.operations ? '▲' : '▼'}</span>
+          <div style={divider} />
+
+          <div style={groupRow('compliance')} onClick={() => toggleMenu('compliance')}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Ic d={ICONS.compliance} /><span>Compliance</span>
+            </div>
+            <Ic d={expandedMenus.compliance ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
           </div>
-          {expandedMenus.operations && (
-            <>
-              <div style={niSub('tasks')} onClick={() => navTo('tasks')}>Tasks</div>
-              <div style={niSub('programs')} onClick={() => navTo('programs')}>Programs</div>
-              <div style={niSub('sop')} onClick={() => navTo('sop')}>SOPs</div>
-              <div style={niSub('providerguide')} onClick={() => navTo('providerguide')}>Provider Guide</div>
-              <div style={niSub('policies')} onClick={() => navTo('policies')}>Policies</div>
-              <div style={niSub('legal')} onClick={() => navTo('legal')}>Legal</div>
-            </>
-          )}
+          {expandedMenus.compliance && <>
+            <div style={subItem('alerts')} onClick={() => navTo('alerts')}>Alerts</div>
+            <div style={subItem('checkin')} onClick={() => navTo('checkin')}>Check-Ins</div>
+            <div style={subItem('mapview')} onClick={() => navTo('mapview')}>Map View</div>
+            <div style={subItem('reports')} onClick={() => navTo('reports')}>Reports</div>
+            <div style={subItem('compliancechart')} onClick={() => navTo('compliancechart')}>Compliance Chart</div>
+            <div style={subItem('drugtests')} onClick={() => navTo('drugtests')}>Drug Tests</div>
+            <div style={subItem('violationreport')} onClick={() => navTo('violationreport')}>Violations</div>
+          </>}
 
-          <div style={sectionLabel}>Admin</div>
-          <div style={groupToggle('admin')} onClick={() => toggleMenu('admin')}>
-            <span>Administration</span>
-            <span style={{ fontSize: 9, opacity: 0.6 }}>{expandedMenus.admin ? '▲' : '▼'}</span>
+          <div style={divider} />
+
+          <div style={groupRow('clients')} onClick={() => toggleMenu('clients')}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Ic d={ICONS.clients} /><span>Clients</span>
+            </div>
+            <Ic d={expandedMenus.clients ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
           </div>
-          {expandedMenus.admin && (
-            <>
-              <div style={niSub('orgadmin')} onClick={() => navTo('orgadmin')}>Org Settings</div>
-              <div style={niSub('clientinvite')} onClick={() => navTo('clientinvite')}>Client Invites</div>
-            </>
-          )}
+          {expandedMenus.clients && <>
+            <div style={subItem('clients')} onClick={() => navTo('clients')}>All Clients</div>
+            <div style={subItem('messages')} onClick={() => navTo('messages')}>Messages</div>
+            <div style={subItem('contactlog')} onClick={() => navTo('contactlog')}>Contact Log</div>
+            <div style={subItem('meetinglog')} onClick={() => navTo('meetinglog')}>Meeting Log</div>
+            <div style={subItem('courtdates')} onClick={() => navTo('courtdates')}>Court Dates</div>
+            <div style={subItem('povisits')} onClick={() => navTo('povisits')}>PO Visits</div>
+            <div style={subItem('cpstracking')} onClick={() => navTo('cpstracking')}>CPS Tracking</div>
+          </>}
 
-          <div style={{ margin: '10px 0', borderTop: '1px solid rgba(255,255,255,0.07)' }} />
-          <div style={ni('affirmations')} onClick={() => navTo('affirmations')}>Wellness</div>
-          <div style={ni('settings')} onClick={() => navTo('settings')}>Settings</div>
+          <div style={divider} />
+
+          <div style={groupRow('operations')} onClick={() => toggleMenu('operations')}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Ic d={ICONS.operations} /><span>Operations</span>
+            </div>
+            <Ic d={expandedMenus.operations ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
+          </div>
+          {expandedMenus.operations && <>
+            <div style={subItem('tasks')} onClick={() => navTo('tasks')}>Tasks</div>
+            <div style={subItem('programs')} onClick={() => navTo('programs')}>Programs</div>
+            <div style={subItem('sop')} onClick={() => navTo('sop')}>SOPs</div>
+            <div style={subItem('providerguide')} onClick={() => navTo('providerguide')}>Provider Guide</div>
+            <div style={subItem('policies')} onClick={() => navTo('policies')}>Policies</div>
+            <div style={subItem('legal')} onClick={() => navTo('legal')}>Legal</div>
+          </>}
+
+          <div style={divider} />
+
+          <div style={groupRow('admin')} onClick={() => toggleMenu('admin')}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Ic d={ICONS.admin} /><span>Admin</span>
+            </div>
+            <Ic d={expandedMenus.admin ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
+          </div>
+          {expandedMenus.admin && <>
+            <div style={subItem('orgadmin')} onClick={() => navTo('orgadmin')}>Org Settings</div>
+            <div style={subItem('clientinvite')} onClick={() => navTo('clientinvite')}>Client Invites</div>
+          </>}
+
+          <div style={divider} />
+
+          <div style={navItem('affirmations')} onClick={() => navTo('affirmations')}>
+            <Ic d={ICONS.wellness} /><span>Wellness</span>
+          </div>
+          <div style={navItem('settings')} onClick={() => navTo('settings')}>
+            <Ic d={ICONS.settings} /><span>Settings</span>
+          </div>
         </div>
 
-        <div style={{ padding: '10px 0', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-          <div onClick={handleLogout} style={{ padding: '6px 10px', fontSize: 12, color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontFamily: NAV_FONT, letterSpacing: '0.01em' }}>Sign out</div>
+        <div style={{ padding: '10px 12px 12px', borderTop: '1px solid #E5E7EB' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 4px', marginBottom: 2 }}>
+            <div style={{ width: 26, height: 26, borderRadius: '50%', background: BLUE, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
+              {userInitial}
+            </div>
+            <span style={{ fontSize: 12, color: '#374151', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{userEmail}</span>
+          </div>
+          <div onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 4px', fontSize: 12, color: '#9CA3AF', cursor: 'pointer', borderRadius: 5, fontFamily: NAV_FONT }}>
+            <Ic d={ICONS.logout} size={13} /><span>Sign out</span>
+          </div>
         </div>
       </div>
 
       <div style={{ flex: 1, marginLeft: 0, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ background: '#fff', padding: '11px 20px', display: 'flex', alignItems: 'center', gap: 14, borderBottom: '1px solid #EAECF0', position: 'sticky', top: 0, zIndex: 30 }}>
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: BLUE, padding: '2px 4px', lineHeight: 1 }}>☰</button>
-          <div style={{ fontSize: 14, fontWeight: 600, color: BLUE, letterSpacing: '-0.1px' }}>CourtBridge Solutions</div>
+        <div style={{ background: '#fff', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid #E5E7EB', position: 'sticky', top: 0, zIndex: 30 }}>
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', padding: 4, display: 'flex', alignItems: 'center' }}>
+            <Ic d={ICONS.menu} size={17} />
+          </button>
+          <div style={{ fontSize: 14, fontWeight: 600, color: BLUE, letterSpacing: '-0.2px' }}>CourtBridge Solutions</div>
         </div>
         <div style={{ flex: 1, padding: 20 }}>{renderMain()}</div>
       </div>

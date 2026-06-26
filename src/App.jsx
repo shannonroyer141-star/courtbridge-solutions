@@ -33,6 +33,8 @@ import ViolationReport from './screens/ViolationReport';
 
 const BLUE = '#1B3A6B';
 
+const NAV_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+
 const isEnrollRoute = window.location.pathname === '/enroll' &&
   new URLSearchParams(window.location.search).has('token');
 
@@ -176,106 +178,146 @@ export default function App() {
     }
   }
 
-  const NavItem = ({ id, label, sub = false }) => (
-    <div onClick={() => navTo(id)} style={{
-      padding: sub ? '8px 16px 8px 32px' : '10px 16px',
-      fontSize: sub ? 13 : 14,
-      fontWeight: activeScreen === id ? 600 : 400,
-      color: activeScreen === id ? '#fff' : sub ? '#A8C4E0' : '#C8D8EE',
-      background: activeScreen === id ? 'rgba(255,255,255,0.15)' : 'transparent',
-      borderRadius: 6, cursor: 'pointer', marginBottom: 2,
-      borderLeft: activeScreen === id ? '3px solid #fff' : '3px solid transparent',
-    }}>
-      {label}
-    </div>
-  );
+  const ni = (id) => ({
+    display: 'block',
+    padding: '5px 10px',
+    fontSize: 13,
+    fontWeight: activeScreen === id ? 600 : 400,
+    color: activeScreen === id ? '#FFFFFF' : 'rgba(255,255,255,0.55)',
+    background: activeScreen === id ? 'rgba(255,255,255,0.1)' : 'transparent',
+    borderLeft: activeScreen === id ? '2px solid rgba(255,255,255,0.85)' : '2px solid transparent',
+    borderRadius: '0 5px 5px 0',
+    cursor: 'pointer',
+    letterSpacing: '0.01em',
+    transition: 'background 0.1s, color 0.1s',
+    fontFamily: NAV_FONT,
+  });
 
-  const MenuToggle = ({ menu, label }) => (
-    <div onClick={() => toggleMenu(menu)} style={{ padding: '10px 16px', fontSize: 14, color: '#C8D8EE', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
-      <span>{label}</span>
-      <span style={{ fontSize: 10, opacity: 0.7 }}>{expandedMenus[menu] ? '▲' : '▼'}</span>
-    </div>
-  );
+  const niSub = (id) => ({
+    ...ni(id),
+    padding: '4px 10px 4px 22px',
+    fontSize: 12,
+    color: activeScreen === id ? '#FFFFFF' : 'rgba(255,255,255,0.45)',
+  });
+
+  const sectionLabel = {
+    padding: '14px 10px 4px',
+    fontSize: 10,
+    fontWeight: 600,
+    color: 'rgba(255,255,255,0.3)',
+    textTransform: 'uppercase',
+    letterSpacing: '0.08em',
+    fontFamily: NAV_FONT,
+    userSelect: 'none',
+  };
+
+  const groupToggle = (menu) => ({
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '5px 10px',
+    fontSize: 13,
+    color: expandedMenus[menu] ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.5)',
+    cursor: 'pointer',
+    fontFamily: NAV_FONT,
+    letterSpacing: '0.01em',
+    borderLeft: '2px solid transparent',
+  });
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: 'Arial, sans-serif', background: '#F5F6F8' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: NAV_FONT, background: '#F5F6F8' }}>
 
-      {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 40 }} />}
+      {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', zIndex: 40 }} />}
 
-      <div style={{ width: 220, minHeight: '100vh', background: BLUE, position: 'fixed', top: 0, left: sidebarOpen ? 0 : -220, zIndex: 50, transition: 'left 0.25s', overflowY: 'auto', display: 'flex', flexDirection: 'column' }} className="sidebar">
-        <div style={{ padding: '20px 16px 16px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-          <div style={{ color: '#fff', fontSize: 15, fontWeight: 700 }}>CourtBridge Solutions</div>
-          <div style={{ color: '#A8C4E0', fontSize: 11, marginTop: 2 }}>Provider Platform</div>
+      <div style={{ width: 216, minHeight: '100vh', background: BLUE, position: 'fixed', top: 0, left: sidebarOpen ? 0 : -216, zIndex: 50, transition: 'left 0.22s ease', overflowY: 'auto', display: 'flex', flexDirection: 'column', borderRight: '1px solid rgba(255,255,255,0.06)' }} className="sidebar">
+
+        <div style={{ padding: '16px 12px 12px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+          <div style={{ color: '#FFFFFF', fontSize: 14, fontWeight: 700, letterSpacing: '-0.2px' }}>CourtBridge</div>
+          <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 2 }}>Provider Platform</div>
         </div>
 
-        <div style={{ flex: 1, padding: '12px 8px' }}>
-          <NavItem id="dashboard" label="Dashboard" />
-          <NavItem id="calendar" label="Calendar" />
+        <div style={{ flex: 1, padding: '8px 0' }}>
 
-          <MenuToggle menu="compliance" label="Client Compliance" />
+          <div style={sectionLabel}>Overview</div>
+          <div style={ni('dashboard')} onClick={() => navTo('dashboard')}>Dashboard</div>
+          <div style={ni('calendar')} onClick={() => navTo('calendar')}>Calendar</div>
+
+          <div style={sectionLabel}>Compliance</div>
+          <div style={groupToggle('compliance')} onClick={() => toggleMenu('compliance')}>
+            <span>Client Compliance</span>
+            <span style={{ fontSize: 9, opacity: 0.6 }}>{expandedMenus.compliance ? '▲' : '▼'}</span>
+          </div>
           {expandedMenus.compliance && (
             <>
-              <NavItem id="alerts" label="Alerts" sub />
-              <NavItem id="checkin" label="Check-Ins" sub />
-              <NavItem id="mapview" label="Map View" sub />
-              <NavItem id="reports" label="Reports" sub />
-              <NavItem id="compliancechart" label="Compliance Chart" sub />
-              <NavItem id="drugtests" label="Drug Tests" sub />
-              <NavItem id="violationreport" label="Violations" sub />
+              <div style={niSub('alerts')} onClick={() => navTo('alerts')}>Alerts</div>
+              <div style={niSub('checkin')} onClick={() => navTo('checkin')}>Check-Ins</div>
+              <div style={niSub('mapview')} onClick={() => navTo('mapview')}>Map View</div>
+              <div style={niSub('reports')} onClick={() => navTo('reports')}>Reports</div>
+              <div style={niSub('compliancechart')} onClick={() => navTo('compliancechart')}>Compliance Chart</div>
+              <div style={niSub('drugtests')} onClick={() => navTo('drugtests')}>Drug Tests</div>
+              <div style={niSub('violationreport')} onClick={() => navTo('violationreport')}>Violations</div>
             </>
           )}
 
-          <MenuToggle menu="clients" label="Clients" />
+          <div style={sectionLabel}>Clients</div>
+          <div style={groupToggle('clients')} onClick={() => toggleMenu('clients')}>
+            <span>Client Management</span>
+            <span style={{ fontSize: 9, opacity: 0.6 }}>{expandedMenus.clients ? '▲' : '▼'}</span>
+          </div>
           {expandedMenus.clients && (
             <>
-              <NavItem id="clients" label="All Clients" sub />
-              <NavItem id="messages" label="Messages" sub />
-              <NavItem id="contactlog" label="Contact Log" sub />
-              <NavItem id="meetinglog" label="Meeting Log" sub />
-              <NavItem id="courtdates" label="Court Dates" sub />
-              <NavItem id="povisits" label="PO Visits" sub />
-              <NavItem id="cpstracking" label="CPS Tracking" sub />
+              <div style={niSub('clients')} onClick={() => navTo('clients')}>All Clients</div>
+              <div style={niSub('messages')} onClick={() => navTo('messages')}>Messages</div>
+              <div style={niSub('contactlog')} onClick={() => navTo('contactlog')}>Contact Log</div>
+              <div style={niSub('meetinglog')} onClick={() => navTo('meetinglog')}>Meeting Log</div>
+              <div style={niSub('courtdates')} onClick={() => navTo('courtdates')}>Court Dates</div>
+              <div style={niSub('povisits')} onClick={() => navTo('povisits')}>PO Visits</div>
+              <div style={niSub('cpstracking')} onClick={() => navTo('cpstracking')}>CPS Tracking</div>
             </>
           )}
 
-          <MenuToggle menu="operations" label="Operations" />
+          <div style={sectionLabel}>Operations</div>
+          <div style={groupToggle('operations')} onClick={() => toggleMenu('operations')}>
+            <span>Operations</span>
+            <span style={{ fontSize: 9, opacity: 0.6 }}>{expandedMenus.operations ? '▲' : '▼'}</span>
+          </div>
           {expandedMenus.operations && (
             <>
-              <NavItem id="tasks" label="Tasks" sub />
-              <NavItem id="programs" label="Programs" sub />
-              <NavItem id="sop" label="SOPs" sub />
-              <NavItem id="providerguide" label="Provider Guide" sub />
-              <NavItem id="policies" label="Policies" sub />
-              <NavItem id="legal" label="Legal" sub />
+              <div style={niSub('tasks')} onClick={() => navTo('tasks')}>Tasks</div>
+              <div style={niSub('programs')} onClick={() => navTo('programs')}>Programs</div>
+              <div style={niSub('sop')} onClick={() => navTo('sop')}>SOPs</div>
+              <div style={niSub('providerguide')} onClick={() => navTo('providerguide')}>Provider Guide</div>
+              <div style={niSub('policies')} onClick={() => navTo('policies')}>Policies</div>
+              <div style={niSub('legal')} onClick={() => navTo('legal')}>Legal</div>
             </>
           )}
 
-          <MenuToggle menu="admin" label="Admin" />
+          <div style={sectionLabel}>Admin</div>
+          <div style={groupToggle('admin')} onClick={() => toggleMenu('admin')}>
+            <span>Administration</span>
+            <span style={{ fontSize: 9, opacity: 0.6 }}>{expandedMenus.admin ? '▲' : '▼'}</span>
+          </div>
           {expandedMenus.admin && (
             <>
-              <NavItem id="orgadmin" label="Org Settings" sub />
-              <NavItem id="clientinvite" label="Client Invites" sub />
+              <div style={niSub('orgadmin')} onClick={() => navTo('orgadmin')}>Org Settings</div>
+              <div style={niSub('clientinvite')} onClick={() => navTo('clientinvite')}>Client Invites</div>
             </>
           )}
 
-          <NavItem id="affirmations" label="Wellness" />
-          <NavItem id="settings" label="Settings" />
-
-          <div style={{ margin: '12px 0', borderTop: '1px solid rgba(255,255,255,0.1)' }} />
-          <div style={{ padding: '6px 16px', fontSize: 11, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Coming Soon</div>
-          <div style={{ padding: '8px 16px', fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Phase 2 — Assessments</div>
-          <div style={{ padding: '8px 16px', fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>Phase 3 — Court Portal</div>
+          <div style={{ margin: '10px 0', borderTop: '1px solid rgba(255,255,255,0.07)' }} />
+          <div style={ni('affirmations')} onClick={() => navTo('affirmations')}>Wellness</div>
+          <div style={ni('settings')} onClick={() => navTo('settings')}>Settings</div>
         </div>
 
-        <div style={{ padding: '12px 8px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-          <div onClick={handleLogout} style={{ padding: '10px 16px', fontSize: 13, color: '#A8C4E0', cursor: 'pointer', borderRadius: 6 }}>Sign Out</div>
+        <div style={{ padding: '10px 0', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+          <div onClick={handleLogout} style={{ padding: '6px 10px', fontSize: 12, color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontFamily: NAV_FONT, letterSpacing: '0.01em' }}>Sign out</div>
         </div>
       </div>
 
       <div style={{ flex: 1, marginLeft: 0, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ background: '#fff', padding: '12px 20px', display: 'flex', alignItems: 'center', gap: 16, borderBottom: '1px solid #eee', position: 'sticky', top: 0, zIndex: 30 }}>
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: BLUE, padding: 4 }}>☰</button>
-          <div style={{ fontSize: 15, fontWeight: 600, color: BLUE }}>CourtBridge Solutions</div>
+        <div style={{ background: '#fff', padding: '11px 20px', display: 'flex', alignItems: 'center', gap: 14, borderBottom: '1px solid #EAECF0', position: 'sticky', top: 0, zIndex: 30 }}>
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: BLUE, padding: '2px 4px', lineHeight: 1 }}>☰</button>
+          <div style={{ fontSize: 14, fontWeight: 600, color: BLUE, letterSpacing: '-0.1px' }}>CourtBridge Solutions</div>
         </div>
         <div style={{ flex: 1, padding: 20 }}>{renderMain()}</div>
       </div>
@@ -283,7 +325,7 @@ export default function App() {
       <style>{`
         @media (min-width: 768px) {
           .sidebar { left: 0 !important; }
-          .sidebar + div { margin-left: 220px !important; }
+          .sidebar + div { margin-left: 216px !important; }
         }
       `}</style>
     </div>

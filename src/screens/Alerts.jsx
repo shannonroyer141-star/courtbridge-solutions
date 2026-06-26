@@ -1,158 +1,109 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '../supabase';
+import { useState, useEffect } from 'react'
+import { supabase } from '../supabase'
 
-export default function Alerts() {
-  const [clients, setClients] = useState([]);
-  const [checkIns, setCheckIns] = useState([]);
-  const [activeTab, setActiveTab] = useState('24h');
-  const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState({});
-  const [actionDone, setActionDone] = useState({});
-  const [currentUser, setCurrentUser] = useState(null);
+export default function Alerts({ session }) {
+  const [alerts, setAlerts] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchAlerts() }, [])
 
-  async function fetchData() {
-    setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    setCurrentUser(user);
-
-    // Only fetch clients belonging to this provider
-    const { data: clientData } = await supabase
+  async function fetchAlerts() {
+    setLoading(true)
+    const { data: clients } = await supabase
       .from('clients')
-      .select('*')
-      .eq('provider_id', user.id);
+      .select('id, name, program_type, check_in_frequency_days')
+      .eq('provider_id', session.user.id)
+      .eq('status', 'active')
 
-    // Only fetch check-ins for this provider's clients
-    const clientIds = (clientData || []).map(c => c.id);
-    let checkInData = [];
-    if (clientIds.length > 0) {
-      const { data } = await supabase
-        .from('checkins')
-        .select('*')
-        .in('client_id', clientIds)
-        .order('checked_in_at', { ascending: false });
-      checkInData = data || [];
+    if (!clients || clients.length === 0) { setAlerts([]); setLoading(false); return }
+
+    const missed = []
+    for (const client of clients) {
+      const freqDays = client.check_in_frequency_days || 1
+      const cutoff = new Date()
+      cutoff.setDate(cutoff.getDate() - freqDays)
+
+      const { data: recentCheckin } = await supabase
+        .from('check_ins')
+        .select('checked_in_at')
+        .eq('client_id', client.id)
+        .gte('checked_in_at', cutoff.toISOString())
+        .order('checked_in_at', { ascending: false })
+        .limit(1)
+
+      if (!recentCheckin || recentCheckin.length === 0) {
+        const { data: lastCheckin } = await supabase
+          .from('check_ins')
+          .select('checked_in_at')
+          .eq('client_id', client.id)
+          .order('checked_in_at', { ascending: false })
+          .limit(1)
+
+        missed.push({
+          client,
+          lastCheckin: lastCheckin?.[0]?.checked_in_at || null,
+          daysMissed: lastCheckin?.[0]
+            ? Math.floor((new Date() - new Date(lastCheckin[0].checked_in_at)) / 86400000)
+            : null
+        })
+      }
     }
-
-    setClients(clientData || []);
-    setCheckIns(checkInData);
-    setLoading(false);
+    setAlerts(missed)
+    setLoading(false)
   }
 
-  function getClientStatus(client, windowHours) {
-    const cutoff = new Date(Date.now() - windowHours * 60 * 60 * 1000);
-    const recent = checkIns.find(c => c.client_id === client.id && new Date(c.checked_in_at) >= cutoff);
-    return recent ? 'compliant' : 'missed';
-  }
-
-  function getWindowHours(tab) {
-    if (tab === '24h') return 24;
-    if (tab === '48h') return 48;
-    return 72;
-  }
-
-  async function handleContactClient(client) {
-    setActionLoading(prev => ({ ...prev, [client.id]: true }));
-    await supabase.from('contact_log').insert([{ client_id: client.id, provider_id: currentUser?.id, contact_type: 'Missed Check-In Follow-Up', initiated_by: 'provider', outcome: 'Pending', notes: 'Auto: missed 24hr window. Logged ' + new Date().toLocaleString() }]);
-    await supabase.from('alerts').insert([{ client_id: client.id, provider_id: currentUser?.id, alert_type: 'missed_checkin', message: client.name + ' missed check-in (24hr). Contact attempted.', resolved: false }]);
-    setActionLoading(prev => ({ ...prev, [client.id]: false }));
-    setActionDone(prev => ({ ...prev, [client.id]: 'contacted' }));
-  }
-
-  async function handleNotifyPO(client) {
-    setActionLoading(prev => ({ ...prev, [client.id]: true }));
-    await supabase.from('contact_log').insert([{ client_id: client.id, provider_id: currentUser?.id, contact_type: 'PO Notification - Missed Check-In', initiated_by: 'provider', outcome: 'Notified', notes: 'Auto: missed 48hr window. PO notified ' + new Date().toLocaleString() }]);
-    await supabase.from('alerts').insert([{ client_id: client.id, provider_id: currentUser?.id, alert_type: 'missed_checkin', message: client.name + ' missed check-in (48hr). PO notified.', resolved: false }]);
-    setActionLoading(prev => ({ ...prev, [client.id]: false }));
-    setActionDone(prev => ({ ...prev, [client.id]: 'notified' }));
-  }
-
-  async function handleFlagForCourt(client) {
-    setActionLoading(prev => ({ ...prev, [client.id]: true }));
-    await supabase.from('violation_reports').insert([{ client_id: client.id, provider_id: currentUser?.id, violation_type: 'Missed Check-In', description: client.name + ' has not checked in within 72 hours.', missed_checkins: 1, recommended_action: 'Court notification and possible violation hearing', status: 'draft' }]);
-    await supabase.from('alerts').insert([{ client_id: client.id, provider_id: currentUser?.id, alert_type: 'missed_checkin', message: client.name + ' missed check-in (72hr). Violation report created.', resolved: false }]);
-    setActionLoading(prev => ({ ...prev, [client.id]: false }));
-    setActionDone(prev => ({ ...prev, [client.id]: 'flagged' }));
-  }
-
-  const tabs = [
-    { key: '24h', label: '24 Hours', urgency: 'Contact client immediately', action: 'Contact Client', handler: handleContactClient, doneLabel: 'Contacted', borderColor: '#F39C12', bgColor: '#FEF9EC', badgeBg: '#FEF3CD', badgeText: '#B7770D', buttonBg: '#F39C12' },
-    { key: '48h', label: '48 Hours', urgency: 'Notify probation officer', action: 'Notify PO', handler: handleNotifyPO, doneLabel: 'PO Notified', borderColor: '#E67E22', bgColor: '#FDF0E8', badgeBg: '#FCDDC7', badgeText: '#9A4B10', buttonBg: '#E67E22' },
-    { key: '72h', label: '72 Hours', urgency: 'Contact court - possible violation', action: 'Flag for Court', handler: handleFlagForCourt, doneLabel: 'Flagged', borderColor: '#C0392B', bgColor: '#FDECEA', badgeBg: '#F5C6CB', badgeText: '#7B1A14', buttonBg: '#C0392B' },
-  ];
-
-  const activeConfig = tabs.find(t => t.key === activeTab);
-  const windowHours = getWindowHours(activeTab);
-  const missedClients = clients.filter(c => getClientStatus(c, windowHours) === 'missed');
-  const compliantClients = clients.filter(c => getClientStatus(c, windowHours) === 'compliant');
+  const BLUE = '#1B3A6B'
 
   return (
-    <div style={{ padding: '30px', maxWidth: '800px' }}>
-      <h1 style={{ color: '#1B3A6B', marginBottom: '8px' }}>Alerts</h1>
-      <p style={{ color: '#8A9BB0', marginBottom: '24px', marginTop: '10px' }}>Client check-in compliance — take action directly from this screen</p>
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '24px', justifyContent: 'center' }}>
-        {tabs.map(tab => (
-          <button key={tab.key} onClick={() => setActiveTab(tab.key)} style={{ padding: '10px 22px', borderRadius: '8px', border: activeTab === tab.key ? '2px solid ' + tab.borderColor : '2px solid #e8ecf2', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px', background: activeTab === tab.key ? tab.borderColor : 'white', color: activeTab === tab.key ? 'white' : '#555' }}>
-            {tab.label}
-          </button>
-        ))}
+    <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: 700, margin: '0 auto' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+        <div>
+          <div style={{ fontSize: 22, fontWeight: 700, color: BLUE }}>Missed Check-In Alerts</div>
+          <div style={{ fontSize: 14, color: '#6B7280', marginTop: 2 }}>Participants who have not checked in on schedule</div>
+        </div>
+        <button onClick={fetchAlerts} style={{ padding: '8px 16px', background: BLUE, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}>
+          Refresh
+        </button>
       </div>
-      {loading ? <p style={{ color: '#8A9BB0' }}>Loading...</p> : (
-        <>
-          {missedClients.length === 0 && (
-            <div style={{ background: '#eafaf1', border: '1px solid #a9dfbf', borderRadius: '10px', padding: '14px 20px', marginBottom: '20px', fontWeight: 'bold', color: '#1e8449', fontSize: '15px', textAlign: 'center' }}>
-              All clients have checked in within the last {activeTab}.
-            </div>
-          )}
-          {missedClients.length > 0 && (
-            <div style={{ background: activeConfig.bgColor, border: '1px solid ' + activeConfig.borderColor, borderLeft: '5px solid ' + activeConfig.borderColor, borderRadius: '10px', padding: '14px 20px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '22px' }}>🚨</span>
-              <div>
-                <p style={{ margin: 0, fontWeight: 'bold', color: activeConfig.badgeText, fontSize: '15px' }}>{missedClients.length} client{missedClients.length > 1 ? 's have' : ' has'} not checked in within {activeTab}</p>
-                <p style={{ margin: '2px 0 0', fontSize: '13px', color: activeConfig.badgeText }}>Required action: {activeConfig.urgency}</p>
+
+      {loading && <div style={{ color: '#6B7280', fontSize: 15 }}>Loading alerts...</div>}
+
+      {!loading && alerts.length === 0 && (
+        <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 12, padding: 32, textAlign: 'center' }}>
+          <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
+          <div style={{ fontSize: 18, fontWeight: 600, color: '#166534' }}>All participants are current</div>
+          <div style={{ fontSize: 14, color: '#4ADE80', marginTop: 4 }}>No missed check-ins to report</div>
+        </div>
+      )}
+
+      {!loading && alerts.length > 0 && (
+        <div>
+          <div style={{ background: '#FEF3C7', border: '1px solid #FCD34D', borderRadius: 10, padding: '12px 16px', marginBottom: 20, fontSize: 14, color: '#92400E' }}>
+            ⚠ {alerts.length} participant{alerts.length !== 1 ? 's have' : ' has'} missed a scheduled check-in
+          </div>
+          {alerts.map(({ client, lastCheckin, daysMissed }) => (
+            <div key={client.id} style={{ background: '#fff', border: '1px solid #FCA5A5', borderLeft: '4px solid #EF4444', borderRadius: 10, padding: 20, marginBottom: 12, boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#111827' }}>{client.name}</div>
+                  <div style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>{client.program_type || 'Program not set'}</div>
+                </div>
+                <div style={{ background: '#FEE2E2', color: '#991B1B', borderRadius: 20, padding: '4px 12px', fontSize: 12, fontWeight: 700 }}>
+                  MISSED
+                </div>
+              </div>
+              <div style={{ marginTop: 12, fontSize: 13, color: '#6B7280' }}>
+                {lastCheckin
+                  ? <>Last check-in: <strong>{new Date(lastCheckin).toLocaleDateString([], { dateStyle: 'medium' })}</strong> · {daysMissed} day{daysMissed !== 1 ? 's' : ''} ago</>
+                  : 'No check-ins on record'}
+              </div>
+              <div style={{ marginTop: 4, fontSize: 13, color: '#6B7280' }}>
+                Required every <strong>{client.check_in_frequency_days || 1} day{(client.check_in_frequency_days || 1) !== 1 ? 's' : ''}</strong>
               </div>
             </div>
-          )}
-          {missedClients.length > 0 && (
-            <div style={{ marginBottom: '30px' }}>
-              <p style={{ fontWeight: 'bold', color: '#2C3E50', marginBottom: '10px', fontSize: '13px', textTransform: 'uppercase' }}>Missed — {missedClients.length} client{missedClients.length > 1 ? 's' : ''}</p>
-              {missedClients.map(client => (
-                <div key={client.id} style={{ background: activeConfig.bgColor, border: '1px solid ' + activeConfig.borderColor, borderLeft: '5px solid ' + activeConfig.borderColor, borderRadius: '10px', padding: '16px 20px', marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <p style={{ margin: 0, fontWeight: 'bold', color: '#2C3E50', fontSize: '15px' }}>{client.name || 'Unknown'}</p>
-                    <p style={{ margin: '4px 0 0', fontSize: '13px', color: activeConfig.badgeText }}>{activeConfig.urgency}</p>
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <span style={{ background: activeConfig.badgeBg, color: activeConfig.badgeText, padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>MISSED</span>
-                    {actionDone[client.id] ? (
-                      <span style={{ background: '#eafaf1', color: '#1e8449', padding: '6px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold' }}>{activeConfig.doneLabel}</span>
-                    ) : (
-                      <button onClick={() => activeConfig.handler(client)} disabled={actionLoading[client.id]} style={{ background: actionLoading[client.id] ? '#aaa' : activeConfig.buttonBg, color: 'white', border: 'none', borderRadius: '6px', padding: '6px 14px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
-                        {actionLoading[client.id] ? 'Saving...' : activeConfig.action}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          {compliantClients.length > 0 && (
-            <div>
-              <p style={{ fontWeight: 'bold', color: '#2C3E50', marginBottom: '10px', fontSize: '13px', textTransform: 'uppercase' }}>Compliant — {compliantClients.length} client{compliantClients.length > 1 ? 's' : ''}</p>
-              {compliantClients.map(client => (
-                <div key={client.id} style={{ background: '#eafaf1', border: '1px solid #a9dfbf', borderLeft: '5px solid #27AE60', borderRadius: '10px', padding: '16px 20px', marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <p style={{ margin: 0, fontWeight: 'bold', color: '#2C3E50', fontSize: '15px' }}>{client.name || 'Unknown'}</p>
-                    <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#1e8449' }}>Checked in within {activeTab}</p>
-                  </div>
-                  <span style={{ background: '#d5f5e3', color: '#1e8449', padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>COMPLIANT</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </>
+          ))}
+        </div>
       )}
     </div>
-  );
+  )
 }

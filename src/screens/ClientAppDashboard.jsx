@@ -104,9 +104,9 @@ function StreakRing({ streak }) {
   )
 }
 
-function SidebarItem({ icon, label, active, badge }) {
+function SidebarItem({ icon, label, active, badge, onClick }) {
   return (
-    <div style={{
+    <div onClick={onClick} style={{
       display: 'flex', alignItems: 'center', gap: 10, padding: '8px 18px',
       fontSize: 13, color: active ? TEXT : 'rgba(255,255,255,0.55)',
       background: active ? 'rgba(91,155,240,0.12)' : 'transparent',
@@ -155,7 +155,7 @@ function ListRow({ icon, iconBg, iconColor, title, meta, badgeText, badgeColor, 
   )
 }
 
-export default function ClientAppDashboard({ onNavigate }) {
+export default function ClientAppDashboard({ session, clientName = 'there', onNavigate, onLogout }) {
   const [client, setClient] = useState(null)
   const [checkIns, setCheckIns] = useState([])
   const [courtDates, setCourtDates] = useState([])
@@ -165,6 +165,7 @@ export default function ClientAppDashboard({ onNavigate }) {
   const [isFirstTime, setIsFirstTime] = useState(false)
   const [checkingIn, setCheckingIn] = useState(false)
   const [checkInMsg, setCheckInMsg] = useState(null)
+  const [activeTab, setActiveTab] = useState('dashboard')
 
   useEffect(() => {
     fetchClientData()
@@ -173,37 +174,61 @@ export default function ClientAppDashboard({ onNavigate }) {
 
   async function fetchClientData() {
     setLoading(true)
-    const { data: { user } } = await supabase.auth.getUser()
+    const userId = session?.user?.id
+    if (!userId) { setLoading(false); return }
 
-    const { data: clientData } = await supabase
+    // Try to find client by auth_user_id first, then by email
+    let clientData = null
+    const { data: byUserId } = await supabase
       .from('clients')
       .select('*')
-      .eq('email', user.email)
+      .eq('auth_user_id', userId)
       .single()
+
+    if (byUserId) {
+      clientData = byUserId
+    } else {
+      const { data: byEmail } = await supabase
+        .from('clients')
+        .select('*')
+        .eq('email', session.user.email)
+        .single()
+      if (byEmail) clientData = byEmail
+    }
 
     if (clientData) {
       setClient(clientData)
       setIsFirstTime(!clientData.onboarding_complete)
     } else {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
-      if (profile) {
-        setClient({ ...profile, name: profile.full_name })
-        setIsFirstTime(!profile.onboarding_complete)
-      } else {
-        setIsFirstTime(true)
-      }
+      setIsFirstTime(true)
     }
 
-    const { data: ci } = await supabase.from('checkins').select('*').eq('client_id', user.id).order('checked_in_at', { ascending: false }).limit(10)
+    const { data: ci } = await supabase
+      .from('check_ins')
+      .select('*')
+      .eq('client_id', userId)
+      .order('checked_in_at', { ascending: false })
+      .limit(10)
     if (ci) setCheckIns(ci)
-    const { data: cd } = await supabase.from('court_dates').select('*').eq('client_id', user.id).gte('hearing_date', new Date().toISOString().split('T')[0]).order('hearing_date').limit(5)
+
+    const { data: cd } = await supabase
+      .from('court_dates')
+      .select('*')
+      .eq('client_id', userId)
+      .gte('hearing_date', new Date().toISOString().split('T')[0])
+      .order('hearing_date')
+      .limit(5)
     if (cd) setCourtDates(cd)
-    const { data: tk } = await supabase.from('tasks').select('*').eq('client_id', user.id).eq('completed', false).order('due_date').limit(5)
+
+    const { data: tk } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('client_id', userId)
+      .eq('completed', false)
+      .order('due_date')
+      .limit(5)
     if (tk) setTasks(tk)
+
     setLoading(false)
   }
 
@@ -212,34 +237,29 @@ export default function ClientAppDashboard({ onNavigate }) {
     setCheckingIn(true)
     setCheckInMsg(null)
     try {
-      const { data: { user } } = await supabase.auth.getUser()
+      const userId = session?.user?.id
       const now = new Date().toISOString()
       const pos = await new Promise((resolve, reject) =>
         navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 })
       )
       const { latitude, longitude } = pos.coords
-      const { error } = await supabase.from('checkins').insert({
-        client_id: user.id,
+      const { error } = await supabase.from('check_ins').insert({
+        client_id: userId,
         provider_id: client?.provider_id,
         checked_in_at: now,
         latitude,
         longitude,
-        location_name: 'GPS verified',
-        status: 'on_time',
+        gps_accuracy_meters: Math.round(pos.coords.accuracy),
+        notes: null,
       })
       if (error) throw error
       setCheckInMsg({ type: 'success', text: 'Check-in complete! Location recorded.' })
       fetchClientData()
     } catch (err) {
-      if (err.code === 1) {
-        setCheckInMsg({ type: 'error', text: 'Location access denied. Please enable GPS in your browser settings.' })
-      } else if (err.code === 2) {
-        setCheckInMsg({ type: 'error', text: 'Could not get your location. Please try again.' })
-      } else if (err.code === 3) {
-        setCheckInMsg({ type: 'error', text: 'Location request timed out. Please try again.' })
-      } else {
-        setCheckInMsg({ type: 'error', text: 'Something went wrong. Please try again.' })
-      }
+      if (err.code === 1) setCheckInMsg({ type: 'error', text: 'Location access denied. Please enable GPS.' })
+      else if (err.code === 2) setCheckInMsg({ type: 'error', text: 'Could not get your location. Please try again.' })
+      else if (err.code === 3) setCheckInMsg({ type: 'error', text: 'Location request timed out. Please try again.' })
+      else setCheckInMsg({ type: 'error', text: 'Something went wrong. Please try again.' })
     } finally {
       setCheckingIn(false)
     }
@@ -250,7 +270,10 @@ export default function ClientAppDashboard({ onNavigate }) {
     : POPULATION_CONFIG.other
 
   const isCatch = client?.population_type === 'catch_court'
-  const firstName = client?.name?.split(' ')[0] || client?.full_name?.split(' ')[0] || 'there'
+
+  // Use clientName prop passed from App.jsx, fall back to client record, then 'there'
+  const firstName = client?.name?.split(' ')[0] || clientName || 'there'
+
   const affirmation = pop.affirmations[affirmationIndex % pop.affirmations.length]
   const checkedInToday = checkIns.some(c => new Date(c.checked_in_at).toDateString() === new Date().toDateString())
   const streak = checkIns.reduce((acc, ci, i, arr) => {
@@ -292,25 +315,33 @@ export default function ClientAppDashboard({ onNavigate }) {
     <div style={{ display: 'flex', minHeight: '100vh', background: DARK_BG, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
 
       {/* SIDEBAR */}
-      <div style={{ width: 200, background: SIDEBAR_BG, display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+      <div style={{ width: 200, background: SIDEBAR_BG, display: 'flex', flexDirection: 'column', flexShrink: 0, minHeight: '100vh' }}>
         <div style={{ padding: '22px 18px 18px', borderBottom: `0.5px solid rgba(255,255,255,0.08)` }}>
           <div style={{ fontSize: 14, fontWeight: 500, color: TEXT }}>CourtBridge Solutions</div>
           <div style={{ fontSize: 10, color: TEXT_MUTED, marginTop: 2 }}>My portal</div>
         </div>
+
         <div style={{ fontSize: 10, fontWeight: 500, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', padding: '14px 18px 5px' }}>My progress</div>
-        <SidebarItem icon="⊞" label="Dashboard" active />
-        <SidebarItem icon="📋" label="My history" />
+        <SidebarItem icon="⊞" label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
+        <SidebarItem icon="📋" label="My history" active={activeTab === 'history'} onClick={() => setActiveTab('history')} />
+        <SidebarItem icon="📍" label="Check In" active={activeTab === 'checkin'} onClick={() => onNavigate && onNavigate('checkin')} />
+
         <div style={{ fontSize: 10, fontWeight: 500, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', padding: '14px 18px 5px' }}>My case</div>
-        <SidebarItem icon="📄" label="My documents" />
-        <SidebarItem icon="💬" label="Messages" />
-        <div style={{ marginTop: 'auto', padding: '14px 18px', borderTop: `0.5px solid rgba(255,255,255,0.08)`, display: 'flex', alignItems: 'center', gap: 9 }}>
-          <div style={{ width: 30, height: 30, borderRadius: '50%', background: BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 500, color: TEXT, flexShrink: 0 }}>
-            {firstName.charAt(0)}{client?.name?.split(' ')[1]?.charAt(0) || ''}
+        <SidebarItem icon="📄" label="My documents" active={activeTab === 'documents'} onClick={() => setActiveTab('documents')} />
+        <SidebarItem icon="💬" label="Messages" active={activeTab === 'messages'} onClick={() => setActiveTab('messages')} />
+        <SidebarItem icon="📅" label="Court dates" active={activeTab === 'courtdates'} onClick={() => setActiveTab('courtdates')} />
+
+        <div style={{ marginTop: 'auto', padding: '14px 18px', borderTop: `0.5px solid rgba(255,255,255,0.08)` }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 10 }}>
+            <div style={{ width: 30, height: 30, borderRadius: '50%', background: BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 500, color: TEXT, flexShrink: 0 }}>
+              {firstName.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <div style={{ fontSize: 12, color: TEXT }}>{firstName}</div>
+              <div style={{ fontSize: 10, color: TEXT_MUTED }}>{pop.label}</div>
+            </div>
           </div>
-          <div>
-            <div style={{ fontSize: 12, color: TEXT }}>{firstName}</div>
-            <div style={{ fontSize: 10, color: TEXT_MUTED }}>{pop.label}</div>
-          </div>
+          <div onClick={onLogout} style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', cursor: 'pointer', paddingTop: 4 }}>Sign out</div>
         </div>
       </div>
 
@@ -325,12 +356,12 @@ export default function ClientAppDashboard({ onNavigate }) {
           <div style={{ width: 32, height: 32, borderRadius: '50%', background: CARD_BG, border: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, color: TEXT_MUTED }}>🔔</div>
         </div>
 
-        {/* Hero */}
+        {/* Hero check-in */}
         <div style={{ margin: '16px 22px 0', background: BLUE, borderRadius: 12, padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 20, border: `0.5px solid rgba(91,155,240,0.2)` }}>
           <StreakRing streak={streak} />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 15, fontWeight: 500, color: TEXT }}>
-              {checkedInToday ? `You checked in today — ${streak} week streak!` : `You are on a ${streak}-week check-in streak`}
+              {checkedInToday ? `You checked in today — ${streak} day streak!` : `You are on a ${streak}-day check-in streak`}
             </div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', marginTop: 4, lineHeight: 1.5 }}>
               {nextApptDate
@@ -457,7 +488,7 @@ function FirstTimeWelcome({ name, onDone }) {
     },
     {
       title: 'Daily Check-Ins',
-      body: `Your program requires regular check-ins. Open the sidebar, tap Check In, and your location is captured and recorded automatically.`,
+      body: `Your program requires regular check-ins. Use the sidebar to tap Check In — your location is captured and recorded automatically.`,
       cta: 'Next'
     },
     {
@@ -485,11 +516,15 @@ function FirstTimeWelcome({ name, onDone }) {
       <div style={{ background: CARD_BG, borderRadius: 16, padding: '36px 32px', maxWidth: 380, width: '100%', textAlign: 'center', border: `0.5px solid ${BORDER}` }}>
         <div style={{ color: TEXT, fontSize: 20, fontWeight: 500, marginBottom: 16, lineHeight: 1.3 }}>{current.title}</div>
         <div style={{ color: TEXT_MUTED, fontSize: 14, lineHeight: 1.7, marginBottom: 28 }}>{current.body}</div>
-        <button onClick={() => isLast ? onDone() : setStep(s => s + 1)} style={{ width: '100%', padding: '13px', background: BLUE, color: TEXT, border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer' }}>
+        <button onClick={() => isLast ? onDone() : setStep(s => s + 1)}
+          style={{ width: '100%', padding: '13px', background: BLUE, color: TEXT, border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer' }}>
           {current.cta}
         </button>
         {step > 0 && (
-          <button onClick={() => setStep(s => s - 1)} style={{ marginTop: 12, background: 'none', border: 'none', color: TEXT_MUTED, fontSize: 13, cursor: 'pointer' }}>Back</button>
+          <button onClick={() => setStep(s => s - 1)}
+            style={{ marginTop: 12, background: 'none', border: 'none', color: TEXT_MUTED, fontSize: 13, cursor: 'pointer' }}>
+            Back
+          </button>
         )}
       </div>
       <div style={{ color: 'rgba(255,255,255,0.25)', fontSize: 11, marginTop: 28 }}>CourtBridge Solutions · Turning participation into proof</div>

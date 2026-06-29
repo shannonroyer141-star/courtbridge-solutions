@@ -104,19 +104,44 @@ function StreakRing({ streak }) {
   )
 }
 
-function SidebarItem({ icon, label, active, badge, onClick }) {
+const NAV_ITEMS = [
+  { id: 'dashboard',  icon: '⊞', label: 'Home' },
+  { id: 'checkin',    icon: '📍', label: 'Check In' },
+  { id: 'documents',  icon: '📄', label: 'My Documents' },
+  { id: 'messages',   icon: '💬', label: 'Messages' },
+  { id: 'courtdates', icon: '📅', label: 'Court Dates' },
+  { id: 'settings',   icon: '⚙️', label: 'Settings' },
+]
+
+function NavItem({ icon, label, active, showLabels, hovered, onHover, onLeave, onClick }) {
   return (
-    <div onClick={onClick} style={{
-      display: 'flex', alignItems: 'center', gap: 10, padding: '8px 18px',
-      fontSize: 13, color: active ? TEXT : 'rgba(255,255,255,0.55)',
-      background: active ? 'rgba(91,155,240,0.12)' : 'transparent',
-      borderLeft: active ? `3px solid ${ACCENT}` : '3px solid transparent',
-      cursor: 'pointer',
-    }}>
-      <span style={{ fontSize: 16 }}>{icon}</span>
-      <span style={{ flex: 1 }}>{label}</span>
-      {badge && (
-        <span style={{ background: ORANGE, color: TEXT, fontSize: 10, fontWeight: 600, padding: '2px 6px', borderRadius: 20 }}>{badge}</span>
+    <div
+      onClick={onClick}
+      onMouseEnter={onHover}
+      onMouseLeave={onLeave}
+      style={{
+        position: 'relative',
+        display: 'flex', alignItems: 'center',
+        justifyContent: showLabels ? 'flex-start' : 'center',
+        gap: showLabels ? 12 : 0,
+        padding: showLabels ? '11px 16px' : '11px 0',
+        cursor: 'pointer',
+        background: active ? BLUE : hovered && !active ? 'rgba(255,255,255,0.04)' : 'transparent',
+        borderLeft: active ? `3px solid ${ACCENT}` : '3px solid transparent',
+        color: active ? TEXT : hovered ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.4)',
+        transition: 'background 0.15s, color 0.15s',
+        userSelect: 'none',
+      }}
+    >
+      <span style={{ fontSize: 17, lineHeight: 1, flexShrink: 0, width: 22, textAlign: 'center' }}>{icon}</span>
+      {showLabels && <span style={{ fontSize: 13, whiteSpace: 'nowrap' }}>{label}</span>}
+      {!showLabels && hovered && (
+        <div style={{
+          position: 'absolute', left: '100%', top: '50%', transform: 'translateY(-50%)',
+          marginLeft: 10, background: BLUE, color: TEXT, fontSize: 12, fontWeight: 500,
+          padding: '5px 10px', borderRadius: 6, whiteSpace: 'nowrap',
+          pointerEvents: 'none', zIndex: 300, boxShadow: '0 2px 12px rgba(0,0,0,0.4)',
+        }}>{label}</div>
       )}
     </div>
   )
@@ -167,6 +192,9 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
   const [checkInMsg, setCheckInMsg] = useState(null)
   const [activeTab, setActiveTab] = useState('dashboard')
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768)
+  const [sidebarExpanded, setSidebarExpanded] = useState(false)
+  const [showLabels, setShowLabels] = useState(false)
+  const [hoveredNavItem, setHoveredNavItem] = useState(null)
 
   useEffect(() => {
     fetchClientData()
@@ -289,6 +317,16 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
     return 'Good evening'
   }
 
+  function toggleSidebar() {
+    if (sidebarExpanded) {
+      setShowLabels(false)
+      setSidebarExpanded(false)
+    } else {
+      setSidebarExpanded(true)
+      setTimeout(() => setShowLabels(true), 220)
+    }
+  }
+
   const affirmation = pop.affirmations[affirmationIndex % pop.affirmations.length]
   const checkedInToday = checkIns.some(c => new Date(c.checked_in_at).toDateString() === new Date().toDateString())
   const streak = checkIns.reduce((acc, ci, i, arr) => {
@@ -298,7 +336,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
   }, checkIns.length > 0 ? 1 : 0)
   const complianceRate = checkIns.length > 0 ? Math.round((streak / Math.max(checkIns.length, 1)) * 100) : 0
   const enrollDate = client?.enrollment_date || client?.created_at
-  const daysEnrolled = enrollDate ? Math.max(1, Math.floor((Date.now() - new Date(enrollDate)) / 86400000)) : 1
+  const daysEnrolled = enrollDate ? Math.floor((Date.now() - new Date(enrollDate)) / 86400000) + 1 : 1
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 
   const nextCourtDate = courtDates[0]
@@ -331,35 +369,78 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
     <div style={{ display: 'flex', minHeight: '100vh', background: DARK_BG, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
 
       {/* SIDEBAR — desktop only */}
-      {!isMobile && <div style={{ width: 200, background: SIDEBAR_BG, display: 'flex', flexDirection: 'column', flexShrink: 0, minHeight: '100vh' }}>
-        <div style={{ padding: '22px 18px 18px', borderBottom: `0.5px solid rgba(255,255,255,0.08)` }}>
-          <div style={{ fontSize: 14, fontWeight: 500, color: TEXT }}>CourtBridge Solutions</div>
-          <div style={{ fontSize: 10, color: TEXT_MUTED, marginTop: 2 }}>My portal</div>
-        </div>
-
-        <div style={{ fontSize: 10, fontWeight: 500, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', padding: '14px 18px 5px' }}>My progress</div>
-        <SidebarItem icon="⊞" label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
-        <SidebarItem icon="📋" label="My history" active={activeTab === 'history'} onClick={() => setActiveTab('history')} />
-        <SidebarItem icon="📍" label="Check In" active={activeTab === 'checkin'} onClick={() => onNavigate && onNavigate('checkin')} />
-
-        <div style={{ fontSize: 10, fontWeight: 500, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', padding: '14px 18px 5px' }}>My case</div>
-        <SidebarItem icon="📄" label="My documents" active={activeTab === 'documents'} onClick={() => setActiveTab('documents')} />
-        <SidebarItem icon="💬" label="Messages" active={activeTab === 'messages'} onClick={() => setActiveTab('messages')} />
-        <SidebarItem icon="📅" label="Court dates" active={activeTab === 'courtdates'} onClick={() => setActiveTab('courtdates')} />
-
-        <div style={{ marginTop: 'auto', padding: '14px 18px', borderTop: `0.5px solid rgba(255,255,255,0.08)` }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 10 }}>
-            <div style={{ width: 30, height: 30, borderRadius: '50%', background: BLUE, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 500, color: TEXT, flexShrink: 0 }}>
-              {firstName.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <div style={{ fontSize: 12, color: TEXT }}>{firstName}</div>
-              <div style={{ fontSize: 10, color: TEXT_MUTED }}>{pop.label}</div>
+      {!isMobile && (
+        <div style={{
+          width: sidebarExpanded ? 200 : 56,
+          background: DARK_BG,
+          display: 'flex', flexDirection: 'column', flexShrink: 0,
+          minHeight: '100vh', overflow: 'visible', position: 'relative',
+          transition: 'width 0.22s cubic-bezier(0.4,0,0.2,1)',
+          borderRight: `0.5px solid rgba(255,255,255,0.08)`,
+          zIndex: 10,
+        }}>
+          {/* Toggle button */}
+          <div style={{
+            height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0, borderBottom: `0.5px solid rgba(255,255,255,0.06)`,
+          }}>
+            <div
+              onClick={toggleSidebar}
+              style={{
+                cursor: 'pointer', color: TEXT_MUTED, fontSize: 15, lineHeight: 1,
+                padding: '6px 8px', borderRadius: 6, userSelect: 'none',
+                transition: 'color 0.15s',
+              }}
+            >
+              {sidebarExpanded ? '✕' : '☰'}
             </div>
           </div>
-          <div onClick={onLogout} style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', cursor: 'pointer', paddingTop: 4 }}>Sign out</div>
+
+          {/* Nav items */}
+          <div style={{ flex: 1, paddingTop: 6 }}>
+            {NAV_ITEMS.map(item => (
+              <NavItem
+                key={item.id}
+                icon={item.icon}
+                label={item.label}
+                active={activeTab === item.id}
+                showLabels={showLabels}
+                hovered={hoveredNavItem === item.id}
+                onHover={() => setHoveredNavItem(item.id)}
+                onLeave={() => setHoveredNavItem(null)}
+                onClick={() => item.id === 'checkin'
+                  ? (onNavigate && onNavigate('checkin'))
+                  : setActiveTab(item.id)
+                }
+              />
+            ))}
+          </div>
+
+          {/* User footer */}
+          <div style={{
+            borderTop: `0.5px solid rgba(255,255,255,0.06)`,
+            padding: '14px 0',
+            display: 'flex', alignItems: 'center',
+            justifyContent: showLabels ? 'flex-start' : 'center',
+            paddingLeft: showLabels ? 14 : 0,
+            gap: 10, flexShrink: 0,
+          }}>
+            <div style={{
+              width: 30, height: 30, borderRadius: '50%', background: BLUE,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 11, fontWeight: 600, color: TEXT, flexShrink: 0,
+            }}>
+              {firstName.charAt(0).toUpperCase()}
+            </div>
+            {showLabels && (
+              <div style={{ overflow: 'hidden' }}>
+                <div style={{ fontSize: 12, color: TEXT, whiteSpace: 'nowrap' }}>{firstName}</div>
+                <div onClick={onLogout} style={{ fontSize: 11, color: TEXT_MUTED, cursor: 'pointer', marginTop: 2 }}>Sign out</div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>}
+      )}
 
       {/* MAIN */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -537,7 +618,7 @@ function FirstTimeWelcome({ name, onDone }) {
     },
     {
       title: 'Daily Check-Ins',
-      body: `Your program requires regular check-ins. Use the sidebar to tap Check In — your location is captured and recorded automatically.`,
+      body: `Your program requires regular check-ins. Use the Check In Now button on your dashboard — your location is captured and recorded automatically.`,
       cta: 'Next'
     },
     {

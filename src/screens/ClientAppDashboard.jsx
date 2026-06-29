@@ -211,26 +211,16 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
   async function fetchClientData() {
     setLoading(true)
     const userId = session?.user?.id
+    const userEmail = session?.user?.email
     if (!userId) { setLoading(false); return }
 
-    // Try to find client by auth_user_id first, then by email
-    let clientData = null
-    const { data: byUserId } = await supabase
+    const { data: rows } = await supabase
       .from('clients')
       .select('*')
-      .eq('auth_user_id', userId)
-      .single()
+      .or(`auth_user_id.eq.${userId},email.eq.${userEmail}`)
+      .limit(1)
 
-    if (byUserId) {
-      clientData = byUserId
-    } else {
-      const { data: byEmail } = await supabase
-        .from('clients')
-        .select('*')
-        .eq('email', session.user.email)
-        .single()
-      if (byEmail) clientData = byEmail
-    }
+    const clientData = rows?.[0] || null
 
     if (clientData) {
       setClient(clientData)
@@ -307,7 +297,8 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
 
   const isCatch = client?.population_type === 'catch_court'
 
-  const displayName = client?.name || session?.user?.email || 'there'
+  const emailPrefix = session?.user?.email?.split('@')[0] || 'there'
+  const displayName = client?.name || emailPrefix
   const firstName = displayName.split(' ')[0]
 
   function getGreeting() {

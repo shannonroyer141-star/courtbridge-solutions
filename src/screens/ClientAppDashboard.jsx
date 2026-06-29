@@ -166,10 +166,18 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
   const [checkingIn, setCheckingIn] = useState(false)
   const [checkInMsg, setCheckInMsg] = useState(null)
   const [activeTab, setActiveTab] = useState('dashboard')
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768)
 
   useEffect(() => {
     fetchClientData()
     setAffirmationIndex(Math.floor(Date.now() / 86400000) % 5)
+  }, [])
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const handler = e => setIsMobile(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
   }, [])
 
   async function fetchClientData() {
@@ -271,8 +279,15 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
 
   const isCatch = client?.population_type === 'catch_court'
 
-  // Use clientName prop passed from App.jsx, fall back to client record, then 'there'
-  const firstName = client?.name?.split(' ')[0] || clientName || 'there'
+  const displayName = client?.name || session?.user?.email || 'there'
+  const firstName = displayName.split(' ')[0]
+
+  function getGreeting() {
+    const h = new Date().getHours()
+    if (h < 12) return 'Good morning'
+    if (h < 17) return 'Good afternoon'
+    return 'Good evening'
+  }
 
   const affirmation = pop.affirmations[affirmationIndex % pop.affirmations.length]
   const checkedInToday = checkIns.some(c => new Date(c.checked_in_at).toDateString() === new Date().toDateString())
@@ -282,7 +297,8 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
     return diff <= 1.5 ? acc + 1 : acc
   }, checkIns.length > 0 ? 1 : 0)
   const complianceRate = checkIns.length > 0 ? Math.round((streak / Math.max(checkIns.length, 1)) * 100) : 0
-  const daysEnrolled = client?.created_at ? Math.floor((Date.now() - new Date(client.created_at)) / 86400000) : 0
+  const enrollDate = client?.enrollment_date || client?.created_at
+  const daysEnrolled = enrollDate ? Math.max(1, Math.floor((Date.now() - new Date(enrollDate)) / 86400000)) : 1
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
 
   const nextCourtDate = courtDates[0]
@@ -314,8 +330,8 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: DARK_BG, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
 
-      {/* SIDEBAR */}
-      <div style={{ width: 200, background: SIDEBAR_BG, display: 'flex', flexDirection: 'column', flexShrink: 0, minHeight: '100vh' }}>
+      {/* SIDEBAR — desktop only */}
+      {!isMobile && <div style={{ width: 200, background: SIDEBAR_BG, display: 'flex', flexDirection: 'column', flexShrink: 0, minHeight: '100vh' }}>
         <div style={{ padding: '22px 18px 18px', borderBottom: `0.5px solid rgba(255,255,255,0.08)` }}>
           <div style={{ fontSize: 14, fontWeight: 500, color: TEXT }}>CourtBridge Solutions</div>
           <div style={{ fontSize: 10, color: TEXT_MUTED, marginTop: 2 }}>My portal</div>
@@ -343,14 +359,14 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
           </div>
           <div onClick={onLogout} style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', cursor: 'pointer', paddingTop: 4 }}>Sign out</div>
         </div>
-      </div>
+      </div>}
 
       {/* MAIN */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
         <div style={{ padding: '20px 22px 0', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ fontSize: 19, fontWeight: 500, color: TEXT }}>Good morning, {firstName}</div>
+            <div style={{ fontSize: 19, fontWeight: 500, color: TEXT }}>{getGreeting()}, {firstName}</div>
             <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 3 }}>{today} · Day {daysEnrolled} of your program</div>
           </div>
           <div style={{ width: 32, height: 32, borderRadius: '50%', background: CARD_BG, border: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, color: TEXT_MUTED }}>🔔</div>
@@ -413,7 +429,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
         )}
 
         {/* Two columns */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, padding: '14px 22px 20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, padding: `14px 22px ${isMobile ? 80 : 20}px` }}>
           <div>
             <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>Important dates & tasks</div>
             <InnerCard>
@@ -474,6 +490,39 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
           </div>
         </div>
       </div>
+
+      {/* BOTTOM NAV — mobile only */}
+      {isMobile && (
+        <div style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0, height: 62,
+          background: SIDEBAR_BG, borderTop: `0.5px solid rgba(255,255,255,0.08)`,
+          display: 'flex', alignItems: 'stretch', zIndex: 100,
+        }}>
+          {[
+            { id: 'dashboard', icon: '⊞', label: 'Home' },
+            { id: 'checkin',   icon: '📍', label: 'Check In' },
+            { id: 'courtdates', icon: '📅', label: 'Calendar' },
+            { id: 'profile',   icon: '👤', label: 'Profile' },
+          ].map(({ id, icon, label }) => {
+            const active = activeTab === id
+            const handleTap = () => {
+              if (id === 'checkin') { onNavigate && onNavigate('checkin') }
+              else setActiveTab(id)
+            }
+            return (
+              <div key={id} onClick={handleTap} style={{
+                flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
+                justifyContent: 'center', gap: 3, cursor: 'pointer',
+                color: active ? ACCENT : 'rgba(255,255,255,0.4)',
+                borderTop: active ? `2px solid ${ACCENT}` : '2px solid transparent',
+              }}>
+                <span style={{ fontSize: 20, lineHeight: 1 }}>{icon}</span>
+                <span style={{ fontSize: 10, fontWeight: active ? 500 : 400 }}>{label}</span>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

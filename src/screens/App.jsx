@@ -20,9 +20,6 @@ import ComplianceChart from './screens/ComplianceChart';
 import MapView from './screens/MapView';
 import ClientProfile from './screens/ClientProfile';
 import OrgAdmin from './screens/OrgAdmin';
-import Policies from './screens/Policies';
-import NonCompete from './screens/NonCompete';
-import Legal from './screens/Legal';
 import ProviderGuide from './screens/ProviderGuide';
 import SOP from './screens/SOP';
 import Messages from './screens/Messages';
@@ -30,7 +27,6 @@ import ClientInvite from './screens/ClientInvite';
 import DocumentUpload from './screens/DocumentUpload';
 import ViolationReport from './screens/ViolationReport';
 import CompletionCertificate from './screens/CompletionCertificate';
-import SMSAlerts from './screens/SMSAlerts';
 
 function NavFolder({ icon, label, items, screen, setScreen, defaultOpen }) {
   const [open, setOpen] = useState(defaultOpen || false);
@@ -159,14 +155,11 @@ export default function App() {
       case 'map': return <MapView />;
       case 'tasks': return <Tasks />;
       case 'programs': return <Programs />;
-      case 'sms': return <SMSAlerts />;
       case 'sop': return <SOP />;
       case 'providerguide': return <ProviderGuide />;
       case 'orgadmin': return <OrgAdmin />;
       case 'invite': return <ClientInvite />;
       case 'certificates': return <CompletionCertificate />;
-      case 'legal': return <Legal />;
-      case 'policies': return <Policies />;
       case 'settings': return <Settings />;
       case 'affirmations': return <Affirmations />;
       case 'sensitive': return <SuggestionsScreen />;
@@ -221,7 +214,6 @@ export default function App() {
           <NavFolder icon="📋" label="Operations" screen={screen} setScreen={setScreen} items={[
             { id: 'tasks', label: 'Tasks', icon: '✅' },
             { id: 'programs', label: 'Programs', icon: '🏛️' },
-            { id: 'sms', label: 'SMS Alerts', icon: '📱' },
             { id: 'sop', label: 'SOPs', icon: '📋' },
             { id: 'providerguide', label: 'Provider Guide', icon: '📖' },
           ]} />

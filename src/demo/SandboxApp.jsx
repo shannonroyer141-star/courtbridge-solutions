@@ -118,7 +118,7 @@ function ProviderDashboardDemo() {
           )}
 
           {isUpdated && (
-            <Button onClick={viewCourtReport}>View Court Compliance Report</Button>
+            <Button onClick={viewCourtReport}>View Compliance Report</Button>
           )}
         </div>
       </Card>
@@ -154,7 +154,7 @@ function ClientOnboardingDemo() {
           {step === 3 && (
             <>
               <div style={{ fontSize: 14, color: '#444', marginBottom: 20, lineHeight: 1.6 }}>
-                By continuing, you agree to check in as scheduled. Your provider and court will see your compliance record.
+                By continuing, you agree to check in as scheduled. Your provider will see your compliance record.
               </div>
               <Button onClick={completeOnboarding}>I Agree — Complete Enrollment</Button>
             </>
@@ -207,16 +207,38 @@ function ClientDashboardDemo() {
 }
 
 function CourtReportDemo() {
-  const { clientInfo, checkins, complianceSummary } = useDemo();
+  const { clientInfo, checkins, complianceSummary, providerInfo } = useDemo();
   const completed = checkins.filter(c => c.status === 'completed').length;
+
+  const today = new Date();
+  const startDate = new Date(today);
+  startDate.setDate(today.getDate() - 29);
+  const fmt = (d) => d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const periodLabel = `${fmt(startDate)} – ${fmt(today)}`;
+
+  function handleDownload() {
+    alert('In the live platform, this generates a signed PDF report ready to send to the court or referring agency. (Sandbox demo — no file generated.)');
+  }
 
   return (
     <Shell>
       <Card>
-        <CardHeader title="Compliance Report" subtitle="Read-Only — Court / Facility View" />
+        <CardHeader title="Compliance Report" subtitle="Read-Only — Ready for Court, PO, or Referring Agency" />
         <div style={{ padding: '28px 32px' }}>
-          <div style={{ fontSize: 12, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Client</div>
-          <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 20 }}>{clientInfo.name}</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20, gap: 16 }}>
+            <div>
+              <div style={{ fontSize: 12, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Client</div>
+              <div style={{ fontSize: 17, fontWeight: 700 }}>{clientInfo.name}</div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: 12, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Provider</div>
+              <div style={{ fontSize: 14, fontWeight: 700 }}>{providerInfo.name || 'Demo Recovery Partners'}</div>
+            </div>
+          </div>
+
+          <div style={{ fontSize: 12, color: '#888', marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid #eee' }}>
+            Reporting Period: {periodLabel}
+          </div>
 
           <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
             <div style={{ flex: 1, background: '#F0FDF4', borderRadius: 8, padding: 14, textAlign: 'center' }}>
@@ -233,8 +255,12 @@ function CourtReportDemo() {
             </div>
           </div>
 
+          <Button onClick={handleDownload} style={{ background: '#374151', marginBottom: 16 }}>
+            ⬇ Download PDF Report
+          </Button>
+
           <div style={{ fontSize: 12, color: '#999', textAlign: 'center', lineHeight: 1.6 }}>
-            This is exactly the kind of court-ready report CourtBridge generates automatically — turning daily participation into documented proof.
+            This is exactly the kind of report CourtBridge generates automatically — turning daily participation into documented proof for courts, probation officers, and referring agencies.
           </div>
         </div>
       </Card>

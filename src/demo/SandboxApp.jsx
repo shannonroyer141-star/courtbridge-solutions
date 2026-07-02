@@ -4,6 +4,7 @@ import { DemoProvider, useDemo } from './DemoContext';
 const BLUE = '#1B3A6B';
 const DARK = '#1E2A3A';
 const DARKER = '#2D3748';
+const FEEDBACK_EMAIL = 'info@courtbridgesolutions.com';
 
 function Badge({ children }) {
   return (
@@ -260,7 +261,7 @@ function CourtReportDemo() {
           </Button>
 
           <div style={{ fontSize: 12, color: '#999', textAlign: 'center', lineHeight: 1.6 }}>
-            This is exactly the kind of report CourtBridge generates automatically — turning daily participation into documented proof for courts, probation officers, and referring agencies.
+            This is the infrastructure that's been missing — verified, connected, accountable.
           </div>
         </div>
       </Card>
@@ -278,6 +279,92 @@ function SandboxRouter() {
   return <ProviderSignup />;
 }
 
+function FeedbackWidget() {
+  const [open, setOpen] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [text, setText] = useState('');
+  const [sent, setSent] = useState(false);
+
+  function handleSend() {
+    const subject = encodeURIComponent('CourtBridge Sandbox Feedback');
+    const body = encodeURIComponent(`Rating: ${rating}/5\n\n${text || '(no message entered)'}`);
+    window.location.href = `mailto:${FEEDBACK_EMAIL}?subject=${subject}&body=${body}`;
+    setSent(true);
+  }
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        style={{
+          position: 'fixed', bottom: 20, right: 20, zIndex: 200,
+          background: BLUE, color: '#fff', border: 'none', borderRadius: 30,
+          padding: '12px 20px', fontSize: 14, fontWeight: 700, cursor: 'pointer',
+          boxShadow: '0 4px 14px rgba(0,0,0,0.25)',
+        }}
+      >
+        💬 Give Feedback
+      </button>
+    );
+  }
+
+  return (
+    <div style={{
+      position: 'fixed', bottom: 20, right: 20, zIndex: 200,
+      background: '#fff', borderRadius: 14, boxShadow: '0 8px 30px rgba(0,0,0,0.25)',
+      width: 300, padding: 18,
+    }}>
+      {!sent ? (
+        <>
+          <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 16, color: '#1B3A6B' }}>
+            Rate your experience
+          </div>
+          <div style={{ display: 'flex', gap: 6, justifyContent: 'center', marginBottom: 16 }}>
+            {[1, 2, 3, 4, 5].map(n => (
+              <span
+                key={n}
+                onClick={() => setRating(n)}
+                style={{ fontSize: 26, cursor: 'pointer', color: n <= rating ? '#F59E0B' : '#ddd' }}
+              >
+                ★
+              </span>
+            ))}
+          </div>
+          <div style={{ fontSize: 13, color: '#555', lineHeight: 1.5, marginBottom: 10 }}>
+            How would this fit into your current caseload, and what would you change to make it fit your everyday needs?
+          </div>
+          <textarea
+            value={text}
+            onChange={e => setText(e.target.value)}
+            placeholder="Type your thoughts here..."
+            style={{ width: '100%', height: 90, padding: 10, border: '1px solid #ddd', borderRadius: 8, fontSize: 13, boxSizing: 'border-box', resize: 'none', marginBottom: 10, fontFamily: 'Arial, sans-serif' }}
+          />
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={() => setOpen(false)} style={{ flex: 1, padding: 10, background: '#f1f1f1', border: 'none', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}>
+              Cancel
+            </button>
+            <button onClick={handleSend} style={{ flex: 1, padding: 10, background: BLUE, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+              Send
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 8, color: '#16A34A' }}>
+            Thank you!
+          </div>
+          <div style={{ fontSize: 13, color: '#555', marginBottom: 14 }}>
+            Your email app should have opened with your feedback ready to send. If it didn't, email us directly at {FEEDBACK_EMAIL}.
+          </div>
+          <button onClick={() => { setOpen(false); setSent(false); setText(''); setRating(0); }} style={{ width: '100%', padding: 10, background: '#f1f1f1', border: 'none', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}>
+            Close
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
 const labelStyle = { display: 'block', fontSize: 12, fontWeight: 700, color: '#666', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 };
 const inputStyle = { width: '100%', padding: '12px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 15, boxSizing: 'border-box', outline: 'none' };
 
@@ -285,6 +372,7 @@ export default function SandboxApp() {
   return (
     <DemoProvider>
       <SandboxRouter />
+      <FeedbackWidget />
     </DemoProvider>
   );
 }

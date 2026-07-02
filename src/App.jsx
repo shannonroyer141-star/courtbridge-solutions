@@ -3,6 +3,7 @@ import { supabase } from './supabase';
 import ProviderDashboard from './screens/ProviderDashboard';
 import ClientAppDashboard from './screens/ClientAppDashboard';
 import ClientOnboarding from './screens/ClientOnboarding';
+import SandboxApp from './demo/SandboxApp';
 import CheckIn from './screens/CheckIn';
 import Clients from './screens/Clients';
 import Alerts from './screens/Alerts';
@@ -38,6 +39,8 @@ const NAV_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-se
 const isEnrollRoute = window.location.pathname === '/enroll' &&
   new URLSearchParams(window.location.search).has('token');
 
+const isSandboxRoute = window.location.pathname === '/sandbox';
+
 export default function App() {
   const [session, setSession] = useState(null);
   const [role, setRole] = useState(null);
@@ -54,7 +57,7 @@ export default function App() {
   const [loginLoading, setLoginLoading] = useState(false);
 
   useEffect(() => {
-    if (isEnrollRoute) { setLoading(false); return; }
+    if (isEnrollRoute || isSandboxRoute) { setLoading(false); return; }
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session) fetchRole(session.user.id);
@@ -98,6 +101,8 @@ export default function App() {
   }
 
   if (isEnrollRoute) return <ClientOnboarding />;
+
+  if (isSandboxRoute) return <SandboxApp />;
 
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F5F6F8', fontFamily: 'Arial, sans-serif' }}>

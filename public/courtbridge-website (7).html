@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <!-- SEO PRIMARY -->
+  <title>CourtBridge Solutions | Specialty Court Compliance Tracking Software</title>
+  <meta name="description" content="CourtBridge Solutions is the only purpose-built compliance tracking platform for specialty court programs — drug courts, DUI courts, mental health courts, BIP, and more. GPS-verified check-ins, real-time alerts, and court-ready reporting."/>
+  <meta name="keywords" content="specialty court compliance software, drug court software, BIP compliance tracking, domestic violence intervention program software, DUI court software, mental health court software, GPS check-in verification, court compliance platform, specialty court technology, Florida SB 820 compliance"/>
+  <meta name="author" content="CourtBridge Solutions LLC"/>
+  <meta name="robots" content="index, follow"/>
+  <link rel="canonical" href="https://courtbridgesolutions.com"/>
+
+  <!-- OPEN GRAPH -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://courtbridgesolutions.com"/>
+  <meta property="og:title" content="CourtBridge Solutions | Specialty Court Compliance Tracking Software"/>
+  <meta property="og:description" content="The only purpose-built compliance platform for specialty court programs. GPS-verified check-ins, real-time alerts, court-ready reporting. Built from the inside out."/>
+  <meta property="og:image" content="https://courtbridgesolutions.com/cb-logo-solutions.png"/>
+  <meta property="og:site_name" content="CourtBridge Solutions"/>
+
+  <!-- TWITTER -->
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="CourtBridge Solutions | Specialty Court Compliance Tracking Software"/>
+  <meta name="twitter:description" content="The only purpose-built compliance platform for specialty court programs. GPS-verified. Connected. Accountable."/>
+
+  <!-- SCHEMA.ORG -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "CourtBridge Solutions",
+    "description": "Purpose-built compliance tracking software for specialty court programs including drug courts, DUI courts, mental health courts, and domestic violence intervention programs.",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "url": "https://courtbridgesolutions.com",
+    "offers": { "@type": "Offer", "availability": "https://schema.org/InStock" },
+    "creator": {
+      "@type": "Organization",
+      "name": "CourtBridge Solutions LLC",
+      "address": { "@type": "PostalAddress", "addressLocality": "Lakewood Ranch", "addressRegion": "FL", "addressCountry": "US" },
+      "email": "info@courtbridgesolutions.com",
+      "telephone": "+17372324091",
+      "url": "https://courtbridgesolutions.com"
+    }
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy:        #1B3A6B;
+      --navy-dark:   #0A1628;
+      --navy-mid:    #1E3A5F;
+      --slate:       #111B2A;
+      --bg-dark:     #0D1B2A;
+      --bg-mid:      #122034;
+      --bg-section:  #152540;
+      --bg-card:     #1A2D45;
+      --accent:      #7A8FA6;
+      --accent-light:#A8BBCC;
+      --text-light:  #C8D0DC;
+      --text-muted:  #6A7A8E;
+      --border:      #243448;
+      --white:       #E8EAED;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--text-light); background: var(--bg-dark); line-height: 1.6; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(10,22,40,0.97); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem; height: 68px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { display: flex; align-items: center; text-decoration: none; color: var(--text-light); }
+    .nav-logo img { height: 52px; width: auto; object-fit: contain; }
+    .nav-links { display: flex; align-items: center; gap: 2rem; list-style: none; }
+    .nav-links a { color: var(--text-light); text-decoration: none; font-size: 0.875rem; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--accent-light); }
+    .nav-cta { background: var(--navy-mid) !important; color: var(--white) !important; padding: 0.5rem 1.25rem; border-radius: 6px; font-weight: 600 !important; border: 1px solid var(--accent) !important; }
+    .nav-cta:hover { background: var(--navy) !important; color: var(--white) !important; }
+    .nav-hamburger { display: none; cursor: pointer; flex-direction: column; gap: 5px; }
+    .nav-hamburger span { display: block; width: 24px; height: 2px; background: var(--text-light); border-radius: 2px; }
+    .mobile-menu { display: none; position: fixed; top: 68px; left: 0; right: 0; background: var(--navy-dark); border-bottom: 1px solid var(--border); padding: 1.5rem 2rem; z-index: 99; flex-direction: column; gap: 1rem; }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a { color: var(--text-light); text-decoration: none; font-size: 1rem; font-weight: 500; padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
+
+    /* HERO */
+    #home {
+      min-height: 100vh;
+      display: flex; align-items: center;
+      padding: 100px 2rem 4rem;
+      position: relative; overflow: hidden;
+    }
+    #home::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url('https://images.pexels.com/photos/29204451/pexels-photo-29204451.jpeg?auto=compress&cs=tinysrgb&w=1600') center/cover no-repeat;
+      filter: grayscale(100%);
+      z-index: 0;
+    }
+    #home::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(160deg, rgba(8,16,32,0.92) 0%, rgba(13,27,42,0.87) 50%, rgba(18,32,52,0.82) 100%);
+      z-index: 1;
+    }
+    .hero-inner {
+      max-width: 1100px; margin: 0 auto; width: 100%;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+      position: relative; z-index: 2;
+    }
+    .hero-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.15em; color: var(--accent-light); text-transform: uppercase; margin-bottom: 1.25rem; }
+    .hero-headline { font-family: 'DM Serif Display', serif; font-size: clamp(2.25rem, 5vw, 3.5rem); line-height: 1.1; color: var(--white); margin-bottom: 1rem; text-shadow: 0 2px 16px rgba(0,0,0,0.6); }
+    .hero-headline em { font-style: italic; color: var(--accent-light); }
+    .hero-tagline { font-family: 'DM Mono', monospace; font-size: 0.8rem; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 1.5rem; }
+    .hero-sub { font-size: 1.05rem; color: var(--text-light); max-width: 480px; margin-bottom: 2.5rem; line-height: 1.7; }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn-primary { background: var(--navy-mid); color: var(--white); padding: 0.875rem 2rem; border-radius: 8px; font-weight: 600; font-size: 0.95rem; text-decoration: none; transition: all 0.2s; display: inline-block; border: 1px solid var(--accent); }
+    .btn-primary:hover { background: var(--navy); transform: translateY(-1px); }
+    .btn-ghost { background: transparent; color: var(--text-light); padding: 0.875rem 2rem; border-radius: 8px; font-weight: 500; font-size: 0.95rem; text-decoration: none; border: 1px solid var(--border); transition: all 0.2s; display: inline-block; }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent-light); }
+    .hero-card { background: rgba(13,27,42,0.75); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; backdrop-filter: blur(10px); }
+    .hero-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .hero-stat { text-align: center; padding: 1.25rem; background: rgba(8,16,32,0.8); border-radius: 10px; border: 1px solid var(--border); }
+    .hero-stat-num { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--white); display: block; }
+    .hero-stat-label { font-size: 0.75rem; color: var(--text-light); margin-top: 0.25rem; line-height: 1.4; }
+    .hero-pilot-badge { margin-top: 1.25rem; background: rgba(26,45,69,0.8); border: 1px solid var(--accent); border-radius: 10px; padding: 1rem 1.25rem; text-align: center; }
+    .hero-pilot-badge strong { display: block; font-size: 1rem; color: var(--white); margin-bottom: 0.25rem; }
+    .hero-pilot-badge p { font-size: 0.82rem; color: var(--text-light); }
+
+    /* SECTIONS */
+    section { scroll-margin-top: 68px; }
+    .section-inner { max-width: 1100px; margin: 0 auto; padding: 5rem 2rem; }
+    .section-eyebrow { font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.14em; color: var(--accent); text-transform: uppercase; margin-bottom: 0.75rem; }
+    .section-headline { font-family: 'DM Serif Display', serif; font-size: clamp(1.75rem, 3.5vw, 2.5rem); color: var(--white); line-height: 1.2; margin-bottom: 1rem; }
+    .section-sub { font-size: 1.05rem; color: var(--text-light); max-width: 600px; line-height: 1.7; }
+
+    /* AUDIT */
+    #audit { background: var(--slate); }
+    .audit-inner { max-width: 1100px; margin: 0 auto; padding: 5rem 2rem; text-align: center; }
+    .audit-question { font-family: 'DM Serif Display', serif; font-size: clamp(1.75rem, 4vw, 2.75rem); color: var(--white); line-height: 1.3; margin-bottom: 1.5rem; }
+    .audit-question em { color: var(--accent-light); font-style: italic; }
+    .audit-sub { font-size: 1rem; color: var(--text-light); max-width: 600px; margin: 0 auto 2.5rem; line-height: 1.7; }
+    .audit-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3rem; text-align: left; }
+    .audit-card { padding: 2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; }
+    .audit-card-num { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.12em; color: var(--accent); text-transform: uppercase; margin-bottom: 0.75rem; }
+    .audit-card h3 { font-family: 'DM Serif Display', serif; font-size: 1.15rem; color: var(--white); margin-bottom: 0.5rem; }
+    .audit-card p { font-size: 0.875rem; color: var(--text-light); line-height: 1.6; }
+
+    /* WHO WE SERVE */
+    #serves { background: var(--bg-mid); }
+    .serves-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; }
+    .serve-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 2rem; transition: border-color 0.2s; }
+    .serve-card:hover { border-color: var(--accent); }
+    .serve-card-label { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.12em; color: var(--accent); text-transform: uppercase; margin-bottom: 0.75rem; }
+    .serve-card h3 { font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--white); margin-bottom: 1rem; }
+    .serve-list { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+    .serve-list li { display: flex; align-items: flex-start; gap: 0.75rem; font-size: 0.875rem; color: var(--text-light); line-height: 1.5; }
+    .serve-list li::before { content: '—'; color: var(--accent); flex-shrink: 0; }
+
+    /* PLATFORM */
+    #providers { background: var(--bg-section); }
+    .features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 3rem; }
+    .feature-item { padding: 2rem; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); transition: border-color 0.2s; }
+    .feature-item:hover { border-color: var(--accent); }
+    .feature-num { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.12em; color: var(--accent); margin-bottom: 0.75rem; }
+    .feature-item h3 { font-weight: 600; font-size: 1rem; color: var(--white); margin-bottom: 0.5rem; }
+    .feature-item p { font-size: 0.875rem; color: var(--text-light); line-height: 1.6; }
+
+    /* PILOT */
+    #pilot { background: var(--slate); }
+    .pilot-inner { max-width: 1000px; margin: 0 auto; padding: 5rem 2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+    .pilot-left h2 { font-family: 'DM Serif Display', serif; font-size: clamp(1.75rem, 3.5vw, 2.25rem); color: var(--white); margin-bottom: 1rem; line-height: 1.2; }
+    .pilot-left p { font-size: 0.95rem; color: var(--text-light); line-height: 1.7; margin-bottom: 1.5rem; }
+    .pilot-checks { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+    .pilot-checks li { display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; color: var(--text-light); }
+    .pilot-checks li::before { content: '—'; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+    .pilot-right { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 2rem; }
+    .pilot-right h3 { font-family: 'DM Serif Display', serif; font-size: 1.25rem; color: var(--white); margin-bottom: 0.5rem; }
+    .pilot-right p { font-size: 0.875rem; color: var(--text-light); margin-bottom: 1.5rem; line-height: 1.6; }
+    .pilot-trigger { font-family: 'DM Mono', monospace; font-size: 0.72rem; letter-spacing: 0.1em; color: var(--accent); text-transform: uppercase; margin-bottom: 0.5rem; }
+
+    /* ABOUT */
+    #about { background: var(--bg-mid); }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+    .about-quote { font-family: 'DM Serif Display', serif; font-size: 1.4rem; font-style: italic; color: var(--white); line-height: 1.5; border-left: 3px solid var(--accent); padding-left: 1.5rem; margin: 1.5rem 0 2rem; }
+    .about-body { font-size: 0.975rem; color: var(--text-light); line-height: 1.8; margin-bottom: 1rem; }
+    .founder-sig { font-family: 'DM Serif Display', serif; font-size: 1.1rem; color: var(--white); margin-top: 1.5rem; }
+    .founder-sig span { display: block; font-family: 'Inter', sans-serif; font-size: 0.8rem; color: var(--text-muted); font-weight: 500; margin-top: 0.2rem; }
+    .about-visual { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem; }
+    .about-visual-headline { font-family: 'DM Serif Display', serif; font-size: 1.5rem; margin-bottom: 0.5rem; color: var(--white); }
+    .about-visual-sub { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 1.75rem; font-family: 'DM Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; }
+    .mission-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+    .mission-list li { display: flex; align-items: flex-start; gap: 0.75rem; font-size: 0.9rem; color: var(--text-light); line-height: 1.6; }
+    .mission-list li::before { content: '—'; color: var(--accent); flex-shrink: 0; margin-top: 0.05em; }
+
+    /* LEGISLATIVE */
+    #legislative { background: var(--bg-section); }
+    .legis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-top: 3rem; align-items: start; }
+    .legis-quote-block { padding: 2rem; background: var(--bg-card); border-radius: 12px; border-left: 3px solid var(--accent); margin-bottom: 1.5rem; }
+    .legis-quote-block blockquote { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 1.05rem; color: var(--white); line-height: 1.6; margin-bottom: 1rem; }
+    .legis-quote-block cite { font-size: 0.8rem; color: var(--text-muted); font-style: normal; font-weight: 500; }
+    .legis-stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    .legis-stat { text-align: center; padding: 1.5rem 1rem; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); }
+    .legis-stat-num { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--white); display: block; margin-bottom: 0.25rem; }
+    .legis-stat-label { font-size: 0.78rem; color: var(--text-light); line-height: 1.4; }
+    .legis-sb820 { grid-column: span 2; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 12px; padding: 1.5rem 2rem; margin-top: 1.25rem; }
+    .legis-sb820 h3 { font-weight: 600; font-size: 0.9rem; color: var(--white); margin-bottom: 0.5rem; }
+    .legis-sb820 p { font-size: 0.875rem; color: var(--text-light); line-height: 1.6; }
+
+    /* PRICING PLACEHOLDER */
+    #pricing { background: var(--bg-mid); }
+
+    /* DEMO */
+    #demo { background: var(--slate); padding: 5rem 2rem; text-align: center; }
+    .demo-inner { max-width: 700px; margin: 0 auto; }
+    .demo-inner h2 { font-family: 'DM Serif Display', serif; font-size: clamp(1.75rem, 3.5vw, 2.5rem); color: var(--white); margin-bottom: 1rem; }
+    .demo-inner p { color: var(--text-light); max-width: 500px; margin: 0 auto 2rem; line-height: 1.7; }
+    .demo-url { font-family: 'DM Mono', monospace; font-size: 0.82rem; color: var(--text-muted); margin-top: 1rem; }
+
+    /* CONTACT */
+    #contact { background: var(--bg-section); }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+    .contact-info h3 { font-family: 'DM Serif Display', serif; font-size: 1.5rem; color: var(--white); margin-bottom: 1rem; }
+    .contact-info p { font-size: 0.95rem; color: var(--text-light); line-height: 1.7; margin-bottom: 1.5rem; }
+    .contact-detail { display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; color: var(--accent-light); margin-bottom: 0.75rem; text-decoration: none; font-weight: 500; transition: color 0.2s; }
+    .contact-detail:hover { color: var(--white); }
+    .contact-form { display: flex; flex-direction: column; gap: 1rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group label { font-size: 0.82rem; font-weight: 600; color: var(--text-light); }
+    .form-group input, .form-group select, .form-group textarea { padding: 0.75rem 1rem; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.9rem; color: var(--text-light); background: var(--bg-dark); transition: border-color 0.2s; outline: none; width: 100%; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
+    .form-group textarea { resize: vertical; min-height: 120px; }
+    .form-group select option { background: var(--bg-dark); }
+    .form-submit { background: var(--navy-mid); color: var(--white); padding: 0.9rem 2rem; border: 1px solid var(--accent); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+    .form-submit:hover { background: var(--navy); }
+    .form-success { display: none; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 10px; padding: 1.5rem; text-align: center; color: var(--white); font-weight: 500; }
+
+    /* CTA BANNER */
+    .cta-banner { background: var(--navy-dark); padding: 5rem 2rem; text-align: center; border-top: 1px solid var(--border); }
+    .cta-banner h2 { font-family: 'DM Serif Display', serif; font-size: clamp(1.75rem, 3.5vw, 2.5rem); color: var(--white); margin-bottom: 1rem; }
+    .cta-banner p { color: var(--text-light); max-width: 500px; margin: 0 auto 2rem; }
+
+    /* FOOTER */
+    footer { background: var(--slate); padding: 3rem 2rem 2rem; border-top: 1px solid var(--border); }
+    .footer-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 3rem; }
+    .footer-brand p { font-size: 0.875rem; line-height: 1.7; margin-top: 0.75rem; max-width: 280px; color: var(--text-light); }
+    footer h4 { font-size: 0.8rem; font-weight: 600; color: var(--white); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1rem; }
+    footer ul { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+    footer ul a { color: var(--text-light); text-decoration: none; font-size: 0.875rem; transition: color 0.2s; }
+    footer ul a:hover { color: var(--accent-light); }
+    .footer-bottom { max-width: 1100px; margin: 2rem auto 0; padding-top: 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); }
+    .footer-tagline { font-style: italic; color: var(--accent); font-size: 0.8rem; }
+
+    /* BTN NAVY */
+    .btn-navy { display: block; width: 100%; text-align: center; background: var(--navy-mid); color: var(--white); padding: 0.825rem 1.5rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none; transition: background 0.2s; border: 1px solid var(--accent); }
+    .btn-navy:hover { background: var(--navy); }
+    .btn-navy-outline { display: block; width: 100%; text-align: center; background: transparent; color: var(--accent-light); padding: 0.825rem 1.5rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; text-decoration: none; border: 1.5px solid var(--accent); transition: all 0.2s; }
+    .btn-navy-outline:hover { background: var(--navy-mid); color: var(--white); }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .nav-hamburger { display: flex; }
+      .hero-inner { grid-template-columns: 1fr; }
+      .hero-card { display: none; }
+      .audit-cards { grid-template-columns: 1fr; }
+      .serves-grid { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .pilot-inner { grid-template-columns: 1fr; gap: 2rem; padding: 3rem 2rem; }
+      .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+      .legis-grid { grid-template-columns: 1fr; }
+      .legis-sb820 { grid-column: span 1; }
+      .contact-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+      .form-row { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr; gap: 2rem; }
+      .footer-bottom { flex-direction: column; gap: 0.5rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#home" class="nav-logo">
+    <img src="cb-logo-solutions.png" alt="CourtBridge Solutions — Specialty Court Compliance Platform"/>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#serves">Who We Serve</a></li>
+    <li><a href="#providers">Platform</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="https://courtbridge-solutions.vercel.app" class="nav-cta">Log In</a></li>
+  </ul>
+  <div class="nav-hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#serves" onclick="toggleMenu()">Who We Serve</a>
+  <a href="#providers" onclick="toggleMenu()">Platform</a>
+  <a href="#about" onclick="toggleMenu()">About</a>
+  <a href="#pricing" onclick="toggleMenu()">Pricing</a>
+  <a href="#contact" onclick="toggleMenu()">Contact</a>
+  <a href="https://courtbridge-solutions.vercel.app">Log In</a>
+</div>
+
+<!-- HERO -->
+<section id="home">
+  <div class="hero-inner">
+    <div>
+      <p class="hero-eyebrow">Specialty Court Compliance Platform</p>
+      <h1 class="hero-headline">The Infrastructure<br/>That's Been <em>Missing.</em></h1>
+      <p class="hero-tagline">Verified. Connected. Accountable.</p>
+      <p class="hero-sub">CourtBridge Solutions gives specialty court providers a smarter way to track client compliance — GPS-verified check-ins, real-time alerts, and court-ready reporting. All in one platform.</p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn-primary">Request a Demo</a>
+        <a href="https://courtbridge-solutions.vercel.app/sandbox" class="btn-ghost">Try the Sandbox</a>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="hero-stat-grid">
+        <div class="hero-stat">
+          <span class="hero-stat-num">80+</span>
+          <div class="hero-stat-label">Certified Florida BIP Providers</div>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-num">#1</span>
+          <div class="hero-stat-label">Only Purpose-Built BIP Compliance Software in the U.S.</div>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-num">GPS</span>
+          <div class="hero-stat-label">Real-Time Check-In Verification</div>
+        </div>
+        <div class="hero-stat">
+          <span class="hero-stat-num">SB820</span>
+          <div class="hero-stat-label">Florida Compliance — Effective July 1, 2026</div>
+        </div>
+      </div>
+      <div class="hero-pilot-badge">
+        <strong>Now Accepting Pilot Partners</strong>
+        <p>Two provider spots available — 30-day working pilot, not a demo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AUDIT -->
+<section id="audit">
+  <div class="audit-inner">
+    <p class="section-eyebrow" style="text-align:center;">The Problem</p>
+    <h2 class="audit-question">Are you confident your current process<br/>would withstand an <em>audit today?</em></h2>
+    <p class="audit-sub">Most compliance tracking isn't really a system — it's spreadsheets, paper files, and frantic effort when reports are due. With requirements on the rise, that approach is no longer sustainable.</p>
+    <div class="audit-cards">
+      <div class="audit-card">
+        <div class="audit-card-num">01</div>
+        <h3>No Central Record</h3>
+        <p>Check-ins, appointments, and program milestones scattered across email, paper, and memory. When courts ask for proof — it's a scramble.</p>
+      </div>
+      <div class="audit-card">
+        <div class="audit-card-num">02</div>
+        <h3>Missed Alerts</h3>
+        <p>A client misses a check-in. Nobody finds out until the next session — or the next court date. Early intervention becomes impossible.</p>
+      </div>
+      <div class="audit-card">
+        <div class="audit-card-num">03</div>
+        <h3>Reporting Gaps</h3>
+        <p>Providers spend hours assembling compliance reports by hand. Inconsistencies create risk for clients and programs alike — and affect funding.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO WE SERVE -->
+<section id="serves">
+  <div class="section-inner">
+    <p class="section-eyebrow">Who We Serve</p>
+    <h2 class="section-headline">Built for everyone in the room.</h2>
+    <p class="section-sub">CourtBridge serves a diverse range of stakeholders, enhancing efficiency and clarity in compliance and documentation processes.</p>
+    <div class="serves-grid">
+      <div class="serve-card">
+        <div class="serve-card-label">For Providers</div>
+        <h3>Organized. Audit-Ready. Professional.</h3>
+        <ul class="serve-list">
+          <li>View all client activity in one place</li>
+          <li>Track attendance and participation</li>
+          <li>Identify who needs follow-up</li>
+          <li>Reduce reporting stress</li>
+          <li>Create cleaner proof of compliance</li>
+          <li>Avoid scattered records</li>
+          <li>Enhance professionalism</li>
+        </ul>
+      </div>
+      <div class="serve-card">
+        <div class="serve-card-label">For Clients</div>
+        <h3>Clear. Simple. Accountable.</h3>
+        <ul class="serve-list">
+          <li>Know exactly what they need to do</li>
+          <li>Easy GPS-verified check-ins</li>
+          <li>Have proof of participation</li>
+          <li>Avoid confusion about requirements</li>
+          <li>Stay accountable with structure</li>
+          <li>See their own progress</li>
+        </ul>
+      </div>
+      <div class="serve-card">
+        <div class="serve-card-label">For Courts &amp; Probation</div>
+        <h3>Consistent. Timestamped. Reliable.</h3>
+        <ul class="serve-list">
+          <li>Cleaner, consistent reports</li>
+          <li>Timestamped documentation</li>
+          <li>Easier to understand data</li>
+          <li>Reduced back-and-forth with providers</li>
+          <li>Audit-ready compliance records</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLATFORM -->
+<section id="providers">
+  <div class="section-inner">
+    <p class="section-eyebrow">The Platform</p>
+    <h2 class="section-headline">Everything your program needs.<br/>Nothing you don't.</h2>
+    <p class="section-sub">Built for boutique specialty court programs — drug courts, DUI courts, mental health courts, domestic violence intervention programs, and more.</p>
+    <div class="features-grid">
+      <div class="feature-item">
+        <div class="feature-num">01 — GPS Verification</div>
+        <h3>GPS Check-In Verification</h3>
+        <p>Clients check in from their phone with real-time GPS capture. Timestamp and location logged automatically — no manual entry required.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-num">02 — Alerts</div>
+        <h3>Missed Check-In Alerts</h3>
+        <p>Instant alerts when a client misses a scheduled check-in. Catch issues early before they become compliance violations.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-num">03 — Enrollment</div>
+        <h3>Client Enrollment by Link</h3>
+        <p>Send a secure enrollment link via SMS or email. Clients complete onboarding from their phone in minutes — no app store required.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-num">04 — Dashboard</div>
+        <h3>Compliance Dashboards</h3>
+        <p>Real-time view of every client's status — check-ins, phases, upcoming appointments, and flags. Know your caseload at a glance.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-num">05 — Reporting</div>
+        <h3>Court-Ready Reports</h3>
+        <p>Generate clean, consistent compliance reports on demand. Hand off to courts with confidence — documentation that stands up to scrutiny.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-num">06 — Access</div>
+        <h3>Role-Based Access</h3>
+        <p>Separate portals for providers and clients. Phase 1 is zero-PHI architecture — everyone sees exactly what they need, nothing more.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PILOT -->
+<section id="pilot">
+  <div class="pilot-inner">
+    <div class="pilot-left">
+      <h2>Join the 30-Day Pilot Program.</h2>
+      <p>We're inviting two providers to participate in a private working pilot — not a demo. You get full access, hands-on support, and a direct role in shaping the platform.</p>
+      <ul class="pilot-checks">
+        <li>Full platform access</li>
+        <li>Hands-on onboarding support</li>
+        <li>Direct role in shaping the product</li>
+        <li>Early partner pricing locked in</li>
+      </ul>
+    </div>
+    <div class="pilot-right">
+      <p class="pilot-trigger">Is your team:</p>
+      <h3>Ready to stop tracking compliance manually?</h3>
+      <p>If you're chasing down check-ins, managing documentation by hand, or struggling to keep records organized for reporting — CourtBridge is built for you.</p>
+      <a href="#contact" class="btn-primary" style="display:block;text-align:center;">Contact Us About the Pilot</a>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-inner">
+    <div class="about-grid">
+      <div>
+        <p class="section-eyebrow">Our Story</p>
+        <h2 class="section-headline">Built From the Inside Out.</h2>
+        <blockquote class="about-quote">"Providers should be caregivers, not administrators."</blockquote>
+        <p class="about-body">CourtBridge Solutions wasn't built in a conference room. It was built by someone with deep professional roots in the specialty court and criminal justice ecosystem — someone who saw the same gaps show up again and again.</p>
+        <p class="about-body">The tools that exist today were built for enterprise agencies with enterprise budgets. The boutique programs — the ones doing the hardest, most personal work — were left to improvise. CourtBridge is built for them.</p>
+        <p class="about-body">In Phase 1, our focus is on simple, structured compliance tracking without the storage of clinical or treatment data. As we move forward, CourtBridge is evolving into a more advanced platform to better support providers as their needs grow.</p>
+        <div class="founder-sig">Shannon Royer<span>Founder &amp; CEO, CourtBridge Solutions LLC · Lakewood Ranch, FL</span></div>
+      </div>
+      <div class="about-visual">
+        <div class="about-visual-headline">Our Mission</div>
+        <div class="about-visual-sub">The Justice Collaboration Exchange</div>
+        <ul class="mission-list">
+          <li>Turn compliance documentation from a burden into a built-in outcome of good program delivery.</li>
+          <li>Give specialty court providers tools that match the complexity of their work — without the enterprise price tag.</li>
+          <li>Ensure every client's participation is captured, protected, and presented accurately when it matters most.</li>
+          <li>Connect providers, courts, and clients — verified, consistent, accountable.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LEGISLATIVE -->
+<section id="legislative">
+  <div class="section-inner">
+    <p class="section-eyebrow">Florida is Ahead of the Curve</p>
+    <h2 class="section-headline">The law is raising the bar.<br/>CourtBridge helps you meet it.</h2>
+    <div class="legis-grid">
+      <div>
+        <div class="legis-quote-block">
+          <blockquote>"Continued to lead the nation by creating other specialty courts that aim to assist individuals by addressing their problem through a continuum of evidence-based services."</blockquote>
+          <cite>— Sen. Jennifer Bradley, Florida Senate</cite>
+        </div>
+        <div class="legis-quote-block">
+          <blockquote>"If we are investing in these programs, we should also be able to clearly measure whether they are working."</blockquote>
+          <cite>— Rep. Hillary Cassel, Florida House</cite>
+        </div>
+      </div>
+      <div>
+        <div class="legis-stat-grid">
+          <div class="legis-stat"><span class="legis-stat-num">1989</span><div class="legis-stat-label">Florida created the first drug court in the nation</div></div>
+          <div class="legis-stat"><span class="legis-stat-num">4,276</span><div class="legis-stat-label">Specialty courts nationwide as of 2024</div></div>
+          <div class="legis-stat"><span class="legis-stat-num">100K+</span><div class="legis-stat-label">Participants served annually nationwide</div></div>
+          <div class="legis-stat"><span class="legis-stat-num">July 1</span><div class="legis-stat-label">Florida SB 820 effective date, 2026</div></div>
+        </div>
+        <div class="legis-sb820">
+          <h3>Florida SB 820 — New Reporting Requirements</h3>
+          <p>Florida SB 820 requires specialty courts to report significantly more detailed compliance and outcome data beginning July 1, 2026. CourtBridge Solutions was built to generate exactly that proof.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-inner" style="text-align:center;">
+    <p class="section-eyebrow">Pricing</p>
+    <h2 class="section-headline">Pricing details coming soon.</h2>
+    <p class="section-sub" style="margin:0 auto 2rem;">We're currently working with our early pilot partners to finalize pricing. Contact us to learn more about early partner rates.</p>
+    <a href="#contact" class="btn-primary" style="display:inline-block;">Get in Touch</a>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section id="demo">
+  <div class="demo-inner">
+    <p class="section-eyebrow" style="text-align:center;">Live Sandbox</p>
+    <h2>See CourtBridge in Action.</h2>
+    <p>Try our live sandbox demo — no login required. Walk through the full flow: provider enrolls a client, client checks in with GPS verification, compliance data is captured automatically.</p>
+    <a href="https://courtbridge-solutions.vercel.app/sandbox" class="btn-primary" style="display:inline-block;">Try the Demo</a>
+    <p class="demo-url">courtbridge-solutions.vercel.app/sandbox</p>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="contact-grid">
+      <div class="contact-info">
+        <p class="section-eyebrow">Get in Touch</p>
+        <h2 class="section-headline">Ready to see it in action?</h2>
+        <p>We're accepting early provider partners now. If you run a specialty court program — drug court, DUI court, mental health court, domestic violence intervention, or similar — we'd love to connect.</p>
+        <p>Fill out the form and we'll be in touch within one business day.</p>
+        <a href="mailto:info@courtbridgesolutions.com" class="contact-detail">info@courtbridgesolutions.com</a>
+        <a href="tel:+17372324091" class="contact-detail">(737) 232-4091</a>
+        <div style="margin-top:1.5rem;font-size:0.85rem;color:var(--text-muted);">CourtBridge Solutions LLC<br/>Lakewood Ranch, FL<br/>Serving Florida · Ohio · Nationwide</div>
+      </div>
+      <div>
+        <div class="contact-form" id="contactForm">
+          <div class="form-row">
+            <div class="form-group"><label>First Name</label><input type="text" placeholder="Jane"/></div>
+            <div class="form-group"><label>Last Name</label><input type="text" placeholder="Smith"/></div>
+          </div>
+          <div class="form-group"><label>Email</label><input type="email" placeholder="jane@yourprogram.org"/></div>
+          <div class="form-group"><label>Organization / Program Name</label><input type="text" placeholder="Suncoast Drug Court"/></div>
+          <div class="form-group">
+            <label>Program Type</label>
+            <select>
+              <option value="">Select one...</option>
+              <option>Drug Court</option>
+              <option>DUI / DWI Court</option>
+              <option>Mental Health Court</option>
+              <option>Domestic Violence Intervention (BIP)</option>
+              <option>Veterans Treatment Court</option>
+              <option>Other Specialty Court</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Tell us about your program</label><textarea placeholder="How many clients do you serve? What's your biggest compliance challenge right now?"></textarea></div>
+          <button class="form-submit" onclick="submitForm()">Send Message</button>
+        </div>
+        <div class="form-success" id="formSuccess">
+          <strong>Message received.</strong><br/>We'll be in touch within one business day.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<div class="cta-banner">
+  <h2>Early partners get locked-in launch pricing.</h2>
+  <p>We're building CourtBridge with our first provider partners. Join now and help shape a platform that actually fits how you work.</p>
+  <a href="#contact" class="btn-primary" style="display:inline-block;">Request Early Access</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="cb-logo-solutions.png" alt="CourtBridge Solutions" style="height:48px;width:auto;object-fit:contain;"/>
+      <p>Purpose-built compliance software for specialty court programs. Verified. Connected. Accountable.</p>
+    </div>
+    <div>
+      <h4>Platform</h4>
+      <ul>
+        <li><a href="#serves">Who We Serve</a></li>
+        <li><a href="#providers">Platform</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="https://courtbridge-solutions.vercel.app/sandbox">Try the Demo</a></li>
+        <li><a href="https://courtbridge-solutions.vercel.app">Log In</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#about">About</a></li>
+        <li><a href="#pilot">Pilot Program</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="mailto:info@courtbridgesolutions.com">Email Us</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 CourtBridge Solutions LLC · Lakewood Ranch, FL</span>
+    <span class="footer-tagline">The infrastructure that's been missing.</span>
+  </div>
+</footer>
+
+<script>
+  function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
+  window.addEventListener('scroll', () => document.getElementById('mobileMenu').classList.remove('open'));
+  function submitForm() {
+    const email = document.querySelector('#contactForm input[type="email"]').value;
+    const fname = document.querySelector('#contactForm input[placeholder="Jane"]').value;
+    if (!fname || !email) { alert('Please fill in your name and email.'); return; }
+    document.getElementById('contactForm').style.display = 'none';
+    document.getElementById('formSuccess').style.display = 'block';
+  }
+</script>
+</body>
+</html>

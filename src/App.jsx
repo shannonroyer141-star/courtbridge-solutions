@@ -5,6 +5,7 @@ import ClientAppDashboard from './screens/ClientAppDashboard';
 import ClientOnboarding from './screens/ClientOnboarding';
 import SandboxApp from './demo/SandboxApp';
 import CheckIn from './screens/CheckIn';
+import CheckInHistory from './screens/CheckInHistory';
 import Clients from './screens/Clients';
 import Alerts from './screens/Alerts';
 import Reports from './screens/Reports';
@@ -153,7 +154,7 @@ export default function App() {
     switch (activeScreen) {
       case 'dashboard': return <ProviderDashboard session={session} onNavigate={navTo} />;
       case 'clients': return <Clients session={session} />;
-      case 'checkin': return <CheckIn session={session} onBack={() => navTo('dashboard')} />;
+      case 'checkin': return <CheckInHistory session={session} />;
       case 'alerts': return <Alerts session={session} />;
       case 'reports': return <Reports session={session} />;
       case 'drugtests': return <DrugTests session={session} />;

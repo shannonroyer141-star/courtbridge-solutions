@@ -18,9 +18,9 @@ export default function ClientOnboarding() {
   async function validateToken() {
     const { data, error } = await supabase
       .from('invites')
-      .select('*, clients(name, program_type)')
+      .select('*')
       .eq('token', token)
-      .eq('used', false)
+      .eq('accepted', false)
       .gt('expires_at', new Date().toISOString())
       .single()
 
@@ -37,7 +37,7 @@ export default function ClientOnboarding() {
     setSubmitting(true)
 
     const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: invite.email,
+      email: invite.client_email,
       password: form.password
     })
 
@@ -49,18 +49,22 @@ export default function ClientOnboarding() {
     await supabase.from('profiles').insert({
       id: userId,
       role: 'client',
-      full_name: invite.clients?.name || invite.email
+      full_name: invite.client_name || invite.client_email
     })
 
-    await supabase.from('clients').update({
-      auth_user_id: userId,
+    const { data: newClient } = await supabase.from('clients').insert({
+      name: invite.client_name,
+      email: invite.client_email,
       phone: form.phone || null,
+      provider_id: invite.provider_id,
+      auth_user_id: userId,
       onboarding_complete: true
-    }).eq('id', invite.client_id)
+    }).select().single()
 
     await supabase.from('invites').update({
-      used: true,
-      used_at: new Date().toISOString()
+      accepted: true,
+      accepted_at: new Date().toISOString(),
+      client_id: newClient?.id || null
     }).eq('token', token)
 
     setSubmitting(false)
@@ -91,7 +95,7 @@ export default function ClientOnboarding() {
         <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
         <div style={{ fontSize: 22, fontWeight: 700, color: '#111827', marginBottom: 8 }}>You're enrolled!</div>
         <div style={{ fontSize: 15, color: '#6B7280', marginBottom: 24 }}>
-          Check your email ({invite?.email}) for a confirmation link, then log in to CourtBridge.
+          Check your email ({invite?.client_email}) for a confirmation link, then log in to CourtBridge.
         </div>
         <div style={{ background: '#EFF6FF', borderRadius: 10, padding: 16, fontSize: 14, color: BLUE }}>
           <strong>Next step:</strong> Open your email, click the confirmation link, then return here to log in.
@@ -108,16 +112,16 @@ export default function ClientOnboarding() {
           <div style={{ color: '#A8C4E0', fontSize: 13, marginTop: 4 }}>Complete Your Enrollment</div>
         </div>
         <div style={{ padding: '24px 32px 32px' }}>
-          {invite?.clients?.name && (
+          {invite?.client_name && (
             <div style={{ background: '#F0F9FF', borderRadius: 8, padding: '10px 14px', marginBottom: 20, fontSize: 14, color: BLUE }}>
-              Welcome, <strong>{invite.clients.name}</strong>
-              {invite.clients.program_type && <span> · {invite.clients.program_type.replace(/_/g, ' ')}</span>}
+              Welcome, <strong>{invite.client_name}</strong>
+              {invite.program_type && <span> · {invite.program_type.replace(/_/g, ' ')}</span>}
             </div>
           )}
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Email</label>
-              <input value={invite?.email || ''} disabled
+              <input value={invite?.client_email || ''} disabled
                 style={{ width: '100%', padding: '11px 14px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 15, background: '#F9FAFB', color: '#6B7280', boxSizing: 'border-box' }} />
             </div>
             <div style={{ marginBottom: 16 }}>

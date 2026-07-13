@@ -9,11 +9,23 @@ export default function CheckIn({ session, onBack }) {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [gpsLoading, setGpsLoading] = useState(true)
+  const [clientId, setClientId] = useState(null)
+  const [clientLookupError, setClientLookupError] = useState(null)
 
   useEffect(() => {
     const now = new Date()
     const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
     setTimestamp(local.toISOString().slice(0, 16))
+
+    supabase
+      .from('clients')
+      .select('id')
+      .or(`auth_user_id.eq.${session.user.id},email.eq.${session.user.email}`)
+      .limit(1)
+      .then(({ data }) => {
+        if (data?.[0]) setClientId(data[0].id)
+        else setClientLookupError('No client record found for this account.')
+      })
 
     if (!navigator.geolocation) {
       setLocationError('GPS not available on this device.')
@@ -53,9 +65,10 @@ export default function CheckIn({ session, onBack }) {
   async function handleSubmit(e) {
     e.preventDefault()
     if (!location) { alert('Location is required. Please enable GPS.'); return }
+    if (!clientId) { alert(clientLookupError || 'Client record not loaded yet. Please try again.'); return }
     setSubmitting(true)
-    const { error } = await supabase.from('check_ins').insert({
-      client_id: session.user.id,
+    const { error } = await supabase.from('checkins').insert({
+      client_id: clientId,
       checked_in_at: new Date(timestamp).toISOString(),
       latitude: location.lat,
       longitude: location.lng,

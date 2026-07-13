@@ -11,7 +11,7 @@ export default function Alerts({ session }) {
     setLoading(true)
     const { data: clients } = await supabase
       .from('clients')
-      .select('id, name, program_type, check_in_frequency_days')
+      .select('id, name, population_type')
       .eq('provider_id', session.user.id)
       .eq('status', 'active')
 
@@ -24,7 +24,7 @@ export default function Alerts({ session }) {
       cutoff.setDate(cutoff.getDate() - freqDays)
 
       const { data: recentCheckin } = await supabase
-        .from('check_ins')
+        .from('checkins')
         .select('checked_in_at')
         .eq('client_id', client.id)
         .gte('checked_in_at', cutoff.toISOString())
@@ -33,7 +33,7 @@ export default function Alerts({ session }) {
 
       if (!recentCheckin || recentCheckin.length === 0) {
         const { data: lastCheckin } = await supabase
-          .from('check_ins')
+          .from('checkins')
           .select('checked_in_at')
           .eq('client_id', client.id)
           .order('checked_in_at', { ascending: false })
@@ -86,7 +86,7 @@ export default function Alerts({ session }) {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
                   <div style={{ fontSize: 16, fontWeight: 700, color: '#111827' }}>{client.name}</div>
-                  <div style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>{client.program_type || 'Program not set'}</div>
+                  <div style={{ fontSize: 13, color: '#6B7280', marginTop: 2 }}>{client.population_type || 'Program not set'}</div>
                 </div>
                 <div style={{ background: '#FEE2E2', color: '#991B1B', borderRadius: 20, padding: '4px 12px', fontSize: 12, fontWeight: 700 }}>
                   MISSED

@@ -17,8 +17,8 @@ export default function Reports() {
   async function fetchCheckins() {
     if (!selectedClient) return;
     setLoading(true);
-    const { data } = await supabase.from('Check_ins').select('*')
-      .eq('client_id', selectedClient).order('created_at', { ascending: false });
+    const { data } = await supabase.from('checkins').select('*')
+      .eq('client_id', selectedClient).order('checked_in_at', { ascending: false });
     if (data) setCheckins(data);
     setLoading(false);
   }
@@ -27,12 +27,11 @@ export default function Reports() {
 
   function exportCSV() {
     if (!checkins.length) return;
-    const headers = ['Date', 'Time', 'Latitude', 'Longitude', 'Location Valid'];
+    const headers = ['Date', 'Time', 'Latitude', 'Longitude'];
     const rows = checkins.map(c => [
-      new Date(c.check_in_time || c.created_at).toLocaleDateString(),
-      new Date(c.check_in_time || c.created_at).toLocaleTimeString(),
-      c.latitude || '', c.longitude || '',
-      c.location_valid === false ? 'FLAGGED' : 'Valid'
+      new Date(c.checked_in_at).toLocaleDateString(),
+      new Date(c.checked_in_at).toLocaleTimeString(),
+      c.latitude || '', c.longitude || ''
     ]);
     const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -75,16 +74,14 @@ export default function Reports() {
                 <th style={{ padding: '12px', textAlign: 'left' }}>Date & Time</th>
                 <th style={{ padding: '12px', textAlign: 'left' }}>Latitude</th>
                 <th style={{ padding: '12px', textAlign: 'left' }}>Longitude</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Status</th>
               </tr>
             </thead>
             <tbody>
               {checkins.map((c, i) => (
                 <tr key={c.id} style={{ background: i % 2 === 0 ? '#f9f9f9' : 'white' }}>
-                  <td style={{ padding: '12px', borderBottom: '1px solid #eee' }}>{new Date(c.check_in_time || c.created_at).toLocaleString()}</td>
+                  <td style={{ padding: '12px', borderBottom: '1px solid #eee' }}>{new Date(c.checked_in_at).toLocaleString()}</td>
                   <td style={{ padding: '12px', borderBottom: '1px solid #eee' }}>{c.latitude || '—'}</td>
                   <td style={{ padding: '12px', borderBottom: '1px solid #eee' }}>{c.longitude || '—'}</td>
-                  <td style={{ padding: '12px', borderBottom: '1px solid #eee', color: c.location_valid === false ? '#E74C3C' : '#27AE60', fontWeight: 'bold' }}>{c.location_valid === false ? '⚠️ Flagged' : '✅ Valid'}</td>
                 </tr>
               ))}
             </tbody>

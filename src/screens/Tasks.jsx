@@ -3,15 +3,21 @@ import { supabase } from '../supabase';
 
 export default function Tasks() {
   const [tasks, setTasks] = useState([]);
+  const [clients, setClients] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ title: '', assigned_to: '', due_date: '', priority: 'Medium', notes: '' });
+  const [form, setForm] = useState({ client_id: '', title: '', assigned_to: '', due_date: '', priority: 'Medium', notes: '' });
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { fetchTasks(); }, []);
+  useEffect(() => { fetchTasks(); fetchClients(); }, []);
 
   async function fetchTasks() {
-    const { data } = await supabase.from('tasks').select('*').order('due_date', { ascending: true });
+    const { data } = await supabase.from('tasks').select('*, clients(name)').order('due_date', { ascending: true });
     if (data) setTasks(data);
+  }
+
+  async function fetchClients() {
+    const { data } = await supabase.from('clients').select('id, name').order('name');
+    if (data) setClients(data);
   }
 
   async function toggleComplete(task) {
@@ -20,9 +26,11 @@ export default function Tasks() {
   }
 
   async function handleSave() {
+    if (!form.title || !form.client_id) return;
     setSaving(true);
-    await supabase.from('tasks').insert([{ ...form, completed: false }]);
-    setForm({ title: '', assigned_to: '', due_date: '', priority: 'Medium', notes: '' });
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase.from('tasks').insert([{ ...form, provider_id: user.id, completed: false }]);
+    setForm({ client_id: '', title: '', assigned_to: '', due_date: '', priority: 'Medium', notes: '' });
     setShowForm(false);
     setSaving(false);
     fetchTasks();
@@ -38,13 +46,17 @@ export default function Tasks() {
       </div>
       {showForm && (
         <div style={{ background: 'white', border: '1px solid #ddd', borderRadius: '12px', padding: '25px', marginBottom: '20px' }}>
+          <select value={form.client_id} onChange={e => setForm({...form, client_id: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd' }}>
+            <option value="">Select Client *</option>
+            {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
           <input placeholder="Task Title *" value={form.title} onChange={e => setForm({...form, title: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box' }} />
           <input placeholder="Assigned To" value={form.assigned_to} onChange={e => setForm({...form, assigned_to: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box' }} />
           <input type="date" value={form.due_date} onChange={e => setForm({...form, due_date: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box' }} />
           <select value={form.priority} onChange={e => setForm({...form, priority: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '8px', border: '1px solid #ddd' }}>
             <option>High</option><option>Medium</option><option>Low</option>
           </select>
-          <button onClick={handleSave} disabled={saving} style={{ padding: '12px 25px', background: '#27AE60', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '15px' }}>{saving ? 'Saving...' : 'Save Task'}</button>
+          <button onClick={handleSave} disabled={saving || !form.title || !form.client_id} style={{ padding: '12px 25px', background: '#27AE60', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '15px' }}>{saving ? 'Saving...' : 'Save Task'}</button>
         </div>
       )}
       {tasks.filter(t => !t.completed).map(t => (
@@ -52,6 +64,7 @@ export default function Tasks() {
           <input type="checkbox" checked={false} onChange={() => toggleComplete(t)} style={{ width: '18px', height: '18px', cursor: 'pointer' }} />
           <div style={{ flex: 1 }}>
             <p style={{ margin: 0, fontWeight: 'bold', color: '#1B3A6B' }}>{t.title}</p>
+            {t.clients?.name && <p style={{ margin: '3px 0 0', fontSize: '13px', color: '#666' }}>{t.clients.name}</p>}
             {t.assigned_to && <p style={{ margin: '3px 0 0', fontSize: '13px', color: '#666' }}>→ {t.assigned_to}</p>}
             {t.due_date && <p style={{ margin: '3px 0 0', fontSize: '13px', color: '#888' }}>Due: {new Date(t.due_date).toLocaleDateString()}</p>}
           </div>

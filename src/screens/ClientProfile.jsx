@@ -16,9 +16,9 @@ export default function ClientProfile({ clientId }) {
     setLoading(true);
     const [{ data: c }, { data: ci }, { data: cd }, { data: dt }] = await Promise.all([
       supabase.from('clients').select('*').eq('id', clientId).single(),
-      supabase.from('check_ins').select('*').eq('user_id', clientId).order('created_at', { ascending: false }).limit(7),
-      supabase.from('court_dates').select('*').eq('user_id', clientId).order('date', { ascending: true }).limit(3),
-      supabase.from('drug_tests').select('*').eq('user_id', clientId).order('test_date', { ascending: false }).limit(3),
+      supabase.from('checkins').select('*').eq('client_id', clientId).order('checked_in_at', { ascending: false }).limit(7),
+      supabase.from('court_dates').select('*').eq('client_id', clientId).order('hearing_date', { ascending: true }).limit(3),
+      supabase.from('drug_tests').select('*').eq('client_id', clientId).order('test_date', { ascending: false }).limit(3),
     ]);
     setClient(c);
     setCheckIns(ci || []);
@@ -40,10 +40,10 @@ export default function ClientProfile({ clientId }) {
     <div style={{ padding: '24px', maxWidth: '800px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
         <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#1e3a5f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '22px', fontWeight: 'bold' }}>
-          {(client.full_name || client.email || '?')[0].toUpperCase()}
+          {(client.name || client.email || '?')[0].toUpperCase()}
         </div>
         <div>
-          <h2 style={{ margin: 0, fontSize: '22px', color: '#1e3a5f' }}>{client.full_name || client.email}</h2>
+          <h2 style={{ margin: 0, fontSize: '22px', color: '#1e3a5f' }}>{client.name || client.email}</h2>
           <span style={{ background: getStatusColor(client.status), color: 'white', padding: '2px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
             {client.status || 'Pending'}
           </span>
@@ -55,8 +55,8 @@ export default function ClientProfile({ clientId }) {
         {checkIns.length === 0 ? <p style={{ color: '#9ca3af', margin: 0 }}>No check-ins recorded.</p> : (
           checkIns.map(ci => (
             <div key={ci.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f3f4f6' }}>
-              <span style={{ color: '#374151' }}>{new Date(ci.created_at).toLocaleDateString()}</span>
-              <span style={{ color: '#6b7280', fontSize: '13px' }}>{ci.location || 'No location'}</span>
+              <span style={{ color: '#374151' }}>{new Date(ci.checked_in_at).toLocaleDateString()}</span>
+              <span style={{ color: '#6b7280', fontSize: '13px' }}>{ci.latitude && ci.longitude ? `${ci.latitude.toFixed(5)}, ${ci.longitude.toFixed(5)}` : 'No location'}</span>
               <span style={{ color: '#16a34a', fontWeight: '600', fontSize: '13px' }}>✓ Checked In</span>
             </div>
           ))
@@ -68,9 +68,9 @@ export default function ClientProfile({ clientId }) {
         {courtDates.length === 0 ? <p style={{ color: '#9ca3af', margin: 0 }}>No upcoming court dates.</p> : (
           courtDates.map(cd => (
             <div key={cd.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f3f4f6' }}>
-              <span style={{ color: '#374151' }}>{new Date(cd.date).toLocaleDateString()}</span>
+              <span style={{ color: '#374151' }}>{new Date(cd.hearing_date).toLocaleDateString()}</span>
               <span style={{ color: '#6b7280', fontSize: '13px' }}>{cd.court_name || 'Court'}</span>
-              <span style={{ background: '#fef3c7', color: '#92400e', padding: '2px 8px', borderRadius: '8px', fontSize: '12px' }}>{cd.type || 'Hearing'}</span>
+              <span style={{ background: '#fef3c7', color: '#92400e', padding: '2px 8px', borderRadius: '8px', fontSize: '12px' }}>{cd.hearing_type || 'Hearing'}</span>
             </div>
           ))
         )}
@@ -82,7 +82,7 @@ export default function ClientProfile({ clientId }) {
           drugTests.map(dt => (
             <div key={dt.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f3f4f6' }}>
               <span style={{ color: '#374151' }}>{new Date(dt.test_date).toLocaleDateString()}</span>
-              <span style={{ color: '#6b7280', fontSize: '13px' }}>{dt.substance || 'Panel'}</span>
+              <span style={{ color: '#6b7280', fontSize: '13px' }}>{dt.substances_tested || dt.test_type || 'Panel'}</span>
               <span style={{ background: dt.result === 'negative' ? '#dcfce7' : '#fee2e2', color: dt.result === 'negative' ? '#16a34a' : '#dc2626', padding: '2px 8px', borderRadius: '8px', fontSize: '12px', fontWeight: '600' }}>
                 {dt.result || 'Pending'}
               </span>

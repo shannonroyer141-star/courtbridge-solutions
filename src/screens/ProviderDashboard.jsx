@@ -229,10 +229,8 @@ export default function ProviderDashboard() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const todayStr = today.toISOString();
-    const yesterday = new Date(Date.now() - 86400000).toISOString();
 
     const { data: todayCheckIns } = await supabase.from('checkins').select('*').in('client_id', clientIds).gte('checked_in_at', todayStr);
-    const { data: missedCheckIns } = await supabase.from('checkins').select('*, clients(name)').in('client_id', clientIds).gte('checked_in_at', yesterday).eq('is_catch', false);
     const { data: alerts } = await supabase.from('alerts').select('*').in('client_id', clientIds).eq('resolved', false);
     const { data: weekCheckIns } = await supabase.from('checkins').select('*').in('client_id', clientIds).gte('checked_in_at', new Date(Date.now() - 7 * 86400000).toISOString());
     const { data: recentCheckins } = await supabase.from('checkins').select('*, clients(name)').in('client_id', clientIds).order('checked_in_at', { ascending: false }).limit(10);

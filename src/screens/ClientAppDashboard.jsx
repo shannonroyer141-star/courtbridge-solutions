@@ -227,12 +227,14 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
       setIsFirstTime(!clientData.onboarding_complete)
     } else {
       setIsFirstTime(true)
+      setLoading(false)
+      return
     }
 
     const { data: ci } = await supabase
-      .from('check_ins')
+      .from('checkins')
       .select('*')
-      .eq('client_id', userId)
+      .eq('client_id', clientData.id)
       .order('checked_in_at', { ascending: false })
       .limit(10)
     if (ci) setCheckIns(ci)
@@ -240,7 +242,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
     const { data: cd } = await supabase
       .from('court_dates')
       .select('*')
-      .eq('client_id', userId)
+      .eq('client_id', clientData.id)
       .gte('hearing_date', new Date().toISOString().split('T')[0])
       .order('hearing_date')
       .limit(5)
@@ -249,7 +251,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
     const { data: tk } = await supabase
       .from('tasks')
       .select('*')
-      .eq('client_id', userId)
+      .eq('client_id', clientData.id)
       .eq('completed', false)
       .order('due_date')
       .limit(5)
@@ -260,18 +262,17 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
 
   async function handleCheckIn() {
     if (checkedInToday) return
+    if (!client?.id) { setCheckInMsg({ type: 'error', text: 'Client record not found. Please contact your provider.' }); return }
     setCheckingIn(true)
     setCheckInMsg(null)
     try {
-      const userId = session?.user?.id
       const now = new Date().toISOString()
       const pos = await new Promise((resolve, reject) =>
         navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 })
       )
       const { latitude, longitude } = pos.coords
-      const { error } = await supabase.from('check_ins').insert({
-        client_id: userId,
-        provider_id: client?.provider_id,
+      const { error } = await supabase.from('checkins').insert({
+        client_id: client.id,
         checked_in_at: now,
         latitude,
         longitude,

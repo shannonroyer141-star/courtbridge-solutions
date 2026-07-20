@@ -1,10 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 
 export default function Settings() {
   const [checkinFreq, setCheckinFreq] = useState('24');
   const [alertEmail, setAlertEmail] = useState('');
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { loadSettings(); }, []);
+
+  async function loadSettings() {
+    const { data: { user } } = await supabase.auth.getUser();
+    const { data } = await supabase.from('profiles')
+      .select('checkin_frequency_hours, alert_email')
+      .eq('id', user.id)
+      .single();
+    if (data) {
+      setCheckinFreq(String(data.checkin_frequency_hours ?? 24));
+      setAlertEmail(data.alert_email || '');
+    }
+    setLoading(false);
+  }
 
   async function saveSettings() {
     const { data: { user } } = await supabase.auth.getUser();
@@ -12,6 +28,10 @@ export default function Settings() {
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   }
+
+  if (loading) return (
+    <div style={{ padding: '30px', color: '#666' }}>Loading settings...</div>
+  );
 
   return (
     <div style={{ padding: '30px', maxWidth: '600px' }}>

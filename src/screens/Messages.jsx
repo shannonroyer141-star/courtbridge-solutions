@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 
+const BLUE = '#1B3A6B';
+
 const TEMPLATES = {
   missed_checkin: {
     label: '⚠️ Missed Check-In',
@@ -39,7 +41,9 @@ export default function Messages({ clientId }) {
   const [body, setBody] = useState('');
   const [sending, setSending] = useState(false);
   const [status, setStatus] = useState('');
-  const [tab, setTab] = useState('inbox');
+  const [activeThreadClientId, setActiveThreadClientId] = useState(null);
+  const [replyText, setReplyText] = useState('');
+  const [replySending, setReplySending] = useState(false);
 
   useEffect(() => {
     fetchClients();
@@ -59,7 +63,7 @@ export default function Messages({ clientId }) {
   }
 
   async function fetchMessages() {
-    const { data } = await supabase.from('messages').select('*, clients(name)').order('created_at', { ascending: false });
+    const { data } = await supabase.from('messages').select('*, clients(name, email)').order('created_at', { ascending: true });
     if (data) setMessages(data);
   }
 
@@ -109,24 +113,78 @@ export default function Messages({ clientId }) {
     setSending(false);
   }
 
+  async function sendReply(client) {
+    if (!replyText.trim()) return;
+    setReplySending(true);
+    try {
+      if (client?.email) {
+        const { data: { session } } = await supabase.auth.getSession();
+        await fetch(`https://howvgvrrxcpdiqjbnhzn.supabase.co/functions/v1/send-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+          body: JSON.stringify({
+            to_email: client.email,
+            to_name: client.name,
+            subject: 'Message from your provider',
+            body: replyText.trim(),
+            client_id: client.id,
+            message_type: 'reply',
+          }),
+        });
+      } else {
+        await supabase.from('messages').insert({
+          client_id: client.id,
+          subject: 'Message from your provider',
+          body: replyText.trim(),
+          sender_role: 'provider',
+          message_type: 'reply',
+          delivered: true,
+        });
+      }
+      setReplyText('');
+      fetchMessages();
+    } finally {
+      setReplySending(false);
+    }
+  }
+
   const client = clients.find(c => c.id === selectedClient);
 
+  const threadsByClient = messages.reduce((acc, m) => {
+    if (!m.client_id) return acc;
+    if (!acc[m.client_id]) acc[m.client_id] = [];
+    acc[m.client_id].push(m);
+    return acc;
+  }, {});
+
+  const threadList = Object.entries(threadsByClient).map(([cid, msgs]) => {
+    const last = msgs[msgs.length - 1];
+    const hasUrgent = msgs.some(m => m.is_urgent && m.sender_role === 'client');
+    return { clientId: cid, clientName: last.clients?.name || 'Unknown', clientEmail: last.clients?.email, last, hasUrgent, count: msgs.length };
+  }).sort((a, b) => {
+    if (a.hasUrgent !== b.hasUrgent) return a.hasUrgent ? -1 : 1;
+    return new Date(b.last.created_at) - new Date(a.last.created_at);
+  });
+
+  const activeThread = activeThreadClientId ? threadsByClient[activeThreadClientId] || [] : [];
+  const activeThreadMeta = threadList.find(t => t.clientId === activeThreadClientId);
+
   return (
-    <div style={{ padding: '30px', maxWidth: '800px' }}>
+    <div style={{ padding: '30px', maxWidth: '1100px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-        <h1 style={{ color: '#1B3A6B', margin: 0 }}>Messages</h1>
+        <h1 style={{ color: BLUE, margin: 0 }}>Messages</h1>
         <button onClick={() => setShowCompose(!showCompose)}
-          style={{ padding: '10px 20px', background: '#1B3A6B', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}>
+          style={{ padding: '10px 20px', background: BLUE, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}>
           ✉️ Compose
         </button>
       </div>
       <p style={{ color: '#666', marginBottom: '24px', fontSize: '14px' }}>
-        All messages are sent via email and automatically logged to the client's record.
+        Two-way messages with your clients — replies send by email and are logged automatically.
       </p>
 
       {showCompose && (
         <div style={{ background: 'white', border: '1px solid #ddd', borderRadius: '12px', padding: '25px', marginBottom: '24px' }}>
-          <h2 style={{ color: '#1B3A6B', marginBottom: '16px', fontSize: '16px' }}>New Message</h2>
+          <h2 style={{ color: BLUE, marginBottom: '16px', fontSize: '16px' }}>New Message</h2>
 
           <label style={{ fontWeight: 'bold', color: '#555', fontSize: '13px', display: 'block', marginBottom: '6px' }}>Client</label>
           <select value={selectedClient} onChange={e => setSelectedClient(e.target.value)}
@@ -147,7 +205,7 @@ export default function Messages({ clientId }) {
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' }}>
             {Object.entries(TEMPLATES).map(([key, t]) => (
               <button key={key} onClick={() => setTemplate(key)}
-                style={{ padding: '7px 14px', background: template === key ? '#1B3A6B' : 'white', color: template === key ? 'white' : '#1B3A6B', border: '1px solid #1B3A6B', borderRadius: '20px', cursor: 'pointer', fontSize: '12px' }}>
+                style={{ padding: '7px 14px', background: template === key ? BLUE : 'white', color: template === key ? 'white' : BLUE, border: `1px solid ${BLUE}`, borderRadius: '20px', cursor: 'pointer', fontSize: '12px' }}>
                 {t.label}
               </button>
             ))}
@@ -169,7 +227,7 @@ export default function Messages({ clientId }) {
 
           <div style={{ display: 'flex', gap: '10px' }}>
             <button onClick={sendMessage} disabled={sending || !selectedClient || !subject || !body}
-              style={{ flex: 2, padding: '13px', background: selectedClient && subject && body ? '#1B3A6B' : '#ccc', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', cursor: 'pointer', fontWeight: 'bold' }}>
+              style={{ flex: 2, padding: '13px', background: selectedClient && subject && body ? BLUE : '#ccc', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', cursor: 'pointer', fontWeight: 'bold' }}>
               {sending ? 'Sending...' : '📤 Send Message'}
             </button>
             <button onClick={() => { setShowCompose(false); setStatus(''); }}
@@ -180,36 +238,77 @@ export default function Messages({ clientId }) {
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-        <button onClick={() => setTab('inbox')}
-          style={{ padding: '9px 18px', background: tab === 'inbox' ? '#1B3A6B' : 'white', color: tab === 'inbox' ? 'white' : '#1B3A6B', border: '1px solid #1B3A6B', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}>
-          Sent ({messages.length})
-        </button>
-      </div>
-
-      {messages.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+      {threadList.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '40px', color: '#666', background: 'white', border: '1px solid #ddd', borderRadius: '12px' }}>
           <p style={{ fontSize: '40px', marginBottom: '12px' }}>✉️</p>
-          <p>No messages sent yet. Compose your first message above.</p>
+          <p>No messages yet. Compose your first message above.</p>
         </div>
-      ) : messages.map(m => (
-        <div key={m.id} style={{ background: 'white', border: '1px solid #ddd', borderRadius: '10px', padding: '16px', marginBottom: '10px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-            <div>
-              <p style={{ margin: 0, fontWeight: 'bold', color: '#1B3A6B', fontSize: '14px' }}>{m.clients?.name || m.to_name}</p>
-              <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#888' }}>{m.to_email}</p>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <span style={{ background: m.delivered ? '#d4edda' : '#fdecea', color: m.delivered ? '#155724' : '#721c24', padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 'bold' }}>
-                {m.delivered ? '✅ Delivered' : '❌ Failed'}
-              </span>
-              <p style={{ margin: '4px 0 0', fontSize: '11px', color: '#aaa' }}>{new Date(m.sent_at).toLocaleString()}</p>
-            </div>
+      ) : (
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+          <div style={{ width: '280px', flexShrink: 0, background: 'white', border: '1px solid #ddd', borderRadius: '12px', overflow: 'hidden' }}>
+            {threadList.map(t => (
+              <div key={t.clientId} onClick={() => setActiveThreadClientId(t.clientId)}
+                style={{
+                  padding: '14px 16px', borderBottom: '1px solid #eee', cursor: 'pointer',
+                  background: activeThreadClientId === t.clientId ? '#F0F4FA' : 'white',
+                }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontWeight: 'bold', fontSize: '14px', color: BLUE }}>{t.clientName}</span>
+                  {t.hasUrgent && (
+                    <span style={{ background: '#FEE2E2', color: '#991B1B', fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '20px' }}>URGENT</span>
+                  )}
+                </div>
+                <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {t.last.sender_role === 'client' ? 'Them: ' : 'You: '}{t.last.body}
+                </p>
+                <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#aaa' }}>{new Date(t.last.created_at).toLocaleDateString()}</p>
+              </div>
+            ))}
           </div>
-          <p style={{ margin: 0, fontWeight: 'bold', fontSize: '13px', color: '#333' }}>{m.subject}</p>
-          <p style={{ margin: '6px 0 0', fontSize: '13px', color: '#555', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>{m.body.length > 200 ? m.body.substring(0, 200) + '...' : m.body}</p>
+
+          <div style={{ flex: 1, background: 'white', border: '1px solid #ddd', borderRadius: '12px', minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
+            {!activeThreadClientId ? (
+              <div style={{ margin: 'auto', color: '#888', fontSize: '14px' }}>Select a conversation to view it</div>
+            ) : (
+              <>
+                <div style={{ padding: '16px 20px', borderBottom: '1px solid #eee', fontWeight: 'bold', color: BLUE }}>
+                  {activeThreadMeta?.clientName}
+                </div>
+                <div style={{ flex: 1, padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '420px', overflowY: 'auto' }}>
+                  {activeThread.map(m => (
+                    <div key={m.id} style={{
+                      alignSelf: m.sender_role === 'client' ? 'flex-start' : 'flex-end',
+                      maxWidth: '75%',
+                      background: m.sender_role === 'client' ? '#F5F6F8' : BLUE,
+                      color: m.sender_role === 'client' ? '#222' : 'white',
+                      borderRadius: '10px',
+                      padding: '10px 14px',
+                      border: m.is_urgent ? '2px solid #E74C3C' : 'none',
+                    }}>
+                      {m.is_urgent && <div style={{ fontSize: '10px', fontWeight: 700, color: m.sender_role === 'client' ? '#E74C3C' : '#FFD5D5', marginBottom: '4px', textTransform: 'uppercase' }}>Urgent</div>}
+                      {m.subject && <div style={{ fontWeight: 'bold', fontSize: '13px', marginBottom: '2px' }}>{m.subject}</div>}
+                      <div style={{ fontSize: '13px', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{m.body}</div>
+                      <div style={{ fontSize: '10px', opacity: 0.7, marginTop: '6px' }}>{new Date(m.created_at).toLocaleString()}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ padding: '16px 20px', borderTop: '1px solid #eee' }}>
+                  <textarea value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="Type a reply..." rows={2}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '14px', resize: 'vertical', fontFamily: 'inherit' }} />
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
+                    <button
+                      onClick={() => sendReply({ id: activeThreadClientId, name: activeThreadMeta?.clientName, email: activeThreadMeta?.clientEmail })}
+                      disabled={replySending || !replyText.trim()}
+                      style={{ padding: '9px 20px', background: replyText.trim() ? BLUE : '#ccc', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: replyText.trim() ? 'pointer' : 'default' }}>
+                      {replySending ? 'Sending...' : 'Reply'}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         </div>
-      ))}
+      )}
     </div>
   );
 }

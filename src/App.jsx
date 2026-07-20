@@ -23,15 +23,11 @@ import ComplianceChart from './screens/ComplianceChart';
 import MapView from './screens/MapView';
 import MeetingLog from './screens/MeetingLog';
 import OrgAdmin from './screens/OrgAdmin';
-import Policies from './screens/Policies';
 import ClientProfile from './screens/ClientProfile';
-import NonCompete from './screens/NonCompete';
-import Legal from './screens/Legal';
-import ProviderGuide from './screens/ProviderGuide';
-import SOP from './screens/SOP';
 import Messages from './screens/Messages';
 import ClientInvite from './screens/ClientInvite';
 import ViolationReport from './screens/ViolationReport';
+import FounderDocs from './screens/FounderDocs';
 
 const BLUE = '#1B3A6B';
 
@@ -47,10 +43,19 @@ export default function App() {
   const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeScreen, setActiveScreen] = useState('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 768);
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 768);
   const [expandedMenus, setExpandedMenus] = useState({
     compliance: false, clients: false, operations: false, admin: false
   });
+  const [isFounder, setIsFounder] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    const handler = e => { setIsDesktop(e.matches); setSidebarOpen(e.matches); };
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -73,8 +78,9 @@ export default function App() {
   }, []);
 
   async function fetchRole(userId) {
-    const { data } = await supabase.from('profiles').select('role').eq('id', userId).single();
+    const { data } = await supabase.from('profiles').select('role, is_founder').eq('id', userId).single();
     setRole(data?.role || 'provider');
+    setIsFounder(!!data?.is_founder);
     setLoading(false);
   }
 
@@ -171,15 +177,11 @@ export default function App() {
       case 'mapview': return <MapView session={session} />;
       case 'meetinglog': return <MeetingLog session={session} />;
       case 'orgadmin': return <OrgAdmin session={session} />;
-      case 'policies': return <Policies session={session} />;
       case 'clientprofile': return <ClientProfile session={session} />;
-      case 'noncompete': return <NonCompete session={session} />;
-      case 'legal': return <Legal session={session} />;
-      case 'providerguide': return <ProviderGuide session={session} />;
-      case 'sop': return <SOP session={session} />;
       case 'messages': return <Messages session={session} />;
       case 'clientinvite': return <ClientInvite session={session} />;
       case 'violationreport': return <ViolationReport session={session} />;
+      case 'founderdocs': return <FounderDocs session={session} />;
       default: return <ProviderDashboard session={session} onNavigate={navTo} />;
     }
   }
@@ -262,9 +264,23 @@ export default function App() {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', fontFamily: NAV_FONT, background: '#F8F9FA' }}>
 
-      {sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: 40 }} />}
+      {!isDesktop && sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: 40 }} />}
 
-      <div style={{ width: 216, minHeight: '100vh', background: '#F8F9FA', borderRight: '1px solid #E5E7EB', position: 'fixed', top: 0, left: sidebarOpen ? 0 : -216, zIndex: 50, transition: 'left 0.22s ease', overflowY: 'auto', display: 'flex', flexDirection: 'column' }} className="sidebar">
+      <div style={{
+        width: sidebarOpen ? 216 : 0,
+        minHeight: '100vh',
+        background: '#F8F9FA',
+        borderRight: sidebarOpen ? '1px solid #E5E7EB' : 'none',
+        position: isDesktop ? 'relative' : 'fixed',
+        top: 0,
+        left: isDesktop ? 'auto' : (sidebarOpen ? 0 : -216),
+        flexShrink: 0,
+        zIndex: 50,
+        overflow: 'hidden',
+        transition: isDesktop ? 'width 0.22s ease' : 'left 0.22s ease',
+        display: 'flex',
+        flexDirection: 'column',
+      }} className="sidebar">
 
         <div style={{ padding: '15px 16px 13px', borderBottom: '1px solid #E5E7EB' }}>
           <div style={{ color: BLUE, fontSize: 15, fontWeight: 700, letterSpacing: '-0.3px' }}>CourtBridge</div>
@@ -327,10 +343,6 @@ export default function App() {
           {expandedMenus.operations && <>
             <div style={subItem('tasks')} onClick={() => navTo('tasks')}>Tasks</div>
             <div style={subItem('programs')} onClick={() => navTo('programs')}>Programs</div>
-            <div style={subItem('sop')} onClick={() => navTo('sop')}>SOPs</div>
-            <div style={subItem('providerguide')} onClick={() => navTo('providerguide')}>Provider Guide</div>
-            <div style={subItem('policies')} onClick={() => navTo('policies')}>Policies</div>
-            <div style={subItem('legal')} onClick={() => navTo('legal')}>Legal</div>
           </>}
 
           <div style={divider} />
@@ -354,6 +366,11 @@ export default function App() {
           <div style={navItem('settings')} onClick={() => navTo('settings')}>
             <Ic d={ICONS.settings} /><span>Settings</span>
           </div>
+          {isFounder && (
+            <div style={navItem('founderdocs')} onClick={() => navTo('founderdocs')}>
+              <Ic d={ICONS.admin} /><span>Founder</span>
+            </div>
+          )}
         </div>
 
         <div style={{ padding: '10px 12px 12px', borderTop: '1px solid #E5E7EB' }}>
@@ -378,13 +395,6 @@ export default function App() {
         </div>
         <div style={{ flex: 1, padding: 20 }}>{renderMain()}</div>
       </div>
-
-      <style>{`
-        @media (min-width: 768px) {
-          .sidebar { left: 0 !important; }
-          .sidebar + div { margin-left: 216px !important; }
-        }
-      `}</style>
     </div>
   );
 }

@@ -191,6 +191,12 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
   const [checkingIn, setCheckingIn] = useState(false)
   const [checkInMsg, setCheckInMsg] = useState(null)
   const [activeTab, setActiveTab] = useState('dashboard')
+  const [threadMessages, setThreadMessages] = useState([])
+  const [messagesLoading, setMessagesLoading] = useState(false)
+  const [composeText, setComposeText] = useState('')
+  const [composeUrgent, setComposeUrgent] = useState(false)
+  const [sendingMessage, setSendingMessage] = useState(false)
+  const [messageStatus, setMessageStatus] = useState(null)
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768)
   const [sidebarExpanded, setSidebarExpanded] = useState(false)
   const [showLabels, setShowLabels] = useState(false)
@@ -200,6 +206,66 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
     fetchClientData()
     setAffirmationIndex(Math.floor(Date.now() / 86400000) % 5)
   }, [])
+
+  useEffect(() => {
+    if (activeTab === 'messages' && client?.id) fetchMessages()
+  }, [activeTab, client?.id])
+
+  async function fetchMessages() {
+    setMessagesLoading(true)
+    const { data } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('client_id', client.id)
+      .order('created_at', { ascending: true })
+    setThreadMessages(data || [])
+    setMessagesLoading(false)
+  }
+
+  async function sendClientMessage() {
+    if (!composeText.trim() || !client?.id) return
+    setSendingMessage(true)
+    setMessageStatus(null)
+    try {
+      const { error } = await supabase.from('messages').insert({
+        client_id: client.id,
+        provider_id: client.provider_id,
+        sender_role: 'client',
+        is_urgent: composeUrgent,
+        subject: composeUrgent ? 'Urgent message from participant' : 'Message from participant',
+        body: composeText.trim(),
+        message_type: 'client_message',
+        delivered: true,
+      })
+      if (error) throw error
+
+      if (composeUrgent) {
+        const { data: providerProfile } = await supabase
+          .from('profiles').select('phone').eq('id', client.provider_id).single()
+        if (providerProfile?.phone) {
+          const { data: { session: authSession } } = await supabase.auth.getSession()
+          fetch(`https://howvgvrrxcpdiqjbnhzn.supabase.co/functions/v1/send-sms`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authSession.access_token}` },
+            body: JSON.stringify({
+              to_phone: providerProfile.phone,
+              body: `URGENT message from ${client.name} in CourtBridge: ${composeText.trim()}`,
+              client_id: client.id,
+            }),
+          }).catch(() => {})
+        }
+      }
+
+      setComposeText('')
+      setComposeUrgent(false)
+      setMessageStatus({ type: 'success', text: 'Message sent to your provider.' })
+      fetchMessages()
+    } catch (err) {
+      setMessageStatus({ type: 'error', text: 'Could not send message. Please try again.' })
+    } finally {
+      setSendingMessage(false)
+    }
+  }
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)')
@@ -445,6 +511,56 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
           <div style={{ width: 32, height: 32, borderRadius: '50%', background: CARD_BG, border: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, color: TEXT_MUTED }}>🔔</div>
         </div>
 
+        {activeTab === 'messages' && (
+          <div style={{ margin: '16px 22px', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 10, paddingBottom: 12 }}>
+              {messagesLoading && <div style={{ fontSize: 13, color: TEXT_MUTED }}>Loading messages...</div>}
+              {!messagesLoading && threadMessages.length === 0 && (
+                <div style={{ fontSize: 13, color: TEXT_DIM, padding: '20px 0' }}>No messages yet. Send your provider a message below.</div>
+              )}
+              {threadMessages.map(m => (
+                <div key={m.id} style={{
+                  alignSelf: m.sender_role === 'client' ? 'flex-end' : 'flex-start',
+                  maxWidth: '75%',
+                  background: m.sender_role === 'client' ? BLUE : CARD_BG,
+                  border: m.is_urgent ? `1px solid ${ORANGE}` : `0.5px solid ${BORDER}`,
+                  borderRadius: 10,
+                  padding: '10px 14px',
+                }}>
+                  {m.is_urgent && <div style={{ fontSize: 10, fontWeight: 700, color: ORANGE, textTransform: 'uppercase', marginBottom: 4 }}>Urgent</div>}
+                  <div style={{ fontSize: 13, color: TEXT, whiteSpace: 'pre-wrap' }}>{m.body}</div>
+                  <div style={{ fontSize: 10, color: TEXT_DIM, marginTop: 6 }}>{new Date(m.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ borderTop: `0.5px solid ${BORDER}`, paddingTop: 12 }}>
+              <textarea
+                value={composeText}
+                onChange={e => setComposeText(e.target.value)}
+                placeholder="Message your provider..."
+                rows={2}
+                style={{ width: '100%', boxSizing: 'border-box', background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 8, padding: '10px 12px', fontSize: 13, color: TEXT, resize: 'vertical', fontFamily: 'inherit' }}
+              />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: composeUrgent ? ORANGE : TEXT_MUTED, cursor: 'pointer' }}>
+                  <input type="checkbox" checked={composeUrgent} onChange={e => setComposeUrgent(e.target.checked)} />
+                  Mark urgent — notifies your provider immediately
+                </label>
+                <div
+                  onClick={!sendingMessage && composeText.trim() ? sendClientMessage : undefined}
+                  style={{ background: composeText.trim() ? BLUE : 'rgba(255,255,255,0.1)', color: TEXT, fontSize: 12, fontWeight: 600, padding: '8px 16px', borderRadius: 8, cursor: composeText.trim() ? 'pointer' : 'default', opacity: sendingMessage ? 0.7 : 1 }}
+                >
+                  {sendingMessage ? 'Sending...' : 'Send'}
+                </div>
+              </div>
+              {messageStatus && (
+                <div style={{ marginTop: 8, fontSize: 12, color: messageStatus.type === 'success' ? GREEN : '#F87171' }}>{messageStatus.text}</div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'dashboard' && <>
         {/* Hero check-in */}
         <div style={{ margin: '16px 22px 0', background: BLUE, borderRadius: 12, padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 20, border: `0.5px solid rgba(91,155,240,0.2)` }}>
           <StreakRing streak={streak} />
@@ -562,6 +678,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
             </InnerCard>
           </div>
         </div>
+        </>}
       </div>
 
       {/* BOTTOM NAV — mobile only */}

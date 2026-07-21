@@ -4,6 +4,7 @@ import { supabase } from '../supabase';
 export default function Settings() {
   const [checkinFreq, setCheckinFreq] = useState('24');
   const [alertEmail, setAlertEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -12,19 +13,20 @@ export default function Settings() {
   async function loadSettings() {
     const { data: { user } } = await supabase.auth.getUser();
     const { data } = await supabase.from('profiles')
-      .select('checkin_frequency_hours, alert_email')
+      .select('checkin_frequency_hours, alert_email, phone')
       .eq('id', user.id)
       .single();
     if (data) {
       setCheckinFreq(String(data.checkin_frequency_hours ?? 24));
       setAlertEmail(data.alert_email || '');
+      setPhone(data.phone || '');
     }
     setLoading(false);
   }
 
   async function saveSettings() {
     const { data: { user } } = await supabase.auth.getUser();
-    await supabase.from('profiles').update({ checkin_frequency_hours: parseInt(checkinFreq), alert_email: alertEmail }).eq('id', user.id);
+    await supabase.from('profiles').update({ checkin_frequency_hours: parseInt(checkinFreq), alert_email: alertEmail, phone }).eq('id', user.id);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   }
@@ -50,7 +52,10 @@ export default function Settings() {
       <div style={{ background: 'white', border: '1px solid #ddd', borderRadius: '12px', padding: '25px', marginBottom: '20px' }}>
         <h2 style={{ color: '#1B3A6B', marginBottom: '20px', fontSize: '16px' }}>Alert Settings</h2>
         <label style={{ display: 'block', fontWeight: 'bold', color: '#555', marginBottom: '8px' }}>Send missed check-in alerts to</label>
-        <input type="email" placeholder="provider@email.com" value={alertEmail} onChange={e => setAlertEmail(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '16px', boxSizing: 'border-box' }} />
+        <input type="email" placeholder="provider@email.com" value={alertEmail} onChange={e => setAlertEmail(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '16px', boxSizing: 'border-box', marginBottom: '20px' }} />
+        <label style={{ display: 'block', fontWeight: 'bold', color: '#555', marginBottom: '8px' }}>Your phone number (for urgent client alerts)</label>
+        <input type="tel" placeholder="+15550001234" value={phone} onChange={e => setPhone(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '16px', boxSizing: 'border-box' }} />
+        <p style={{ fontSize: '12px', color: '#888', marginTop: '6px' }}>When a client marks a message urgent, we text this number. Use the full format including country code, e.g. +15550001234.</p>
       </div>
       <button onClick={saveSettings} style={{ width: '100%', padding: '14px', background: '#1B3A6B', color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', cursor: 'pointer' }}>
         {saved ? '✅ Saved!' : 'Save Settings'}

@@ -118,31 +118,71 @@ export default function App() {
   );
 
   if (!session) return (
-    <div style={{ minHeight: '100vh', background: '#F5F6F8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Arial, sans-serif', padding: 16 }}>
-      <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', width: '100%', maxWidth: 420, boxShadow: '0 4px 24px rgba(0,0,0,0.10)' }}>
-        <div style={{ background: BLUE, padding: '32px 32px 24px', textAlign: 'center' }}>
-          <div style={{ color: '#fff', fontSize: 22, fontWeight: 700 }}>CourtBridge Solutions</div>
-          <div style={{ color: '#A8C4E0', fontSize: 13, marginTop: 4 }}>Provider Platform</div>
+    <div style={{ minHeight: '100vh', display: 'flex', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+      {isDesktop && (
+        <div style={{
+          flex: '1 1 50%', background: 'linear-gradient(160deg, #0A1628 0%, #152540 55%, #1B3A6B 100%)',
+          color: '#fff', display: 'flex', flexDirection: 'column', justifyContent: 'center',
+          padding: '60px 64px', position: 'relative', overflow: 'hidden'
+        }}>
+          <div style={{ position: 'absolute', top: -80, right: -80, width: 320, height: 320, borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }} />
+          <div style={{ position: 'absolute', bottom: -120, left: -60, width: 260, height: 260, borderRadius: '50%', background: 'rgba(255,255,255,0.03)' }} />
+          <div style={{ position: 'relative', maxWidth: 440 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.12em', color: '#7A8FA6', textTransform: 'uppercase', marginBottom: 18 }}>
+              Specialty Court Compliance Platform
+            </div>
+            <div style={{ fontSize: 34, fontWeight: 800, lineHeight: 1.25, marginBottom: 20 }}>
+              CourtBridge Solutions
+            </div>
+            <div style={{ fontSize: 15, color: '#C8D0DC', lineHeight: 1.6, marginBottom: 36 }}>
+              GPS-verified check-ins, real-time compliance alerts, and court-ready reporting — all in one place.
+            </div>
+            {[
+              'Real-time GPS check-in verification',
+              'Instant alerts on missed check-ins',
+              'Two-way messaging with urgent escalation',
+              'Court-ready compliance reports',
+            ].map((line, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+                <div style={{ width: 22, height: 22, borderRadius: 6, background: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8FB4E0" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span style={{ fontSize: 14, color: '#E8EAED' }}>{line}</span>
+              </div>
+            ))}
+          </div>
         </div>
-        <form onSubmit={handleLogin} style={{ padding: '28px 32px' }}>
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#666', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Email</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-              style={{ width: '100%', padding: '12px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 15, boxSizing: 'border-box', outline: 'none' }}
-              placeholder="your@email.com" />
-          </div>
-          <div style={{ marginBottom: 20 }}>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#666', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Password</label>
-            <input type="password" value={password} onChange={e => setPassword(e.target.value)} required
-              style={{ width: '100%', padding: '12px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 15, boxSizing: 'border-box', outline: 'none' }}
-              placeholder="••••••••" />
-          </div>
-          {loginError && <div style={{ color: '#cc0000', fontSize: 13, marginBottom: 16 }}>{loginError}</div>}
-          <button type="submit" disabled={loginLoading}
-            style={{ width: '100%', padding: 14, background: BLUE, color: '#fff', border: 'none', borderRadius: 8, fontSize: 15, fontWeight: 700, cursor: loginLoading ? 'not-allowed' : 'pointer', opacity: loginLoading ? 0.7 : 1 }}>
-            {loginLoading ? 'Signing in...' : 'Sign In'}
-          </button>
-        </form>
+      )}
+      <div style={{ flex: isDesktop ? '1 1 50%' : '1 1 100%', background: '#F5F6F8', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div style={{ width: '100%', maxWidth: 380 }}>
+          {!isDesktop && (
+            <div style={{ textAlign: 'center', marginBottom: 28 }}>
+              <div style={{ color: BLUE, fontSize: 22, fontWeight: 800 }}>CourtBridge Solutions</div>
+              <div style={{ color: '#7A8FA6', fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 4 }}>Provider Platform</div>
+            </div>
+          )}
+          <div style={{ fontSize: 24, fontWeight: 800, color: '#1A2D45', marginBottom: 6 }}>Welcome back</div>
+          <div style={{ fontSize: 14, color: '#7A8FA6', marginBottom: 28 }}>Sign in to your CourtBridge portal</div>
+          <form onSubmit={handleLogin}>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#666', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Email</label>
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
+                style={{ width: '100%', padding: '12px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 15, boxSizing: 'border-box', outline: 'none' }}
+                placeholder="your@email.com" />
+            </div>
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#666', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Password</label>
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)} required
+                style={{ width: '100%', padding: '12px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 15, boxSizing: 'border-box', outline: 'none' }}
+                placeholder="••••••••" />
+            </div>
+            {loginError && <div style={{ color: '#cc0000', fontSize: 13, marginBottom: 16 }}>{loginError}</div>}
+            <button type="submit" disabled={loginLoading}
+              style={{ width: '100%', padding: 14, background: BLUE, color: '#fff', border: 'none', borderRadius: 8, fontSize: 15, fontWeight: 700, cursor: loginLoading ? 'not-allowed' : 'pointer', opacity: loginLoading ? 0.7 : 1 }}>
+              {loginLoading ? 'Signing in...' : 'Sign In'}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

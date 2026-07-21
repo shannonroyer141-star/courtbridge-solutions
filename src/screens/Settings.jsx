@@ -24,9 +24,19 @@ export default function Settings() {
     setLoading(false);
   }
 
+  function normalizePhone(raw) {
+    const digits = raw.replace(/\D/g, '');
+    if (!digits) return '';
+    if (digits.length === 10) return `+1${digits}`;
+    if (digits.length === 11 && digits.startsWith('1')) return `+${digits}`;
+    return `+${digits}`;
+  }
+
   async function saveSettings() {
     const { data: { user } } = await supabase.auth.getUser();
-    await supabase.from('profiles').update({ checkin_frequency_hours: parseInt(checkinFreq), alert_email: alertEmail, phone }).eq('id', user.id);
+    const normalizedPhone = normalizePhone(phone);
+    await supabase.from('profiles').update({ checkin_frequency_hours: parseInt(checkinFreq), alert_email: alertEmail, phone: normalizedPhone }).eq('id', user.id);
+    setPhone(normalizedPhone);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   }

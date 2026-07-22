@@ -4,7 +4,7 @@ import { supabase } from '../supabase'
 export default function ClientOnboarding() {
   const [step, setStep] = useState('loading')
   const [invite, setInvite] = useState(null)
-  const [form, setForm] = useState({ password: '', confirm: '', phone: '', smsConsent: false })
+  const [form, setForm] = useState({ password: '', confirm: '', phone: '', smsConsent: false, termsAccepted: false })
   const [error, setError] = useState(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -35,6 +35,7 @@ export default function ClientOnboarding() {
     if (form.password !== form.confirm) { setError('Passwords do not match.'); return }
     if (form.password.length < 8) { setError('Password must be at least 8 characters.'); return }
     if (form.phone && !form.smsConsent) { setError('Please agree to receive text messages, or leave the phone number blank.'); return }
+    if (!form.termsAccepted) { setError('Please review and agree to the program waiver to continue.'); return }
     setSubmitting(true)
 
     const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -60,7 +61,8 @@ export default function ClientOnboarding() {
       provider_id: invite.provider_id,
       auth_user_id: userId,
       onboarding_complete: true,
-      sms_consent_signed_at: (form.phone && form.smsConsent) ? new Date().toISOString() : null
+      sms_consent_signed_at: (form.phone && form.smsConsent) ? new Date().toISOString() : null,
+      terms_signed_at: new Date().toISOString()
     }).select().single()
 
     await supabase.from('invites').update({
@@ -137,6 +139,17 @@ export default function ClientOnboarding() {
               <input type="password" value={form.confirm} onChange={e => setForm(p => ({ ...p, confirm: e.target.value }))} required
                 placeholder="Re-enter password"
                 style={{ width: '100%', padding: '11px 14px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 15, boxSizing: 'border-box' }} />
+            </div>
+            <div style={{ marginBottom: 20, background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, padding: 14 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>⚠ Placeholder — needs legal review before use</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Program Waiver &amp; Consent</div>
+              <div style={{ fontSize: 13, color: '#374151', lineHeight: 1.6, marginBottom: 10, maxHeight: 140, overflowY: 'auto', background: '#fff', border: '1px solid #E5E7EB', borderRadius: 6, padding: 10 }}>
+                By enrolling, you acknowledge that your participation in this program is subject to the terms set by your referring court, probation officer, or agency. You understand that your check-ins, location data, and compliance record are recorded and may be shared with your provider, probation officer, or the court as required. This program does not provide legal advice. You agree to comply with your program's requirements and to communicate promptly with your provider about any issues affecting your participation.
+              </div>
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: '#111827', cursor: 'pointer' }}>
+                <input type="checkbox" checked={form.termsAccepted} onChange={e => setForm(p => ({ ...p, termsAccepted: e.target.checked }))} style={{ marginTop: 2 }} required />
+                I have read and agree to the program waiver above.
+              </label>
             </div>
             <div style={{ marginBottom: form.phone ? 16 : 24 }}>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Phone Number (optional)</label>

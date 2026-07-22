@@ -28,6 +28,8 @@ import Messages from './screens/Messages';
 import ClientInvite from './screens/ClientInvite';
 import ViolationReport from './screens/ViolationReport';
 import FounderDocs from './screens/FounderDocs';
+import DocumentUpload from './screens/DocumentUpload';
+import CompletionCertificate from './screens/CompletionCertificate';
 
 const BLUE = '#1B3A6B';
 
@@ -46,7 +48,7 @@ export default function App() {
   const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 768);
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 768);
   const [expandedMenus, setExpandedMenus] = useState({
-    compliance: false, clients: false, operations: false, admin: false
+    compliance: false, clients: false, sensitive: false, operations: false, admin: false
   });
   const [isFounder, setIsFounder] = useState(false);
 
@@ -222,6 +224,8 @@ export default function App() {
       case 'clientinvite': return <ClientInvite session={session} />;
       case 'violationreport': return <ViolationReport session={session} />;
       case 'founderdocs': return <FounderDocs session={session} />;
+      case 'documents': return <DocumentUpload session={session} />;
+      case 'certificates': return <CompletionCertificate session={session} />;
       default: return <ProviderDashboard session={session} onNavigate={navTo} />;
     }
   }
@@ -350,8 +354,6 @@ export default function App() {
             <div style={subItem('mapview')} onClick={() => navTo('mapview')}>Map View</div>
             <div style={subItem('reports')} onClick={() => navTo('reports')}>Reports</div>
             <div style={subItem('compliancechart')} onClick={() => navTo('compliancechart')}>Compliance Chart</div>
-            <div style={subItem('drugtests')} onClick={() => navTo('drugtests')}>Drug Tests</div>
-            <div style={subItem('violationreport')} onClick={() => navTo('violationreport')}>Violations</div>
           </>}
 
           <div style={divider} />
@@ -368,8 +370,23 @@ export default function App() {
             <div style={subItem('contactlog')} onClick={() => navTo('contactlog')}>Contact Log</div>
             <div style={subItem('meetinglog')} onClick={() => navTo('meetinglog')}>Meeting Log</div>
             <div style={subItem('courtdates')} onClick={() => navTo('courtdates')}>Court Dates</div>
+            <div style={subItem('documents')} onClick={() => navTo('documents')}>Documents</div>
+            <div style={subItem('certificates')} onClick={() => navTo('certificates')}>Certificates</div>
+          </>}
+
+          <div style={divider} />
+
+          <div style={groupRow('sensitive')} onClick={() => toggleMenu('sensitive')}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Ic d={ICONS.admin} /><span>Sensitive Records</span>
+            </div>
+            <Ic d={expandedMenus.sensitive ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
+          </div>
+          {expandedMenus.sensitive && <>
+            <div style={subItem('drugtests')} onClick={() => navTo('drugtests')}>Drug Tests</div>
             <div style={subItem('povisits')} onClick={() => navTo('povisits')}>PO Visits</div>
             <div style={subItem('cpstracking')} onClick={() => navTo('cpstracking')}>CPS Tracking</div>
+            <div style={subItem('violationreport')} onClick={() => navTo('violationreport')}>Violations</div>
           </>}
 
           <div style={divider} />

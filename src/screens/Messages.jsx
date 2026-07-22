@@ -41,7 +41,7 @@ export default function Messages({ clientId }) {
   const [body, setBody] = useState('');
   const [sending, setSending] = useState(false);
   const [status, setStatus] = useState('');
-  const [activeThreadClientId, setActiveThreadClientId] = useState(null);
+  const [activeThreadClientId, setActiveThreadClientId] = useState(clientId || null);
   const [replyText, setReplyText] = useState('');
   const [replySending, setReplySending] = useState(false);
 

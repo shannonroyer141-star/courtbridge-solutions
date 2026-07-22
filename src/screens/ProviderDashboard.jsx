@@ -1,5 +1,34 @@
 import React, { useState, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { supabase } from '../supabase';
+
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
+
+const DEFAULT_CENTER = [39.8283, -98.5795];
+const DEFAULT_ZOOM = 4;
+
+function FitToMarkers({ points }) {
+  const map = useMap();
+  useEffect(() => {
+    if (points.length === 0) return;
+    if (points.length === 1) {
+      map.setView([points[0].latitude, points[0].longitude], 13);
+    } else {
+      map.fitBounds(points.map(p => [p.latitude, p.longitude]), { padding: [30, 30] });
+    }
+  }, [points, map]);
+  return null;
+}
 
 const S = {
   page: {
@@ -197,6 +226,61 @@ const S = {
     fontSize: '14px',
     color: '#8A9BB0',
   },
+  threeCol: {
+    display: 'grid',
+    gridTemplateColumns: '1.2fr 1fr 1fr',
+    gap: '20px',
+    marginBottom: '20px',
+  },
+  mapCard: {
+    background: '#FFFFFF',
+    borderRadius: '10px',
+    border: '1px solid #E8EDF4',
+    boxShadow: '0 1px 4px rgba(27,58,107,0.06)',
+    overflow: 'hidden',
+    height: '260px',
+  },
+  urgentRow: {
+    padding: '11px 20px',
+    borderBottom: '1px solid #F5F7FA',
+  },
+  urgentSnippet: {
+    fontSize: '12px',
+    color: '#6B7280',
+    marginTop: '2px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  urgentBadge: {
+    background: '#FDEDEC',
+    color: '#C0392B',
+    padding: '2px 8px',
+    borderRadius: '20px',
+    fontSize: '10px',
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: '0.4px',
+  },
+  linkBtn: {
+    background: 'none',
+    border: 'none',
+    color: '#2563EB',
+    fontSize: '12px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    padding: 0,
+  },
+  footerLink: {
+    display: 'block',
+    textAlign: 'center',
+    padding: '10px',
+    fontSize: '12px',
+    fontWeight: '600',
+    color: '#2563EB',
+    cursor: 'pointer',
+    borderTop: '1px solid #F5F7FA',
+  },
 };
 
 function StatCard({ label, value, sub, valueColor = '#1B3A6B', accentColor = '#1B3A6B' }) {
@@ -209,14 +293,21 @@ function StatCard({ label, value, sub, valueColor = '#1B3A6B', accentColor = '#1
   );
 }
 
-export default function ProviderDashboard() {
-  const [stats, setStats] = useState({ activeClients: 0, expectedToday: 0, missedLast24: 0, alertsCount: 0 });
+export default function ProviderDashboard({ onNavigate }) {
+  const [stats, setStats] = useState({ activeClients: 0, checkedInToday: 0, missedLast24: 0, alertsCount: 0 });
   const [missedClients, setMissedClients] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
   const [complianceRate, setComplianceRate] = useState(0);
+  const [urgentMessages, setUrgentMessages] = useState([]);
+  const [mapPoints, setMapPoints] = useState([]);
+  const [upcoming, setUpcoming] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => { fetchDashboardData(); }, []);
+
+  function goToClient(clientId) {
+    if (onNavigate) onNavigate('messages', clientId);
+  }
 
   async function fetchDashboardData() {
     setLoading(true);
@@ -229,19 +320,47 @@ export default function ProviderDashboard() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const todayStr = today.toISOString();
+    const in7DaysStr = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+    const todayDateStr = todayStr.slice(0, 10);
 
     const { data: todayCheckIns } = await supabase.from('checkins').select('*').in('client_id', clientIds).gte('checked_in_at', todayStr);
     const { data: alerts } = await supabase.from('alerts').select('*').in('client_id', clientIds).eq('resolved', false);
     const { data: weekCheckIns } = await supabase.from('checkins').select('*').in('client_id', clientIds).gte('checked_in_at', new Date(Date.now() - 7 * 86400000).toISOString());
     const { data: recentCheckins } = await supabase.from('checkins').select('*, clients(name)').in('client_id', clientIds).order('checked_in_at', { ascending: false }).limit(10);
+    const { data: locatedCheckins } = await supabase.from('checkins').select('*, clients(name)').in('client_id', clientIds).not('latitude', 'is', null).not('longitude', 'is', null).order('checked_in_at', { ascending: false }).limit(200);
+    const { data: recentMessages } = await supabase.from('messages').select('*, clients(name)').in('client_id', clientIds).order('created_at', { ascending: false }).limit(200);
+    const { data: upcomingCourtDates } = await supabase.from('court_dates').select('*, clients(name)').in('client_id', clientIds).gte('hearing_date', todayDateStr).lte('hearing_date', in7DaysStr).order('hearing_date');
+    const { data: upcomingTasks } = await supabase.from('tasks').select('*').eq('provider_id', user.id).eq('completed', false).gte('due_date', todayStr).lte('due_date', in7DaysStr + 'T23:59:59').order('due_date');
 
     const missed = clients?.filter(c => !todayCheckIns?.some(ci => ci.client_id === c.id)) || [];
     const rate = activeClients > 0 ? Math.round(((weekCheckIns?.length || 0) / (activeClients * 7)) * 100) : 0;
 
-    setStats({ activeClients, expectedToday: activeClients, missedLast24: missed.length, alertsCount: alerts?.length || 0 });
+    setStats({ activeClients, checkedInToday: todayCheckIns?.length || 0, missedLast24: missed.length, alertsCount: alerts?.length || 0 });
     setMissedClients(missed.slice(0, 5));
     setRecentActivity(recentCheckins || []);
     setComplianceRate(Math.min(rate, 100));
+
+    const seenMapClients = new Set();
+    setMapPoints((locatedCheckins || []).filter(ci => {
+      if (seenMapClients.has(ci.client_id)) return false;
+      seenMapClients.add(ci.client_id);
+      return true;
+    }));
+
+    const latestPerClient = new Map();
+    for (const m of recentMessages || []) {
+      if (!latestPerClient.has(m.client_id)) latestPerClient.set(m.client_id, m);
+    }
+    setUrgentMessages([...latestPerClient.values()].filter(m => m.is_urgent && m.sender_role === 'client').slice(0, 5));
+
+    const courtItems = (upcomingCourtDates || []).map(cd => ({
+      id: `court-${cd.id}`, date: cd.hearing_date, label: `${cd.clients?.name || 'Unknown'} — ${cd.hearing_type || 'Court date'}`,
+    }));
+    const taskItems = (upcomingTasks || []).map(t => ({
+      id: `task-${t.id}`, date: t.due_date?.slice(0, 10), label: t.title,
+    }));
+    setUpcoming([...courtItems, ...taskItems].sort((a, b) => (a.date || '').localeCompare(b.date || '')).slice(0, 6));
+
     setLoading(false);
   }
 
@@ -272,9 +391,9 @@ export default function ProviderDashboard() {
           accentColor="#1B3A6B"
         />
         <StatCard
-          label="Expected Today"
-          value={stats.expectedToday}
-          sub="Check-ins due"
+          label="Checked In Today"
+          value={stats.checkedInToday}
+          sub={`Of ${stats.activeClients} active`}
           accentColor="#2563EB"
         />
         <StatCard
@@ -291,6 +410,79 @@ export default function ProviderDashboard() {
           valueColor={alertColor}
           accentColor={alertColor}
         />
+      </div>
+
+      <div style={S.threeCol}>
+        <div style={S.card}>
+          <div style={S.cardHeader}>
+            <div style={{ ...S.cardDot, background: '#2563EB' }} />
+            <h3 style={S.cardTitle}>Last Known Locations</h3>
+          </div>
+          <div style={S.mapCard}>
+            <MapContainer center={DEFAULT_CENTER} zoom={DEFAULT_ZOOM} style={{ height: '100%', width: '100%' }} scrollWheelZoom={false}>
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              <FitToMarkers points={mapPoints} />
+              {mapPoints.map(ci => (
+                <Marker key={ci.id} position={[ci.latitude, ci.longitude]}>
+                  <Popup><strong>{ci.clients?.name || 'Unknown client'}</strong></Popup>
+                </Marker>
+              ))}
+            </MapContainer>
+          </div>
+          {onNavigate && <div style={S.footerLink} onClick={() => onNavigate('mapview')}>View full map →</div>}
+        </div>
+
+        <div style={S.card}>
+          <div style={S.cardHeader}>
+            <div style={{ ...S.cardDot, background: urgentMessages.length > 0 ? '#C0392B' : '#1A7A47' }} />
+            <h3 style={S.cardTitle}>Urgent Messages</h3>
+          </div>
+          <div style={S.cardBody}>
+            {urgentMessages.length === 0 ? (
+              <div style={S.emptyState}>
+                <div style={S.emptyIcon}>✓</div>
+                <p style={S.emptyText}>No unresolved urgent messages</p>
+              </div>
+            ) : (
+              urgentMessages.map(m => (
+                <div key={m.id} style={S.urgentRow}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={S.listName}>{m.clients?.name || 'Unknown'}</div>
+                    <span style={S.urgentBadge}>Urgent</span>
+                  </div>
+                  <div style={S.urgentSnippet}>{m.body}</div>
+                  <button style={{ ...S.linkBtn, marginTop: '4px' }} onClick={() => goToClient(m.client_id)}>Reply →</button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div style={S.card}>
+          <div style={S.cardHeader}>
+            <div style={S.cardDot} />
+            <h3 style={S.cardTitle}>Coming Up (7 days)</h3>
+          </div>
+          <div style={S.cardBody}>
+            {upcoming.length === 0 ? (
+              <div style={S.emptyState}>
+                <p style={S.emptyText}>Nothing scheduled this week</p>
+              </div>
+            ) : (
+              upcoming.map(item => (
+                <div key={item.id} style={S.listRow}>
+                  <div style={S.listName}>{item.label}</div>
+                  <div style={S.listSub}>
+                    {item.date ? new Date(item.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
       </div>
 
       <div style={S.twoCol}>
@@ -312,7 +504,7 @@ export default function ProviderDashboard() {
                     <div style={S.listName}>{client.name}</div>
                     <div style={S.listSubAlert}>No check-in today</div>
                   </div>
-                  <button style={S.contactBtn}>Contact</button>
+                  <button style={S.contactBtn} onClick={() => goToClient(client.id)}>Contact</button>
                 </div>
               ))
             )}

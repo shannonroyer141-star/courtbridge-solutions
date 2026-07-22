@@ -54,6 +54,7 @@ export default function App() {
     compliance: false, clients: false, sensitive: false, operations: false, admin: false, founder: false
   });
   const [isFounder, setIsFounder] = useState(false);
+  const [activeClientId, setActiveClientId] = useState(null);
 
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 768px)');
@@ -107,8 +108,9 @@ export default function App() {
     setExpandedMenus(prev => ({ ...prev, [menu]: !prev[menu] }));
   }
 
-  function navTo(screen) {
+  function navTo(screen, clientId = null) {
     setActiveScreen(screen);
+    setActiveClientId(clientId);
     setSidebarOpen(false);
   }
 
@@ -223,7 +225,7 @@ export default function App() {
       case 'meetinglog': return <MeetingLog session={session} />;
       case 'orgadmin': return <OrgAdmin session={session} />;
       case 'clientprofile': return <ClientProfile session={session} />;
-      case 'messages': return <Messages session={session} />;
+      case 'messages': return <Messages session={session} clientId={activeClientId} />;
       case 'clientinvite': return <ClientInvite session={session} />;
       case 'violationreport': return <ViolationReport session={session} />;
       case 'founderdocs': return <FounderDocs session={session} />;

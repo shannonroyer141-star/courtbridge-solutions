@@ -13,8 +13,8 @@ export default function ClientProfile({ clientId, onNavigate }) {
   const [orderForm, setOrderForm] = useState({ order_name: '', order_type: 'primary', start_date: new Date().toISOString().split('T')[0], duration_weeks: '' });
   const [savingOrder, setSavingOrder] = useState(false);
   const [progressNotes, setProgressNotes] = useState([]);
-  const [showAddNote, setShowAddNote] = useState(false);
-  const [noteForm, setNoteForm] = useState({ note_date: new Date().toISOString().split('T')[0], content: '', visible_to_client: true });
+  const [showAddNote, setShowAddNote] = useState(null);
+  const [noteForm, setNoteForm] = useState({ note_date: new Date().toISOString().split('T')[0], content: '', visible_to_client: true, client_program_id: '' });
   const [savingNote, setSavingNote] = useState(false);
   const [signatures, setSignatures] = useState([]);
   const [showReactivate, setShowReactivate] = useState(false);
@@ -56,8 +56,9 @@ export default function ClientProfile({ clientId, onNavigate }) {
       note_date: noteForm.note_date,
       content: noteForm.content.trim(),
       visible_to_client: noteForm.visible_to_client,
+      client_program_id: noteForm.client_program_id || null,
     });
-    setNoteForm({ note_date: new Date().toISOString().split('T')[0], content: '', visible_to_client: true });
+    setNoteForm({ note_date: new Date().toISOString().split('T')[0], content: '', visible_to_client: true, client_program_id: '' });
     setShowAddNote(false);
     setSavingNote(false);
     fetchAll();
@@ -246,6 +247,7 @@ export default function ClientProfile({ clientId, onNavigate }) {
             const pct = p.duration_weeks ? Math.min(Math.round((weeksIn / p.duration_weeks) * 100), 100) : null;
             const isDone = p.status === 'completed';
             const isTerminated = p.status === 'terminated';
+            const notesForProgram = progressNotes.filter(n => n.client_program_id === p.id);
             return (
               <div key={p.id} style={{ padding: '12px 0', borderBottom: '1px solid #f3f4f6' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
@@ -273,6 +275,51 @@ export default function ClientProfile({ clientId, onNavigate }) {
                 {(isDone || isTerminated) && p.completed_at && (
                   <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px' }}>{isDone ? 'Completed' : 'Ended'} {new Date(p.completed_at).toLocaleDateString()}</div>
                 )}
+
+                <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px dashed #e5e7eb' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.3px' }}>Progress Notes</div>
+                    <button onClick={() => { setNoteForm({ ...noteForm, client_program_id: p.id }); setShowAddNote(showAddNote === p.id ? null : p.id); }}
+                      style={{ background: 'none', border: 'none', color: '#2563EB', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}>
+                      {showAddNote === p.id ? 'Cancel' : '+ Note'}
+                    </button>
+                  </div>
+
+                  {showAddNote === p.id && (
+                    <div style={{ background: '#F9FAFB', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '12px', marginTop: '8px' }}>
+                      <input type="date" value={noteForm.note_date} onChange={e => setNoteForm({ ...noteForm, note_date: e.target.value })}
+                        style={{ width: '100%', padding: '9px', marginBottom: '8px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '13px' }} />
+                      <textarea placeholder="e.g. Showed up on time, we talked about job search — doing well."
+                        value={noteForm.content} onChange={e => setNoteForm({ ...noteForm, content: e.target.value })}
+                        style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '13px', minHeight: '60px' }} />
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#374151', margin: '8px 0' }}>
+                        <input type="checkbox" checked={noteForm.visible_to_client} onChange={e => setNoteForm({ ...noteForm, visible_to_client: e.target.checked })} />
+                        Share this note with the client
+                      </label>
+                      <button onClick={addProgressNote} disabled={savingNote || !noteForm.content.trim()}
+                        style={{ width: '100%', padding: '9px', background: '#27AE60', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>
+                        {savingNote ? 'Saving...' : 'Add Note'}
+                      </button>
+                    </div>
+                  )}
+
+                  {notesForProgram.length === 0 ? (
+                    <p style={{ color: '#9ca3af', fontSize: '12px', margin: '8px 0 0' }}>No notes for this order yet.</p>
+                  ) : (
+                    notesForProgram.map(n => (
+                      <div key={n.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', padding: '8px 0', borderTop: '1px solid #f3f4f6' }}>
+                        <div>
+                          <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            {new Date(n.note_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            {!n.visible_to_client && <span style={{ background: '#F3F4F6', color: '#6b7280', padding: '1px 7px', borderRadius: '10px', fontSize: '9px', fontWeight: '600' }}>🔒 Private</span>}
+                          </div>
+                          <div style={{ fontSize: '13px', color: '#374151' }}>{n.content}</div>
+                        </div>
+                        <button onClick={() => deleteProgressNote(n.id)} style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: '11px', cursor: 'pointer', whiteSpace: 'nowrap' }}>Delete</button>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
             );
           })
@@ -292,46 +339,54 @@ export default function ClientProfile({ clientId, onNavigate }) {
         )}
       </div>
 
-      <div style={{ background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-          <h3 style={{ margin: 0, color: '#1e3a5f', fontSize: '15px' }}>Progress Notes</h3>
-          <button onClick={() => setShowAddNote(!showAddNote)} style={{ background: '#1e3a5f', color: 'white', border: 'none', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer' }}>+ Add Note</button>
-        </div>
-        <p style={{ color: '#9ca3af', fontSize: '12px', margin: '0 0 12px' }}>Visible to the client on their Journey screen — keep it plain-language and positive. Never put clinical/diagnostic content here; use Case &amp; Clinical Notes for that.</p>
-
-        {showAddNote && (
-          <div style={{ background: '#F9FAFB', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '14px', marginBottom: '14px' }}>
-            <input type="date" value={noteForm.note_date} onChange={e => setNoteForm({ ...noteForm, note_date: e.target.value })}
-              style={{ width: '100%', padding: '10px', marginBottom: '8px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '13px' }} />
-            <textarea placeholder="e.g. Showed up on time, we talked about job search — doing well."
-              value={noteForm.content} onChange={e => setNoteForm({ ...noteForm, content: e.target.value })}
-              style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '13px', minHeight: '70px' }} />
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#374151', margin: '10px 0' }}>
-              <input type="checkbox" checked={noteForm.visible_to_client} onChange={e => setNoteForm({ ...noteForm, visible_to_client: e.target.checked })} />
-              Share this note with the client
-            </label>
-            <button onClick={addProgressNote} disabled={savingNote || !noteForm.content.trim()}
-              style={{ marginTop: '10px', width: '100%', padding: '10px', background: '#27AE60', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
-              {savingNote ? 'Saving...' : 'Add Note'}
-            </button>
-          </div>
-        )}
-
-        {progressNotes.length === 0 ? <p style={{ color: '#9ca3af', margin: 0 }}>No progress notes yet.</p> : (
-          progressNotes.map(n => (
-            <div key={n.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px', padding: '10px 0', borderBottom: '1px solid #f3f4f6' }}>
-              <div>
-                <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  {new Date(n.note_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                  {!n.visible_to_client && <span style={{ background: '#F3F4F6', color: '#6b7280', padding: '1px 8px', borderRadius: '10px', fontSize: '10px', fontWeight: '600' }}>🔒 Private — not shared</span>}
-                </div>
-                <div style={{ fontSize: '14px', color: '#374151' }}>{n.content}</div>
-              </div>
-              <button onClick={() => deleteProgressNote(n.id)} style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>Delete</button>
+      {(() => {
+        const generalNotes = progressNotes.filter(n => !n.client_program_id);
+        return (
+          <div style={{ background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <h3 style={{ margin: 0, color: '#1e3a5f', fontSize: '15px' }}>General Notes</h3>
+              <button onClick={() => { setNoteForm({ ...noteForm, client_program_id: '' }); setShowAddNote(showAddNote === 'general' ? null : 'general'); }}
+                style={{ background: '#1e3a5f', color: 'white', border: 'none', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer' }}>
+                {showAddNote === 'general' ? 'Cancel' : '+ Add Note'}
+              </button>
             </div>
-          ))
-        )}
-      </div>
+            <p style={{ color: '#9ca3af', fontSize: '12px', margin: '0 0 12px' }}>Not tied to a specific order. Visible to the client on their Journey screen — keep it plain-language and positive. Never put clinical/diagnostic content here; use Case &amp; Clinical Notes for that.</p>
+
+            {showAddNote === 'general' && (
+              <div style={{ background: '#F9FAFB', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '14px', marginBottom: '14px' }}>
+                <input type="date" value={noteForm.note_date} onChange={e => setNoteForm({ ...noteForm, note_date: e.target.value })}
+                  style={{ width: '100%', padding: '10px', marginBottom: '8px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '13px' }} />
+                <textarea placeholder="e.g. Showed up on time, we talked about job search — doing well."
+                  value={noteForm.content} onChange={e => setNoteForm({ ...noteForm, content: e.target.value })}
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '13px', minHeight: '70px' }} />
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#374151', margin: '10px 0' }}>
+                  <input type="checkbox" checked={noteForm.visible_to_client} onChange={e => setNoteForm({ ...noteForm, visible_to_client: e.target.checked })} />
+                  Share this note with the client
+                </label>
+                <button onClick={addProgressNote} disabled={savingNote || !noteForm.content.trim()}
+                  style={{ marginTop: '10px', width: '100%', padding: '10px', background: '#27AE60', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
+                  {savingNote ? 'Saving...' : 'Add Note'}
+                </button>
+              </div>
+            )}
+
+            {generalNotes.length === 0 ? <p style={{ color: '#9ca3af', margin: 0 }}>No general notes yet.</p> : (
+              generalNotes.map(n => (
+                <div key={n.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px', padding: '10px 0', borderBottom: '1px solid #f3f4f6' }}>
+                  <div>
+                    <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {new Date(n.note_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {!n.visible_to_client && <span style={{ background: '#F3F4F6', color: '#6b7280', padding: '1px 8px', borderRadius: '10px', fontSize: '10px', fontWeight: '600' }}>🔒 Private — not shared</span>}
+                    </div>
+                    <div style={{ fontSize: '14px', color: '#374151' }}>{n.content}</div>
+                  </div>
+                  <button onClick={() => deleteProgressNote(n.id)} style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>Delete</button>
+                </div>
+              ))
+            )}
+          </div>
+        );
+      })()}
 
       <div style={{ background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
         <h3 style={{ margin: '0 0 12px', color: '#1e3a5f', fontSize: '15px' }}>Signed Forms</h3>

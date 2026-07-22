@@ -650,10 +650,10 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                 hovered={hoveredNavItem === item.id}
                 onHover={() => setHoveredNavItem(item.id)}
                 onLeave={() => setHoveredNavItem(null)}
-                onClick={() => item.id === 'checkin'
-                  ? (onNavigate && onNavigate('checkin'))
-                  : setActiveTab(item.id)
-                }
+                onClick={() => {
+                  if (item.id === 'checkin') { setActiveTab('dashboard'); handleCheckIn() }
+                  else setActiveTab(item.id)
+                }}
               />
             ))}
           </div>
@@ -857,6 +857,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                 const weeksIn = Math.floor((Date.now() - new Date(p.start_date)) / (7 * 86400000))
                 const pct = p.duration_weeks ? Math.min(Math.round((weeksIn / p.duration_weeks) * 100), 100) : null
                 const isDone = p.status === 'completed'
+                const notesForProgram = progressNotes.filter(n => n.client_program_id === p.id)
                 return (
                   <div key={p.id} style={{ padding: '10px 0', borderBottom: i === clientPrograms.length - 1 ? 'none' : `0.5px solid rgba(255,255,255,0.05)` }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -880,6 +881,17 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                     {isDone && p.completed_at && (
                       <div style={{ fontSize: 10, color: TEXT_DIM, marginTop: 4 }}>Completed {new Date(p.completed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
                     )}
+                    {notesForProgram.length > 0 && (
+                      <div style={{ marginTop: 8, paddingTop: 8, borderTop: `0.5px dashed rgba(255,255,255,0.08)` }}>
+                        <div style={{ fontSize: 9, fontWeight: 700, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: 4 }}>Progress Notes</div>
+                        {notesForProgram.map(n => (
+                          <div key={n.id} onClick={() => openNotePdf(n)} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', padding: '4px 0' }}>
+                            <div style={{ fontSize: 12, color: TEXT, fontFamily: 'ui-monospace, monospace', letterSpacing: '0.5px' }}>{compactDate(n.note_date)}</div>
+                            <div style={{ fontSize: 10, color: ACCENT, fontWeight: 600 }}>View / Save PDF →</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )
               })}
@@ -902,22 +914,22 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
               )}
             </InnerCard>
 
-            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: '16px 0 10px' }}>Progress Notes</div>
-            <InnerCard>
-              {progressNotes.length === 0 ? (
-                <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>Your provider hasn't shared any session notes yet.</div>
-              ) : (
-                progressNotes.map((n, i) => (
-                  <div key={n.id} onClick={() => openNotePdf(n)} style={{
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer',
-                    padding: '10px 0', borderBottom: i === progressNotes.length - 1 ? 'none' : `0.5px solid rgba(255,255,255,0.05)`,
-                  }}>
-                    <div style={{ fontSize: 13, color: TEXT, fontFamily: 'ui-monospace, monospace', letterSpacing: '0.5px' }}>{compactDate(n.note_date)}</div>
-                    <div style={{ fontSize: 11, color: ACCENT, fontWeight: 600 }}>View / Save PDF →</div>
-                  </div>
-                ))
-              )}
-            </InnerCard>
+            {progressNotes.some(n => !n.client_program_id) && (
+              <>
+                <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: '16px 0 10px' }}>General Notes</div>
+                <InnerCard>
+                  {progressNotes.filter(n => !n.client_program_id).map((n, i, arr) => (
+                    <div key={n.id} onClick={() => openNotePdf(n)} style={{
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer',
+                      padding: '10px 0', borderBottom: i === arr.length - 1 ? 'none' : `0.5px solid rgba(255,255,255,0.05)`,
+                    }}>
+                      <div style={{ fontSize: 13, color: TEXT, fontFamily: 'ui-monospace, monospace', letterSpacing: '0.5px' }}>{compactDate(n.note_date)}</div>
+                      <div style={{ fontSize: 11, color: ACCENT, fontWeight: 600 }}>View / Save PDF →</div>
+                    </div>
+                  ))}
+                </InnerCard>
+              </>
+            )}
           </div>
         )}
 
@@ -1116,7 +1128,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
           ].map(({ id, icon, label }) => {
             const active = activeTab === id
             const handleTap = () => {
-              if (id === 'checkin') { onNavigate && onNavigate('checkin') }
+              if (id === 'checkin') { setActiveTab('dashboard'); handleCheckIn() }
               else setActiveTab(id)
             }
             return (

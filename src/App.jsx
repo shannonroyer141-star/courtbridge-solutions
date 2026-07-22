@@ -28,6 +28,7 @@ import Messages from './screens/Messages';
 import ClientInvite from './screens/ClientInvite';
 import ViolationReport from './screens/ViolationReport';
 import FounderDocs from './screens/FounderDocs';
+import BusinessOrganizer from './screens/BusinessOrganizer';
 import DocumentUpload from './screens/DocumentUpload';
 import CompletionCertificate from './screens/CompletionCertificate';
 import SensitiveNotes from './screens/SensitiveNotes';
@@ -50,7 +51,7 @@ export default function App() {
   const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 768);
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 768);
   const [expandedMenus, setExpandedMenus] = useState({
-    compliance: false, clients: false, sensitive: false, operations: false, admin: false
+    compliance: false, clients: false, sensitive: false, operations: false, admin: false, founder: false
   });
   const [isFounder, setIsFounder] = useState(false);
 
@@ -226,6 +227,7 @@ export default function App() {
       case 'clientinvite': return <ClientInvite session={session} />;
       case 'violationreport': return <ViolationReport session={session} />;
       case 'founderdocs': return <FounderDocs session={session} />;
+      case 'businessorganizer': return <BusinessOrganizer session={session} />;
       case 'documents': return <DocumentUpload session={session} />;
       case 'certificates': return <CompletionCertificate session={session} />;
       case 'sensitivenotes': return <SensitiveNotes session={session} />;
@@ -430,9 +432,18 @@ export default function App() {
             <Ic d={ICONS.settings} /><span>Settings</span>
           </div>
           {isFounder && (
-            <div style={navItem('founderdocs')} onClick={() => navTo('founderdocs')}>
-              <Ic d={ICONS.admin} /><span>Founder</span>
-            </div>
+            <>
+              <div style={groupRow('founder')} onClick={() => toggleMenu('founder')}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Ic d={ICONS.admin} /><span>Founder</span>
+                </div>
+                <Ic d={expandedMenus.founder ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
+              </div>
+              {expandedMenus.founder && <>
+                <div style={subItem('founderdocs')} onClick={() => navTo('founderdocs')}>Founder Docs</div>
+                <div style={subItem('businessorganizer')} onClick={() => navTo('businessorganizer')}>Business Organizer</div>
+              </>}
+            </>
           )}
         </div>
 

@@ -109,6 +109,7 @@ const NAV_ITEMS = [
   { id: 'checkin',    icon: '📍', label: 'Check In' },
   { id: 'journey',    icon: '🏅', label: 'My Journey' },
   { id: 'documents',  icon: '📄', label: 'My Documents' },
+  { id: 'forms',      icon: '✍️', label: 'Forms to Sign' },
   { id: 'messages',   icon: '💬', label: 'Messages' },
   { id: 'courtdates', icon: '📅', label: 'Court Dates' },
   { id: 'settings',   icon: '📊', label: 'My Progress' },
@@ -190,6 +191,11 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
   const [courtDates, setCourtDates] = useState([])
   const [tasks, setTasks] = useState([])
   const [documents, setDocuments] = useState([])
+  const [formTemplates, setFormTemplates] = useState([])
+  const [mySignatures, setMySignatures] = useState([])
+  const [signingTemplate, setSigningTemplate] = useState(null)
+  const [signatureName, setSignatureName] = useState('')
+  const [signing, setSigning] = useState(false)
   const [affirmationIndex, setAffirmationIndex] = useState(0)
   const [loading, setLoading] = useState(true)
   const [isFirstTime, setIsFirstTime] = useState(false)
@@ -382,7 +388,65 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
       .order('uploaded_at', { ascending: false })
     if (docs) setDocuments(docs)
 
+    const { data: templates } = await supabase
+      .from('form_templates')
+      .select('*')
+      .eq('active', true)
+      .order('created_at', { ascending: false })
+    if (templates) setFormTemplates(templates)
+
+    const { data: sigs } = await supabase
+      .from('form_signatures')
+      .select('*')
+      .eq('client_id', clientData.id)
+      .order('signed_at', { ascending: false })
+    setMySignatures(sigs || [])
+
     setLoading(false)
+  }
+
+  async function signForm() {
+    if (!signingTemplate || !signatureName.trim() || !client?.id) return
+    setSigning(true)
+    await supabase.from('form_signatures').insert({
+      client_id: client.id,
+      form_template_id: signingTemplate.id,
+      form_title: signingTemplate.title,
+      form_content_snapshot: signingTemplate.content,
+      signature_name: signatureName.trim(),
+    })
+    setSigning(false)
+    setSigningTemplate(null)
+    setSignatureName('')
+    fetchClientData()
+  }
+
+  function openSignatureSlip(sig) {
+    const win = window.open('', '_blank')
+    win.document.write(`
+      <html><head><title>Signed Form - ${sig.form_title}</title>
+      <style>
+        body { font-family: Georgia, serif; padding: 50px; max-width: 650px; margin: 0 auto; color: #1a1a2e; }
+        .header { border-bottom: 2px solid #1B3A6B; padding-bottom: 16px; margin-bottom: 24px; }
+        h1 { color: #1B3A6B; font-size: 20px; margin: 0 0 4px; }
+        .meta { color: #666; font-size: 13px; }
+        .content { font-size: 14px; line-height: 1.8; white-space: pre-wrap; margin-bottom: 30px; }
+        .sig-block { border-top: 1px solid #ccc; padding-top: 14px; font-size: 13px; color: #444; }
+      </style>
+      </head><body>
+        <div class="header">
+          <h1>CourtBridge Solutions — Signed Form</h1>
+          <div class="meta">${sig.form_title}</div>
+        </div>
+        <div class="content">${sig.form_content_snapshot}</div>
+        <div class="sig-block">
+          <div>Electronically signed by: <strong>${sig.signature_name}</strong></div>
+          <div>Signed on: ${new Date(sig.signed_at).toLocaleString()}</div>
+        </div>
+      </body></html>
+    `)
+    win.document.close()
+    win.print()
   }
 
   function compactDate(dateStr) {
@@ -638,6 +702,79 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
             </InnerCard>
           </div>
         )}
+
+        {activeTab === 'forms' && (() => {
+          const signedIds = new Set(mySignatures.map(s => s.form_template_id))
+          const pendingTemplates = formTemplates.filter(t => !signedIds.has(t.id))
+          return (
+            <div style={{ margin: '16px 22px', paddingBottom: isMobile ? 80 : 20 }}>
+              <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>Needs Your Signature</div>
+              <InnerCard style={{ marginBottom: 16 }}>
+                {pendingTemplates.length === 0 ? (
+                  <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>Nothing waiting on you right now.</div>
+                ) : (
+                  pendingTemplates.map((t, i) => (
+                    <div key={t.id} style={{ padding: '10px 0', borderBottom: i === pendingTemplates.length - 1 ? 'none' : `0.5px solid rgba(255,255,255,0.05)` }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <div style={{ fontSize: 13, color: TEXT }}>{t.title}</div>
+                          <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 2 }}>{t.form_type}</div>
+                        </div>
+                        <div onClick={() => { setSigningTemplate(signingTemplate?.id === t.id ? null : t); setSignatureName('') }}
+                          style={{ fontSize: 11, color: ACCENT, fontWeight: 600, cursor: 'pointer' }}>
+                          {signingTemplate?.id === t.id ? 'Cancel' : 'Read & Sign →'}
+                        </div>
+                      </div>
+                      {signingTemplate?.id === t.id && (
+                        <div style={{ marginTop: 10, background: 'rgba(0,0,0,0.15)', borderRadius: 8, padding: 12 }}>
+                          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', lineHeight: 1.6, maxHeight: 160, overflowY: 'auto', whiteSpace: 'pre-wrap', marginBottom: 10 }}>
+                            {t.content}
+                          </div>
+                          <input
+                            placeholder="Type your full name to sign"
+                            value={signatureName}
+                            onChange={e => setSignatureName(e.target.value)}
+                            style={{ width: '100%', boxSizing: 'border-box', background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 8, padding: '10px 12px', fontSize: 13, color: TEXT, marginBottom: 8 }}
+                          />
+                          <div
+                            onClick={!signing && signatureName.trim() ? signForm : undefined}
+                            style={{
+                              display: 'inline-block', background: signatureName.trim() ? BLUE : 'rgba(255,255,255,0.1)', color: TEXT,
+                              fontSize: 12, fontWeight: 600, padding: '8px 16px', borderRadius: 8,
+                              cursor: signatureName.trim() ? 'pointer' : 'default', opacity: signing ? 0.7 : 1,
+                            }}
+                          >
+                            {signing ? 'Signing...' : 'Sign & Submit'}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </InnerCard>
+
+              <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>Signed Forms</div>
+              <InnerCard>
+                {mySignatures.length === 0 ? (
+                  <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>Nothing signed yet.</div>
+                ) : (
+                  mySignatures.map((s, i) => (
+                    <div key={s.id} onClick={() => openSignatureSlip(s)} style={{
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer',
+                      padding: '10px 0', borderBottom: i === mySignatures.length - 1 ? 'none' : `0.5px solid rgba(255,255,255,0.05)`,
+                    }}>
+                      <div>
+                        <div style={{ fontSize: 13, color: TEXT }}>{s.form_title}</div>
+                        <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 2 }}>Signed {new Date(s.signed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                      </div>
+                      <div style={{ fontSize: 11, color: ACCENT, fontWeight: 600 }}>View / Save PDF →</div>
+                    </div>
+                  ))
+                )}
+              </InnerCard>
+            </div>
+          )
+        })()}
 
         {activeTab === 'settings' && (
           <div style={{ margin: '16px 22px', paddingBottom: isMobile ? 80 : 20 }}>

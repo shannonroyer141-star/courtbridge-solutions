@@ -7,6 +7,7 @@ import SandboxApp from './demo/SandboxApp';
 import CheckIn from './screens/CheckIn';
 import CheckInHistory from './screens/CheckInHistory';
 import Clients from './screens/Clients';
+import Forms from './screens/Forms';
 import Alerts from './screens/Alerts';
 import Reports from './screens/Reports';
 import DrugTests from './screens/DrugTests';
@@ -207,6 +208,7 @@ export default function App() {
     switch (activeScreen) {
       case 'dashboard': return <ProviderDashboard session={session} onNavigate={navTo} />;
       case 'clients': return <Clients session={session} onNavigate={navTo} />;
+      case 'forms': return <Forms session={session} />;
       case 'checkin': return <CheckInHistory session={session} />;
       case 'alerts': return <Alerts session={session} />;
       case 'reports': return <Reports session={session} />;
@@ -380,6 +382,7 @@ export default function App() {
             <div style={subItem('meetinglog')} onClick={() => navTo('meetinglog')}>Meeting Log</div>
             <div style={subItem('courtdates')} onClick={() => navTo('courtdates')}>Court Dates</div>
             <div style={subItem('certificates')} onClick={() => navTo('certificates')}>Certificates</div>
+            <div style={subItem('forms')} onClick={() => navTo('forms')}>Forms &amp; Signatures</div>
           </>}
 
           <div style={divider} />

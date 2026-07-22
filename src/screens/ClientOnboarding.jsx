@@ -117,11 +117,23 @@ export default function ClientOnboarding() {
         </div>
         <div style={{ padding: '24px 32px 32px' }}>
           {invite?.client_name && (
-            <div style={{ background: '#F0F9FF', borderRadius: 8, padding: '10px 14px', marginBottom: 20, fontSize: 14, color: BLUE }}>
+            <div style={{ background: '#F0F9FF', borderRadius: 8, padding: '10px 14px', marginBottom: 16, fontSize: 14, color: BLUE }}>
               Welcome, <strong>{invite.client_name}</strong>
               {invite.program_type && <span> · {invite.program_type.replace(/_/g, ' ')}</span>}
             </div>
           )}
+          <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, padding: '14px 16px', marginBottom: 20, textAlign: 'left' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>To finish setting up your account</div>
+            <ol style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: '#374151', lineHeight: 1.9, textAlign: 'left' }}>
+              <li>Create a password (at least 8 characters)</li>
+              <li>Add your phone number if you'd like text alerts (optional)</li>
+              <li>Read and agree to the program waiver</li>
+              <li>Submit to complete your enrollment</li>
+            </ol>
+          </div>
+          <div style={{ background: '#F0F9FF', border: '1px solid #DBEAFE', borderRadius: 8, padding: '12px 16px', marginBottom: 20, fontSize: 13, color: '#1e3a5f', lineHeight: 1.6, textAlign: 'left' }}>
+            📍 <strong>About your location:</strong> this app is not a continuous tracking system — it does not run in the background or follow you around. It only captures your location the one moment you tap "Check In," so your provider can confirm that check-in happened where it was supposed to.
+          </div>
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Email</label>

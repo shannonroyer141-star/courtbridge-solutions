@@ -31,6 +31,7 @@ import FounderDocs from './screens/FounderDocs';
 import DocumentUpload from './screens/DocumentUpload';
 import CompletionCertificate from './screens/CompletionCertificate';
 import SensitiveNotes from './screens/SensitiveNotes';
+import ClientIntake from './screens/ClientIntake';
 
 const BLUE = '#1B3A6B';
 
@@ -228,6 +229,7 @@ export default function App() {
       case 'documents': return <DocumentUpload session={session} />;
       case 'certificates': return <CompletionCertificate session={session} />;
       case 'sensitivenotes': return <SensitiveNotes session={session} />;
+      case 'clientintake': return <ClientIntake session={session} />;
       default: return <ProviderDashboard session={session} onNavigate={navTo} />;
     }
   }
@@ -368,6 +370,7 @@ export default function App() {
           </div>
           {expandedMenus.clients && <>
             <div style={subItem('clients')} onClick={() => navTo('clients')}>All Clients</div>
+            <div style={subItem('clientintake')} onClick={() => navTo('clientintake')}>Client Intake</div>
             <div style={subItem('messages')} onClick={() => navTo('messages')}>Messages</div>
             <div style={subItem('contactlog')} onClick={() => navTo('contactlog')}>Contact Log</div>
             <div style={subItem('meetinglog')} onClick={() => navTo('meetinglog')}>Meeting Log</div>

@@ -385,6 +385,35 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
     setLoading(false)
   }
 
+  function compactDate(dateStr) {
+    return dateStr.replaceAll('-', '')
+  }
+
+  function openNotePdf(note) {
+    const win = window.open('', '_blank')
+    win.document.write(`
+      <html><head><title>Progress Note - ${compactDate(note.note_date)}</title>
+      <style>
+        body { font-family: Georgia, serif; padding: 50px; max-width: 650px; margin: 0 auto; color: #1a1a2e; }
+        .header { border-bottom: 2px solid #1B3A6B; padding-bottom: 16px; margin-bottom: 24px; }
+        h1 { color: #1B3A6B; font-size: 20px; margin: 0 0 4px; }
+        .date { color: #666; font-size: 13px; }
+        .content { font-size: 15px; line-height: 1.8; white-space: pre-wrap; }
+        .footer { margin-top: 40px; font-size: 11px; color: #999; }
+      </style>
+      </head><body>
+        <div class="header">
+          <h1>CourtBridge Solutions — Progress Note</h1>
+          <div class="date">${new Date(note.note_date + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+        </div>
+        <div class="content">${note.content}</div>
+        <div class="footer">Generated ${new Date().toLocaleString()}</div>
+      </body></html>
+    `)
+    win.document.close()
+    win.print()
+  }
+
   async function viewDocument(doc) {
     const { data, error } = await supabase.storage.from('documents').createSignedUrl(doc.file_url, 300)
     if (error || !data?.signedUrl) return
@@ -715,11 +744,12 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                 <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>Your provider hasn't shared any session notes yet.</div>
               ) : (
                 progressNotes.map((n, i) => (
-                  <div key={n.id} style={{ padding: '10px 0', borderBottom: i === progressNotes.length - 1 ? 'none' : `0.5px solid rgba(255,255,255,0.05)` }}>
-                    <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 3 }}>
-                      {new Date(n.note_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </div>
-                    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5 }}>{n.content}</div>
+                  <div key={n.id} onClick={() => openNotePdf(n)} style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer',
+                    padding: '10px 0', borderBottom: i === progressNotes.length - 1 ? 'none' : `0.5px solid rgba(255,255,255,0.05)`,
+                  }}>
+                    <div style={{ fontSize: 13, color: TEXT, fontFamily: 'ui-monospace, monospace', letterSpacing: '0.5px' }}>{compactDate(n.note_date)}</div>
+                    <div style={{ fontSize: 11, color: ACCENT, fontWeight: 600 }}>View / Save PDF →</div>
                   </div>
                 ))
               )}

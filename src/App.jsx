@@ -34,10 +34,7 @@ import DocumentUpload from './screens/DocumentUpload';
 import CompletionCertificate from './screens/CompletionCertificate';
 import SensitiveNotes from './screens/SensitiveNotes';
 import ClientIntake from './screens/ClientIntake';
-
-const BLUE = '#1B3A6B';
-
-const NAV_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+import { BLUE, DARK_BG, CARD_BG, ACCENT, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from './theme';
 
 const isEnrollRoute = window.location.pathname === '/enroll' &&
   new URLSearchParams(window.location.search).has('token');
@@ -120,8 +117,8 @@ export default function App() {
   if (isSandboxRoute) return <SandboxApp />;
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F5F6F8', fontFamily: 'Arial, sans-serif' }}>
-      <div style={{ color: BLUE, fontSize: 16 }}>Loading...</div>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: DARK_BG, fontFamily: NAV_FONT }}>
+      <div style={{ color: TEXT_MUTED, fontSize: 16 }}>Loading...</div>
     </div>
   );
 
@@ -270,8 +267,8 @@ export default function App() {
     padding: '6px 10px',
     fontSize: 13,
     fontWeight: activeScreen === id ? 500 : 400,
-    color: activeScreen === id ? '#FFFFFF' : '#374151',
-    background: activeScreen === id ? BLUE : 'transparent',
+    color: activeScreen === id ? TEXT : 'rgba(255,255,255,0.65)',
+    background: activeScreen === id ? ACCENT : 'transparent',
     borderRadius: 6,
     cursor: 'pointer',
     margin: '1px 6px',
@@ -286,8 +283,8 @@ export default function App() {
     padding: '5px 10px 5px 30px',
     fontSize: 12.5,
     fontWeight: activeScreen === id ? 500 : 400,
-    color: activeScreen === id ? '#FFFFFF' : '#6B7280',
-    background: activeScreen === id ? BLUE : 'transparent',
+    color: activeScreen === id ? TEXT : 'rgba(255,255,255,0.5)',
+    background: activeScreen === id ? ACCENT : 'transparent',
     borderRadius: 6,
     cursor: 'pointer',
     margin: '1px 6px',
@@ -302,7 +299,7 @@ export default function App() {
     padding: '6px 10px',
     fontSize: 13,
     fontWeight: 400,
-    color: '#374151',
+    color: 'rgba(255,255,255,0.65)',
     borderRadius: 6,
     cursor: 'pointer',
     margin: '1px 6px',
@@ -310,21 +307,21 @@ export default function App() {
     userSelect: 'none',
   });
 
-  const divider = { margin: '5px 12px', borderTop: '1px solid #E5E7EB' };
+  const divider = { margin: '5px 12px', borderTop: `0.5px solid ${BORDER}` };
 
   const userInitial = session?.user?.email?.[0]?.toUpperCase() || 'P';
   const userEmail = session?.user?.email || '';
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: NAV_FONT, background: '#F8F9FA' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: NAV_FONT, background: DARK_BG }}>
 
-      {!isDesktop && sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.2)', zIndex: 40 }} />}
+      {!isDesktop && sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 40 }} />}
 
       <div style={{
         width: sidebarOpen ? 216 : 0,
         minHeight: '100vh',
-        background: '#F8F9FA',
-        borderRight: sidebarOpen ? '1px solid #E5E7EB' : 'none',
+        background: DARK_BG,
+        borderRight: sidebarOpen ? `0.5px solid ${BORDER}` : 'none',
         position: isDesktop ? 'relative' : 'fixed',
         top: 0,
         left: isDesktop ? 'auto' : (sidebarOpen ? 0 : -216),
@@ -336,9 +333,9 @@ export default function App() {
         flexDirection: 'column',
       }} className="sidebar">
 
-        <div style={{ padding: '15px 16px 13px', borderBottom: '1px solid #E5E7EB' }}>
-          <div style={{ color: BLUE, fontSize: 15, fontWeight: 700, letterSpacing: '-0.3px' }}>CourtBridge</div>
-          <div style={{ color: '#9CA3AF', fontSize: 11, marginTop: 1 }}>Provider Platform</div>
+        <div style={{ padding: '15px 16px 13px', borderBottom: `0.5px solid ${BORDER}` }}>
+          <div style={{ color: TEXT, fontSize: 15, fontWeight: 700, letterSpacing: '-0.3px' }}>CourtBridge</div>
+          <div style={{ color: TEXT_MUTED, fontSize: 11, marginTop: 1 }}>Provider Platform</div>
         </div>
 
         <div style={{ flex: 1, paddingTop: 8, paddingBottom: 8 }}>
@@ -452,27 +449,27 @@ export default function App() {
           )}
         </div>
 
-        <div style={{ padding: '10px 12px 12px', borderTop: '1px solid #E5E7EB' }}>
+        <div style={{ padding: '10px 12px 12px', borderTop: `0.5px solid ${BORDER}` }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 4px', marginBottom: 2 }}>
             <div style={{ width: 26, height: 26, borderRadius: '50%', background: BLUE, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
               {userInitial}
             </div>
-            <span style={{ fontSize: 12, color: '#374151', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{userEmail}</span>
+            <span style={{ fontSize: 12, color: TEXT_MUTED, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{userEmail}</span>
           </div>
-          <div onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 4px', fontSize: 12, color: '#9CA3AF', cursor: 'pointer', borderRadius: 5, fontFamily: NAV_FONT }}>
+          <div onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 4px', fontSize: 12, color: TEXT_MUTED, cursor: 'pointer', borderRadius: 5, fontFamily: NAV_FONT }}>
             <Ic d={ICONS.logout} size={13} /><span>Sign out</span>
           </div>
         </div>
       </div>
 
       <div style={{ flex: 1, marginLeft: 0, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ background: '#fff', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: '1px solid #E5E7EB', position: 'sticky', top: 0, zIndex: 30 }}>
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', padding: 4, display: 'flex', alignItems: 'center' }}>
+        <div style={{ background: CARD_BG, padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 12, borderBottom: `0.5px solid ${BORDER}`, position: 'sticky', top: 0, zIndex: 30 }}>
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: TEXT_MUTED, padding: 4, display: 'flex', alignItems: 'center' }}>
             <Ic d={ICONS.menu} size={17} />
           </button>
-          <div style={{ fontSize: 14, fontWeight: 600, color: BLUE, letterSpacing: '-0.2px' }}>CourtBridge Solutions</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: TEXT, letterSpacing: '-0.2px' }}>CourtBridge Solutions</div>
         </div>
-        <div style={{ flex: 1, padding: 20 }}>{renderMain()}</div>
+        <div style={{ flex: 1, padding: 20, background: DARK_BG }}>{renderMain()}</div>
       </div>
     </div>
   );

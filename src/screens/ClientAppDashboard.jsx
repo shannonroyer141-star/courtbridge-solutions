@@ -111,7 +111,7 @@ const NAV_ITEMS = [
   { id: 'documents',  icon: '📄', label: 'My Documents' },
   { id: 'messages',   icon: '💬', label: 'Messages' },
   { id: 'courtdates', icon: '📅', label: 'Court Dates' },
-  { id: 'settings',   icon: '⚙️', label: 'Settings' },
+  { id: 'settings',   icon: '📊', label: 'My Progress' },
 ]
 
 function NavItem({ icon, label, active, showLabels, hovered, onHover, onLeave, onClick }) {
@@ -458,6 +458,14 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
     ? (nextTask.title || 'Provider task')
     : 'None scheduled'
 
+  const weekNumber = Math.max(Math.ceil(daysEnrolled / 7), 1)
+  const primaryProgram = clientPrograms.find(p => p.order_type === 'primary' && p.status === 'active') || clientPrograms.find(p => p.status === 'active')
+  const primaryWeeksIn = primaryProgram ? Math.max(Math.floor((Date.now() - new Date(primaryProgram.start_date)) / (7 * 86400000)), 0) : null
+  const primaryPct = primaryProgram?.duration_weeks ? Math.min(Math.round((primaryWeeksIn / primaryProgram.duration_weeks) * 100), 100) : null
+  const tasksBeforeVisit = nextCourtDate
+    ? tasks.filter(t => new Date(t.due_date) <= new Date(nextCourtDate.hearing_date))
+    : tasks
+
   if (loading) return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: DARK_BG }}>
       <div style={{ color: TEXT_MUTED, fontSize: 14 }}>Loading your dashboard...</div>
@@ -553,6 +561,49 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
           </div>
           <div style={{ width: 32, height: 32, borderRadius: '50%', background: CARD_BG, border: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, color: TEXT_MUTED }}>🔔</div>
         </div>
+
+        {activeTab === 'settings' && (
+          <div style={{ margin: '16px 22px', paddingBottom: isMobile ? 80 : 20 }}>
+            <div style={{ background: BLUE, borderRadius: 12, padding: '18px 20px', border: `0.5px solid rgba(91,155,240,0.2)`, marginBottom: 16 }}>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                {primaryProgram ? primaryProgram.order_name : 'Your program'}
+              </div>
+              <div style={{ fontSize: 24, fontWeight: 600, color: TEXT, marginTop: 4 }}>
+                Week {primaryProgram?.duration_weeks ? Math.min(primaryWeeksIn + 1, primaryProgram.duration_weeks) : weekNumber}
+                {primaryProgram?.duration_weeks ? ` of ${primaryProgram.duration_weeks}` : ''}
+              </div>
+              {primaryPct !== null && (
+                <div style={{ marginTop: 12 }}>
+                  <div style={{ height: 8, borderRadius: 4, background: 'rgba(255,255,255,0.15)', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: `${primaryPct}%`, background: ACCENT, borderRadius: 4 }} />
+                  </div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', marginTop: 6 }}>{primaryPct}% of the way through</div>
+                </div>
+              )}
+            </div>
+
+            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>
+              {nextCourtDate ? `Before Your Next Visit (${nextApptLabel})` : 'Your Tasks'}
+            </div>
+            <InnerCard>
+              {tasksBeforeVisit.length === 0 ? (
+                <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>
+                  {nextCourtDate ? 'Nothing due before your next visit — you\'re all caught up.' : 'No tasks assigned right now.'}
+                </div>
+              ) : (
+                tasksBeforeVisit.map((t, i) => (
+                  <ListRow
+                    key={t.id}
+                    icon="✓" iconBg="rgba(91,155,240,0.15)" iconColor={ACCENT}
+                    title={t.title}
+                    meta={t.due_date ? `Due ${new Date(t.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : null}
+                    last={i === tasksBeforeVisit.length - 1}
+                  />
+                ))
+              )}
+            </InnerCard>
+          </div>
+        )}
 
         {activeTab === 'journey' && (
           <div style={{ margin: '16px 22px', paddingBottom: isMobile ? 80 : 20 }}>

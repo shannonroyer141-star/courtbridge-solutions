@@ -238,6 +238,9 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
     setSendingMessage(true)
     setMessageStatus(null)
     try {
+      const { data: providerProfile } = await supabase
+        .from('profiles').select('phone, email, alert_email').eq('id', client.provider_id).single()
+
       const { error } = await supabase.from('messages').insert({
         client_id: client.id,
         provider_id: client.provider_id,
@@ -247,12 +250,11 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
         body: composeText.trim(),
         message_type: 'client_message',
         delivered: true,
+        to_email: providerProfile?.alert_email || providerProfile?.email || 'unknown@courtbridgesolutions.com',
       })
       if (error) throw error
 
       if (composeUrgent) {
-        const { data: providerProfile } = await supabase
-          .from('profiles').select('phone').eq('id', client.provider_id).single()
         if (providerProfile?.phone) {
           const { data: { session: authSession } } = await supabase.auth.getSession()
           fetch(`https://howvgvrrxcpdiqjbnhzn.supabase.co/functions/v1/send-sms`, {
@@ -551,6 +553,9 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
     return diff <= 1.5 ? acc + 1 : acc
   }, checkIns.length > 0 ? 1 : 0)
   const complianceRate = checkIns.length > 0 ? Math.round((streak / Math.max(checkIns.length, 1)) * 100) : 0
+  const daysSinceLastCheckin = checkIns.length > 0 ? (Date.now() - new Date(checkIns[0].checked_in_at)) / 86400000 : null
+  const missedRecentCheckin = !checkedInToday && daysSinceLastCheckin !== null && daysSinceLastCheckin > 1.5
+  const pendingFormsCount = formTemplates.filter(t => !mySignatures.some(s => s.form_template_id === t.id)).length
   const enrollDate = client?.enrollment_date || client?.created_at
   const daysEnrolled = enrollDate ? Math.floor((Date.now() - new Date(enrollDate)) / 86400000) + 1 : 1
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
@@ -588,6 +593,19 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
   )
 
   if (isFirstTime) return <FirstTimeWelcome name={firstName} onDone={() => setIsFirstTime(false)} />
+
+  if (client && (client.status === 'terminated' || client.status === 'inactive')) return (
+    <div style={{ minHeight: '100vh', background: DARK_BG, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+      <div style={{ textAlign: 'center', maxWidth: 380 }}>
+        <div style={{ fontSize: 40, marginBottom: 16 }}>📋</div>
+        <div style={{ fontSize: 19, fontWeight: 600, color: TEXT, marginBottom: 10 }}>Your program status has changed</div>
+        <div style={{ fontSize: 14, color: TEXT_MUTED, lineHeight: 1.6, marginBottom: 20 }}>
+          Your account is currently marked {client.status}. Please contact your provider directly to find out what's needed to continue or return to the program.
+        </div>
+        <div onClick={onLogout} style={{ display: 'inline-block', background: 'rgba(255,255,255,0.1)', color: TEXT, fontSize: 13, padding: '10px 20px', borderRadius: 8, cursor: 'pointer' }}>Log Out</div>
+      </div>
+    </div>
+  )
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: DARK_BG, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
@@ -944,15 +962,25 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
         )}
 
         {activeTab === 'dashboard' && <>
+        {pendingFormsCount > 0 && (
+          <div onClick={() => setActiveTab('forms')} style={{ margin: '16px 22px 0', background: 'rgba(255,140,66,0.1)', border: `0.5px solid rgba(255,140,66,0.3)`, borderRadius: 10, padding: '12px 16px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontSize: 13, color: TEXT }}>
+              <strong style={{ color: ORANGE }}>Needs your attention:</strong> {pendingFormsCount} form{pendingFormsCount > 1 ? 's' : ''} waiting for your signature
+            </div>
+            <div style={{ fontSize: 12, color: ORANGE, fontWeight: 600 }}>Review →</div>
+          </div>
+        )}
         {/* Hero check-in */}
         <div style={{ margin: '16px 22px 0', background: BLUE, borderRadius: 12, padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 20, border: `0.5px solid rgba(91,155,240,0.2)` }}>
           <StreakRing streak={streak} />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 15, fontWeight: 500, color: TEXT }}>
-              {checkedInToday ? `You checked in today — ${streak} day streak!` : `You are on a ${streak}-day check-in streak`}
+              {checkedInToday ? `You checked in today — ${streak} day streak!` : missedRecentCheckin ? "Let's get back on track" : `You are on a ${streak}-day check-in streak`}
             </div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', marginTop: 4, lineHeight: 1.5 }}>
-              {nextApptDate
+              {missedRecentCheckin
+                ? "Life happens — it's been a bit since your last check-in. Check in now to get back on track."
+                : nextApptDate
                 ? `Your next appointment is ${nextApptLabel} — ${nextApptSub}.`
                 : 'Keep up the great work. Consistency is your proof.'}
             </div>

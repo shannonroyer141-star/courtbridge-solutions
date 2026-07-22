@@ -16,6 +16,10 @@ export default function ClientProfile({ clientId, onNavigate }) {
   const [showAddNote, setShowAddNote] = useState(false);
   const [noteForm, setNoteForm] = useState({ note_date: new Date().toISOString().split('T')[0], content: '', visible_to_client: true });
   const [savingNote, setSavingNote] = useState(false);
+  const [signatures, setSignatures] = useState([]);
+  const [showReactivate, setShowReactivate] = useState(false);
+  const [returnForm, setReturnForm] = useState({ address: '', phone: '' });
+  const [savingStatus, setSavingStatus] = useState(false);
 
   useEffect(() => {
     if (clientId) fetchAll();
@@ -23,7 +27,7 @@ export default function ClientProfile({ clientId, onNavigate }) {
 
   async function fetchAll() {
     setLoading(true);
-    const [{ data: c }, { data: ci }, { data: cd }, { data: dt }, { data: cp }, { data: cm }, { data: pn }] = await Promise.all([
+    const [{ data: c }, { data: ci }, { data: cd }, { data: dt }, { data: cp }, { data: cm }, { data: pn }, { data: sg }] = await Promise.all([
       supabase.from('clients').select('*').eq('id', clientId).single(),
       supabase.from('checkins').select('*').eq('client_id', clientId).order('checked_in_at', { ascending: false }).limit(7),
       supabase.from('court_dates').select('*').eq('client_id', clientId).order('hearing_date', { ascending: true }).limit(3),
@@ -31,6 +35,7 @@ export default function ClientProfile({ clientId, onNavigate }) {
       supabase.from('client_programs').select('*').eq('client_id', clientId).order('created_at'),
       supabase.from('client_milestones').select('*').eq('client_id', clientId).order('achieved_at', { ascending: false }),
       supabase.from('client_progress_notes').select('*').eq('client_id', clientId).order('note_date', { ascending: false }),
+      supabase.from('form_signatures').select('*').eq('client_id', clientId).order('signed_at', { ascending: false }),
     ]);
     setClient(c);
     setCheckIns(ci || []);
@@ -39,6 +44,7 @@ export default function ClientProfile({ clientId, onNavigate }) {
     setPrograms(cp || []);
     setMilestones(cm || []);
     setProgressNotes(pn || []);
+    setSignatures(sg || []);
     setLoading(false);
   }
 
@@ -114,6 +120,31 @@ export default function ClientProfile({ clientId, onNavigate }) {
     fetchAll();
   }
 
+  async function changeClientStatus(newStatus) {
+    setSavingStatus(true);
+    await supabase.from('clients').update({ status: newStatus, status_changed_at: new Date().toISOString() }).eq('id', clientId);
+    setSavingStatus(false);
+    fetchAll();
+  }
+
+  function startReactivation() {
+    setReturnForm({ address: client.address || '', phone: client.phone || '' });
+    setShowReactivate(true);
+  }
+
+  async function confirmReactivation() {
+    setSavingStatus(true);
+    await supabase.from('clients').update({
+      status: 'active',
+      status_changed_at: new Date().toISOString(),
+      address: returnForm.address || null,
+      phone: returnForm.phone || null,
+    }).eq('id', clientId);
+    setSavingStatus(false);
+    setShowReactivate(false);
+    fetchAll();
+  }
+
   function getStatusColor(status) {
     if (status === 'active') return '#16a34a';
     if (status === 'at_risk') return '#dc2626';
@@ -143,6 +174,40 @@ export default function ClientProfile({ clientId, onNavigate }) {
             {client.status || 'Pending'}
           </span>
         </div>
+      </div>
+
+      <div style={{ background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+        <h3 style={{ margin: '0 0 12px', color: '#1e3a5f', fontSize: '15px' }}>Status</h3>
+        {client.status_changed_at && (
+          <p style={{ margin: '0 0 12px', fontSize: '12px', color: '#9ca3af' }}>Last changed {new Date(client.status_changed_at).toLocaleDateString()}</p>
+        )}
+        {(client.status === 'terminated' || client.status === 'inactive') ? (
+          <>
+            <button onClick={startReactivation} style={{ padding: '8px 16px', background: '#27AE60', color: 'white', border: 'none', borderRadius: '6px', fontSize: '13px', cursor: 'pointer' }}>
+              ↩ Reactivate — Client Returning
+            </button>
+            {showReactivate && (
+              <div style={{ background: '#F9FAFB', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '14px', marginTop: '12px' }}>
+                <p style={{ margin: '0 0 10px', fontSize: '13px', color: '#374151' }}>Welcome them back — no need to redo full intake. Just confirm what's likely changed:</p>
+                <label style={{ fontSize: '11px', fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Address</label>
+                <input value={returnForm.address} onChange={e => setReturnForm({ ...returnForm, address: e.target.value })}
+                  style={{ width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '13px' }} />
+                <label style={{ fontSize: '11px', fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Phone</label>
+                <input value={returnForm.phone} onChange={e => setReturnForm({ ...returnForm, phone: e.target.value })}
+                  style={{ width: '100%', padding: '10px', marginBottom: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '13px' }} />
+                <button onClick={confirmReactivation} disabled={savingStatus} style={{ width: '100%', padding: '10px', background: '#27AE60', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
+                  {savingStatus ? 'Saving...' : 'Confirm Return — Set Active'}
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={() => changeClientStatus('inactive')} disabled={savingStatus} style={{ padding: '8px 16px', background: 'white', color: '#d97706', border: '1px solid #ddd', borderRadius: '6px', fontSize: '13px', cursor: 'pointer' }}>Mark Inactive</button>
+            <button onClick={() => changeClientStatus('terminated')} disabled={savingStatus} style={{ padding: '8px 16px', background: 'white', color: '#dc2626', border: '1px solid #ddd', borderRadius: '6px', fontSize: '13px', cursor: 'pointer' }}>Terminate</button>
+          </div>
+        )}
+        <p style={{ fontSize: '11px', color: '#9ca3af', marginTop: '10px', marginBottom: 0 }}>Terminating never deletes anything — check-ins, messages, documents, and Journey history all stay intact for if they come back.</p>
       </div>
 
       <div style={{ background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
@@ -263,6 +328,20 @@ export default function ClientProfile({ clientId, onNavigate }) {
                 <div style={{ fontSize: '14px', color: '#374151' }}>{n.content}</div>
               </div>
               <button onClick={() => deleteProgressNote(n.id)} style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>Delete</button>
+            </div>
+          ))
+        )}
+      </div>
+
+      <div style={{ background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+        <h3 style={{ margin: '0 0 12px', color: '#1e3a5f', fontSize: '15px' }}>Signed Forms</h3>
+        {signatures.length === 0 ? <p style={{ color: '#9ca3af', margin: 0 }}>No forms signed yet.</p> : (
+          signatures.map(s => (
+            <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #f3f4f6' }}>
+              <div>
+                <div style={{ fontSize: '14px', color: '#374151' }}>{s.form_title}</div>
+                <div style={{ fontSize: '12px', color: '#9ca3af' }}>Signed by {s.signature_name} on {new Date(s.signed_at).toLocaleDateString()}</div>
+              </div>
             </div>
           ))
         )}

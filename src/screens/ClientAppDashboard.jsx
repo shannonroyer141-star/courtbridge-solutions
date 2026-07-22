@@ -107,6 +107,7 @@ function StreakRing({ streak }) {
 const NAV_ITEMS = [
   { id: 'dashboard',  icon: '⊞', label: 'Home' },
   { id: 'checkin',    icon: '📍', label: 'Check In' },
+  { id: 'journey',    icon: '🏅', label: 'My Journey' },
   { id: 'documents',  icon: '📄', label: 'My Documents' },
   { id: 'messages',   icon: '💬', label: 'Messages' },
   { id: 'courtdates', icon: '📅', label: 'Court Dates' },
@@ -183,6 +184,8 @@ function ListRow({ icon, iconBg, iconColor, title, meta, badgeText, badgeColor, 
 export default function ClientAppDashboard({ session, clientName = 'there', onNavigate, onLogout }) {
   const [client, setClient] = useState(null)
   const [checkIns, setCheckIns] = useState([])
+  const [clientPrograms, setClientPrograms] = useState([])
+  const [milestones, setMilestones] = useState([])
   const [courtDates, setCourtDates] = useState([])
   const [tasks, setTasks] = useState([])
   const [affirmationIndex, setAffirmationIndex] = useState(0)
@@ -302,8 +305,48 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
       .select('*')
       .eq('client_id', clientData.id)
       .order('checked_in_at', { ascending: false })
-      .limit(10)
+      .limit(400)
     if (ci) setCheckIns(ci)
+
+    const { data: programs } = await supabase
+      .from('client_programs')
+      .select('*')
+      .eq('client_id', clientData.id)
+      .order('created_at')
+    if (programs) setClientPrograms(programs)
+
+    const { data: existingMilestones } = await supabase
+      .from('client_milestones')
+      .select('*')
+      .eq('client_id', clientData.id)
+      .order('achieved_at', { ascending: false })
+    setMilestones(existingMilestones || [])
+
+    const currentStreak = (ci || []).reduce((acc, row, i, arr) => {
+      if (i === 0) return 1
+      const diff = (new Date(arr[i - 1].checked_in_at) - new Date(row.checked_in_at)) / 86400000
+      return diff <= 1.5 ? acc + 1 : acc
+    }, (ci || []).length > 0 ? 1 : 0)
+
+    const STREAK_MILESTONES = [
+      { days: 7, type: 'checkin_streak_7', title: '7-Day Check-In Streak' },
+      { days: 30, type: 'checkin_streak_30', title: '30-Day Check-In Streak' },
+      { days: 90, type: 'checkin_streak_90', title: '90-Day Check-In Streak' },
+      { days: 180, type: 'checkin_streak_180', title: '180-Day Check-In Streak' },
+      { days: 365, type: 'checkin_streak_365', title: '1-Year Check-In Streak' },
+    ]
+    const alreadyEarned = new Set((existingMilestones || []).map(m => m.milestone_type))
+    const newlyEarned = STREAK_MILESTONES.filter(m => currentStreak >= m.days && !alreadyEarned.has(m.type))
+    if (newlyEarned.length > 0) {
+      const rows = newlyEarned.map(m => ({
+        client_id: clientData.id,
+        milestone_type: m.type,
+        title: m.title,
+        description: `Reached a ${m.days}-day consecutive check-in streak.`,
+      }))
+      const { data: inserted } = await supabase.from('client_milestones').insert(rows).select()
+      if (inserted) setMilestones(prev => [...inserted, ...prev])
+    }
 
     const { data: cd } = await supabase
       .from('court_dates')
@@ -510,6 +553,64 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
           </div>
           <div style={{ width: 32, height: 32, borderRadius: '50%', background: CARD_BG, border: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, color: TEXT_MUTED }}>🔔</div>
         </div>
+
+        {activeTab === 'journey' && (
+          <div style={{ margin: '16px 22px', paddingBottom: isMobile ? 80 : 20 }}>
+            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>My Programs</div>
+            <InnerCard style={{ marginBottom: 16 }}>
+              {clientPrograms.length === 0 && (
+                <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>Your provider hasn't added a program to track here yet.</div>
+              )}
+              {clientPrograms.map((p, i) => {
+                const weeksIn = Math.floor((Date.now() - new Date(p.start_date)) / (7 * 86400000))
+                const pct = p.duration_weeks ? Math.min(Math.round((weeksIn / p.duration_weeks) * 100), 100) : null
+                const isDone = p.status === 'completed'
+                return (
+                  <div key={p.id} style={{ padding: '10px 0', borderBottom: i === clientPrograms.length - 1 ? 'none' : `0.5px solid rgba(255,255,255,0.05)` }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontSize: 13, color: TEXT }}>{p.order_name}</div>
+                      <div style={{
+                        fontSize: 10, fontWeight: 500, padding: '2px 8px', borderRadius: 20,
+                        background: isDone ? 'rgba(76,175,125,0.15)' : p.status === 'terminated' ? 'rgba(248,113,113,0.15)' : 'rgba(91,155,240,0.15)',
+                        color: isDone ? GREEN : p.status === 'terminated' ? '#F87171' : ACCENT,
+                      }}>
+                        {isDone ? '🎉 Completed' : p.status === 'terminated' ? 'Ended' : 'In progress'}
+                      </div>
+                    </div>
+                    {pct !== null && !isDone && (
+                      <div style={{ marginTop: 8 }}>
+                        <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${pct}%`, background: ACCENT, borderRadius: 3 }} />
+                        </div>
+                        <div style={{ fontSize: 10, color: TEXT_DIM, marginTop: 4 }}>Week {Math.max(weeksIn, 0)} of {p.duration_weeks}</div>
+                      </div>
+                    )}
+                    {isDone && p.completed_at && (
+                      <div style={{ fontSize: 10, color: TEXT_DIM, marginTop: 4 }}>Completed {new Date(p.completed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                    )}
+                  </div>
+                )
+              })}
+            </InnerCard>
+
+            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>My Achievements</div>
+            <InnerCard>
+              {milestones.length === 0 ? (
+                <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>Keep checking in — your first achievement badge is on the way.</div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10 }}>
+                  {milestones.map(m => (
+                    <div key={m.id} style={{ background: 'rgba(91,155,240,0.08)', border: `0.5px solid rgba(91,155,240,0.2)`, borderRadius: 8, padding: '12px 10px', textAlign: 'center' }}>
+                      <div style={{ fontSize: 22 }}>🏅</div>
+                      <div style={{ fontSize: 11, color: TEXT, fontWeight: 500, marginTop: 6 }}>{m.title}</div>
+                      <div style={{ fontSize: 10, color: TEXT_DIM, marginTop: 3 }}>{new Date(m.achieved_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </InnerCard>
+          </div>
+        )}
 
         {activeTab === 'messages' && (
           <div style={{ margin: '16px 22px', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>

@@ -23,7 +23,7 @@ const PROGRAM_LABELS = {
   other: 'Other'
 }
 
-export default function Clients({ session }) {
+export default function Clients({ session, onNavigate }) {
   const [clients, setClients] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -160,7 +160,15 @@ export default function Clients({ session }) {
             <div style={{ background: '#fff', borderRadius: 12, padding: '20px 24px', border: `2px solid ${BLUE}`, marginTop: -4 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <div style={{ fontSize: 16, fontWeight: 700, color: BLUE }}>{selectedClient.name} — Detail</div>
-                <button onClick={() => setSelectedClient(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#666' }}>✕</button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  {onNavigate && (
+                    <button onClick={() => onNavigate('clientprofile', selectedClient.id)}
+                      style={{ background: BLUE, color: '#fff', border: 'none', borderRadius: 6, padding: '8px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                      View Full Profile & Journey →
+                    </button>
+                  )}
+                  <button onClick={() => setSelectedClient(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: '#666' }}>✕</button>
+                </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16 }}>
                 {[

@@ -206,7 +206,7 @@ export default function App() {
   function renderMain() {
     switch (activeScreen) {
       case 'dashboard': return <ProviderDashboard session={session} onNavigate={navTo} />;
-      case 'clients': return <Clients session={session} />;
+      case 'clients': return <Clients session={session} onNavigate={navTo} />;
       case 'checkin': return <CheckInHistory session={session} />;
       case 'alerts': return <Alerts session={session} />;
       case 'reports': return <Reports session={session} />;
@@ -224,7 +224,7 @@ export default function App() {
       case 'mapview': return <MapView session={session} />;
       case 'meetinglog': return <MeetingLog session={session} />;
       case 'orgadmin': return <OrgAdmin session={session} />;
-      case 'clientprofile': return <ClientProfile session={session} />;
+      case 'clientprofile': return <ClientProfile session={session} clientId={activeClientId} onNavigate={navTo} />;
       case 'messages': return <Messages session={session} clientId={activeClientId} />;
       case 'clientinvite': return <ClientInvite session={session} />;
       case 'violationreport': return <ViolationReport session={session} />;

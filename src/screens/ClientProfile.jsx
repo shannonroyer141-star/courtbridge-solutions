@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 
-export default function ClientProfile({ clientId }) {
+export default function ClientProfile({ clientId, onNavigate }) {
   const [client, setClient] = useState(null);
   const [checkIns, setCheckIns] = useState([]);
   const [courtDates, setCourtDates] = useState([]);
   const [drugTests, setDrugTests] = useState([]);
+  const [programs, setPrograms] = useState([]);
+  const [milestones, setMilestones] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showAddOrder, setShowAddOrder] = useState(false);
+  const [orderForm, setOrderForm] = useState({ order_name: '', order_type: 'primary', start_date: new Date().toISOString().split('T')[0], duration_weeks: '' });
+  const [savingOrder, setSavingOrder] = useState(false);
 
   useEffect(() => {
     if (clientId) fetchAll();
@@ -14,17 +19,73 @@ export default function ClientProfile({ clientId }) {
 
   async function fetchAll() {
     setLoading(true);
-    const [{ data: c }, { data: ci }, { data: cd }, { data: dt }] = await Promise.all([
+    const [{ data: c }, { data: ci }, { data: cd }, { data: dt }, { data: cp }, { data: cm }] = await Promise.all([
       supabase.from('clients').select('*').eq('id', clientId).single(),
       supabase.from('checkins').select('*').eq('client_id', clientId).order('checked_in_at', { ascending: false }).limit(7),
       supabase.from('court_dates').select('*').eq('client_id', clientId).order('hearing_date', { ascending: true }).limit(3),
       supabase.from('drug_tests').select('*').eq('client_id', clientId).order('test_date', { ascending: false }).limit(3),
+      supabase.from('client_programs').select('*').eq('client_id', clientId).order('created_at'),
+      supabase.from('client_milestones').select('*').eq('client_id', clientId).order('achieved_at', { ascending: false }),
     ]);
     setClient(c);
     setCheckIns(ci || []);
     setCourtDates(cd || []);
     setDrugTests(dt || []);
+    setPrograms(cp || []);
+    setMilestones(cm || []);
     setLoading(false);
+  }
+
+  async function addOrder() {
+    if (!orderForm.order_name.trim()) return;
+    setSavingOrder(true);
+    await supabase.from('client_programs').insert({
+      client_id: clientId,
+      order_name: orderForm.order_name.trim(),
+      order_type: orderForm.order_type,
+      start_date: orderForm.start_date,
+      duration_weeks: orderForm.duration_weeks ? parseInt(orderForm.duration_weeks, 10) : null,
+    });
+    setOrderForm({ order_name: '', order_type: 'primary', start_date: new Date().toISOString().split('T')[0], duration_weeks: '' });
+    setShowAddOrder(false);
+    setSavingOrder(false);
+    fetchAll();
+  }
+
+  async function markComplete(program) {
+    const completedAt = new Date().toISOString();
+    await supabase.from('client_programs').update({ status: 'completed', completed_at: completedAt }).eq('id', program.id);
+
+    await supabase.from('client_milestones').insert({
+      client_id: clientId,
+      milestone_type: `program_completed_${program.id}`,
+      title: `Completed: ${program.order_name}`,
+      description: `Successfully completed ${program.order_name}.`,
+    });
+
+    const { count: totalCheckins } = await supabase
+      .from('checkins')
+      .select('*', { count: 'exact', head: true })
+      .eq('client_id', clientId)
+      .gte('checked_in_at', program.start_date);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase.from('completion_certificates').insert({
+      client_id: clientId,
+      provider_id: user.id,
+      program_name: program.order_name,
+      completion_date: completedAt.split('T')[0],
+      total_checkins: totalCheckins || 0,
+      certificate_number: `CB-${Date.now().toString().slice(-8)}`,
+      issued_at: completedAt,
+    });
+
+    fetchAll();
+  }
+
+  async function markTerminated(program) {
+    await supabase.from('client_programs').update({ status: 'terminated', completed_at: new Date().toISOString() }).eq('id', program.id);
+    fetchAll();
   }
 
   function getStatusColor(status) {
@@ -34,10 +95,18 @@ export default function ClientProfile({ clientId }) {
   }
 
   if (loading) return <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>Loading client...</div>;
-  if (!client) return <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>No client selected.</div>;
+  if (!client) return (
+    <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>
+      No client selected.
+      {onNavigate && <div style={{ marginTop: 12 }}><button onClick={() => onNavigate('clients')} style={{ background: 'none', border: 'none', color: '#1e3a5f', fontWeight: 600, cursor: 'pointer' }}>← Back to Clients</button></div>}
+    </div>
+  );
 
   return (
     <div style={{ padding: '24px', maxWidth: '800px' }}>
+      {onNavigate && (
+        <button onClick={() => onNavigate('clients')} style={{ background: 'none', border: 'none', color: '#6b7280', fontSize: '13px', cursor: 'pointer', padding: 0, marginBottom: '14px' }}>← Back to Clients</button>
+      )}
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
         <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#1e3a5f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '22px', fontWeight: 'bold' }}>
           {(client.name || client.email || '?')[0].toUpperCase()}
@@ -48,6 +117,88 @@ export default function ClientProfile({ clientId }) {
             {client.status || 'Pending'}
           </span>
         </div>
+      </div>
+
+      <div style={{ background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+          <h3 style={{ margin: 0, color: '#1e3a5f', fontSize: '15px' }}>Journey — Court Orders & Programs</h3>
+          <button onClick={() => setShowAddOrder(!showAddOrder)} style={{ background: '#1e3a5f', color: 'white', border: 'none', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer' }}>+ Add Order</button>
+        </div>
+
+        {showAddOrder && (
+          <div style={{ background: '#F9FAFB', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '14px', marginBottom: '14px' }}>
+            <input placeholder="Order name (e.g. 52-Week Drug Court Program)" value={orderForm.order_name}
+              onChange={e => setOrderForm({ ...orderForm, order_name: e.target.value })}
+              style={{ width: '100%', padding: '10px', marginBottom: '8px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '13px' }} />
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <select value={orderForm.order_type} onChange={e => setOrderForm({ ...orderForm, order_type: e.target.value })}
+                style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '13px' }}>
+                <option value="primary">Primary order</option>
+                <option value="accompanying">Accompanying order</option>
+              </select>
+              <input type="date" value={orderForm.start_date} onChange={e => setOrderForm({ ...orderForm, start_date: e.target.value })}
+                style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '13px' }} />
+              <input type="number" placeholder="Duration (weeks, optional)" value={orderForm.duration_weeks}
+                onChange={e => setOrderForm({ ...orderForm, duration_weeks: e.target.value })}
+                style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '13px' }} />
+            </div>
+            <button onClick={addOrder} disabled={savingOrder || !orderForm.order_name.trim()}
+              style={{ marginTop: '10px', width: '100%', padding: '10px', background: '#27AE60', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
+              {savingOrder ? 'Saving...' : 'Add Order'}
+            </button>
+          </div>
+        )}
+
+        {programs.length === 0 ? <p style={{ color: '#9ca3af', margin: 0 }}>No court orders tracked yet.</p> : (
+          programs.map(p => {
+            const weeksIn = Math.floor((Date.now() - new Date(p.start_date)) / (7 * 86400000));
+            const pct = p.duration_weeks ? Math.min(Math.round((weeksIn / p.duration_weeks) * 100), 100) : null;
+            const isDone = p.status === 'completed';
+            const isTerminated = p.status === 'terminated';
+            return (
+              <div key={p.id} style={{ padding: '12px 0', borderBottom: '1px solid #f3f4f6' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+                  <div>
+                    <div style={{ color: '#1e3a5f', fontWeight: '600', fontSize: '14px' }}>{p.order_name}</div>
+                    <div style={{ color: '#9ca3af', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.3px' }}>{p.order_type === 'accompanying' ? 'Accompanying order' : 'Primary order'}</div>
+                  </div>
+                  {!isDone && !isTerminated && (
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <button onClick={() => markComplete(p)} style={{ background: '#27AE60', color: 'white', border: 'none', borderRadius: '6px', padding: '6px 10px', fontSize: '11px', cursor: 'pointer', whiteSpace: 'nowrap' }}>🎉 Mark Complete</button>
+                      <button onClick={() => markTerminated(p)} style={{ background: 'white', color: '#dc2626', border: '1px solid #ddd', borderRadius: '6px', padding: '6px 10px', fontSize: '11px', cursor: 'pointer', whiteSpace: 'nowrap' }}>End</button>
+                    </div>
+                  )}
+                  {isDone && <span style={{ background: '#dcfce7', color: '#16a34a', padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: '600' }}>🎉 Completed</span>}
+                  {isTerminated && <span style={{ background: '#fee2e2', color: '#dc2626', padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: '600' }}>Ended</span>}
+                </div>
+                {pct !== null && !isDone && !isTerminated && (
+                  <div style={{ marginTop: '8px' }}>
+                    <div style={{ height: '6px', borderRadius: '3px', background: '#f0f4fa', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${pct}%`, background: '#2563EB', borderRadius: '3px' }} />
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px' }}>Week {Math.max(weeksIn, 0)} of {p.duration_weeks}</div>
+                  </div>
+                )}
+                {(isDone || isTerminated) && p.completed_at && (
+                  <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px' }}>{isDone ? 'Completed' : 'Ended'} {new Date(p.completed_at).toLocaleDateString()}</div>
+                )}
+              </div>
+            );
+          })
+        )}
+
+        {milestones.length > 0 && (
+          <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid #f3f4f6' }}>
+            <h4 style={{ margin: '0 0 10px', color: '#1e3a5f', fontSize: '13px' }}>Achievements</h4>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {milestones.map(m => (
+                <div key={m.id} title={m.description} style={{ background: '#EFF6FF', border: '1px solid #DBEAFE', borderRadius: '8px', padding: '6px 10px', fontSize: '12px', color: '#1e3a5f' }}>
+                  🏅 {m.title}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div style={{ background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
@@ -92,7 +243,7 @@ export default function ClientProfile({ clientId }) {
       </div>
 
       <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-        <button style={{ background: '#1e3a5f', color: 'white', border: 'none', borderRadius: '8px', padding: '10px 20px', cursor: 'pointer', fontWeight: '600' }}>📩 Send Message</button>
+        <button onClick={() => onNavigate && onNavigate('messages', clientId)} style={{ background: '#1e3a5f', color: 'white', border: 'none', borderRadius: '8px', padding: '10px 20px', cursor: 'pointer', fontWeight: '600' }}>📩 Send Message</button>
         <button style={{ background: '#dc2626', color: 'white', border: 'none', borderRadius: '8px', padding: '10px 20px', cursor: 'pointer', fontWeight: '600' }}>🚨 Create Alert</button>
         <button style={{ background: '#16a34a', color: 'white', border: 'none', borderRadius: '8px', padding: '10px 20px', cursor: 'pointer', fontWeight: '600' }}>📄 View Reports</button>
       </div>

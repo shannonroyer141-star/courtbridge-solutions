@@ -834,6 +834,15 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                 ))
               )}
             </InnerCard>
+
+            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: '16px 0 10px' }}>🔒 Your Privacy & Security</div>
+            <InnerCard>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>
+                Your records are private — only you and your provider can see them, no one else. We do not sell or share your information with third parties. Location is only captured the moment you tap "Check In," not continuous tracking.
+                <br /><br />
+                Questions or problems? Please contact <strong style={{ color: TEXT }}>your provider</strong> directly rather than CourtBridge Solutions.
+              </div>
+            </InnerCard>
           </div>
         )}
 

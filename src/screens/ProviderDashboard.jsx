@@ -6,6 +6,7 @@ import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { supabase } from '../supabase';
+import { DARK_BG, CARD_BG, ACCENT, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -33,25 +34,25 @@ function FitToMarkers({ points }) {
 const S = {
   page: {
     padding: '32px 36px',
-    background: '#FFFFFF',
+    background: DARK_BG,
     minHeight: '100vh',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontFamily: NAV_FONT,
   },
   header: {
     marginBottom: '32px',
     paddingBottom: '24px',
-    borderBottom: '1px solid #E8EDF4',
+    borderBottom: `0.5px solid ${BORDER}`,
   },
   headerTitle: {
     fontSize: '22px',
     fontWeight: '700',
-    color: '#1B3A6B',
+    color: TEXT,
     margin: '0 0 4px',
     letterSpacing: '-0.3px',
   },
   headerDate: {
     fontSize: '13px',
-    color: '#8A9BB0',
+    color: TEXT_MUTED,
     margin: 0,
     fontWeight: '400',
   },
@@ -62,16 +63,15 @@ const S = {
     marginBottom: '28px',
   },
   statCard: {
-    background: '#FFFFFF',
+    background: CARD_BG,
     borderRadius: '10px',
     padding: '20px 22px',
-    border: '1px solid #E8EDF4',
-    boxShadow: '0 1px 4px rgba(27,58,107,0.06)',
+    border: `0.5px solid ${BORDER}`,
   },
   statLabel: {
     fontSize: '12px',
     fontWeight: '600',
-    color: '#8A9BB0',
+    color: TEXT_MUTED,
     textTransform: 'uppercase',
     letterSpacing: '0.6px',
     marginBottom: '10px',
@@ -84,7 +84,7 @@ const S = {
   },
   statSub: {
     fontSize: '12px',
-    color: '#B0BCC8',
+    color: TEXT_DIM,
     marginTop: '6px',
   },
   twoCol: {
@@ -94,15 +94,14 @@ const S = {
     marginBottom: '20px',
   },
   card: {
-    background: '#FFFFFF',
+    background: CARD_BG,
     borderRadius: '10px',
-    border: '1px solid #E8EDF4',
-    boxShadow: '0 1px 4px rgba(27,58,107,0.06)',
+    border: `0.5px solid ${BORDER}`,
     overflow: 'hidden',
   },
   cardHeader: {
     padding: '16px 20px',
-    borderBottom: '1px solid #F0F4FA',
+    borderBottom: `0.5px solid ${BORDER}`,
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
@@ -110,14 +109,14 @@ const S = {
   cardTitle: {
     fontSize: '14px',
     fontWeight: '600',
-    color: '#1B3A6B',
+    color: TEXT,
     margin: 0,
   },
   cardDot: {
     width: '8px',
     height: '8px',
     borderRadius: '50%',
-    background: '#1B3A6B',
+    background: ACCENT,
     flexShrink: 0,
   },
   cardBody: {
@@ -128,25 +127,25 @@ const S = {
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: '11px 20px',
-    borderBottom: '1px solid #F5F7FA',
+    borderBottom: `0.5px solid ${BORDER}`,
   },
   listName: {
     fontSize: '14px',
     fontWeight: '500',
-    color: '#1E2D3D',
+    color: TEXT,
     marginBottom: '2px',
   },
   listSub: {
     fontSize: '12px',
-    color: '#B0BCC8',
+    color: TEXT_DIM,
   },
   listSubAlert: {
     fontSize: '12px',
-    color: '#C0392B',
+    color: RED,
   },
   badgeGreen: {
-    background: '#EBF8F1',
-    color: '#1A7A47',
+    background: 'rgba(76,175,125,0.15)',
+    color: GREEN,
     padding: '3px 10px',
     borderRadius: '20px',
     fontSize: '12px',
@@ -154,8 +153,8 @@ const S = {
     whiteSpace: 'nowrap',
   },
   contactBtn: {
-    background: '#1B3A6B',
-    color: '#FFFFFF',
+    background: ACCENT,
+    color: TEXT,
     border: 'none',
     borderRadius: '6px',
     padding: '6px 14px',
@@ -172,7 +171,8 @@ const S = {
     width: '36px',
     height: '36px',
     borderRadius: '50%',
-    background: '#EBF8F1',
+    background: 'rgba(76,175,125,0.15)',
+    color: GREEN,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -181,14 +181,13 @@ const S = {
   },
   emptyText: {
     fontSize: '14px',
-    color: '#8A9BB0',
+    color: TEXT_DIM,
     margin: 0,
   },
   complianceCard: {
-    background: '#FFFFFF',
+    background: CARD_BG,
     borderRadius: '10px',
-    border: '1px solid #E8EDF4',
-    boxShadow: '0 1px 4px rgba(27,58,107,0.06)',
+    border: `0.5px solid ${BORDER}`,
     padding: '20px 22px',
   },
   complianceRow: {
@@ -199,7 +198,7 @@ const S = {
   },
   progressTrack: {
     flex: 1,
-    background: '#F0F4FA',
+    background: 'rgba(255,255,255,0.08)',
     borderRadius: '6px',
     height: '10px',
     overflow: 'hidden',
@@ -207,24 +206,25 @@ const S = {
   compliancePct: {
     fontSize: '26px',
     fontWeight: '700',
-    color: '#1B3A6B',
+    color: TEXT,
     minWidth: '56px',
     textAlign: 'right',
   },
   complianceSub: {
     fontSize: '12px',
-    color: '#B0BCC8',
+    color: TEXT_DIM,
     marginTop: '8px',
   },
   loadingWrap: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    height: '60vh',
+    height: '100vh',
+    background: DARK_BG,
   },
   loadingText: {
     fontSize: '14px',
-    color: '#8A9BB0',
+    color: TEXT_MUTED,
   },
   threeCol: {
     display: 'grid',
@@ -233,28 +233,27 @@ const S = {
     marginBottom: '20px',
   },
   mapCard: {
-    background: '#FFFFFF',
+    background: CARD_BG,
     borderRadius: '10px',
-    border: '1px solid #E8EDF4',
-    boxShadow: '0 1px 4px rgba(27,58,107,0.06)',
+    border: `0.5px solid ${BORDER}`,
     overflow: 'hidden',
     height: '260px',
   },
   urgentRow: {
     padding: '11px 20px',
-    borderBottom: '1px solid #F5F7FA',
+    borderBottom: `0.5px solid ${BORDER}`,
   },
   urgentSnippet: {
     fontSize: '12px',
-    color: '#6B7280',
+    color: TEXT_MUTED,
     marginTop: '2px',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
   },
   urgentBadge: {
-    background: '#FDEDEC',
-    color: '#C0392B',
+    background: 'rgba(248,113,113,0.15)',
+    color: RED,
     padding: '2px 8px',
     borderRadius: '20px',
     fontSize: '10px',
@@ -265,7 +264,7 @@ const S = {
   linkBtn: {
     background: 'none',
     border: 'none',
-    color: '#2563EB',
+    color: ACCENT,
     fontSize: '12px',
     fontWeight: '600',
     cursor: 'pointer',
@@ -277,13 +276,13 @@ const S = {
     padding: '10px',
     fontSize: '12px',
     fontWeight: '600',
-    color: '#2563EB',
+    color: ACCENT,
     cursor: 'pointer',
-    borderTop: '1px solid #F5F7FA',
+    borderTop: `0.5px solid ${BORDER}`,
   },
 };
 
-function StatCard({ label, value, sub, valueColor = '#1B3A6B', accentColor = '#1B3A6B' }) {
+function StatCard({ label, value, sub, valueColor = TEXT, accentColor = ACCENT }) {
   return (
     <div style={{ ...S.statCard, borderTop: `3px solid ${accentColor}` }}>
       <div style={S.statLabel}>{label}</div>
@@ -370,9 +369,9 @@ export default function ProviderDashboard({ onNavigate }) {
     </div>
   );
 
-  const missedColor = stats.missedLast24 > 0 ? '#C0392B' : '#1A7A47';
-  const alertColor = stats.alertsCount > 0 ? '#D4580A' : '#1A7A47';
-  const progressColor = complianceRate >= 80 ? '#1A7A47' : complianceRate >= 60 ? '#D4580A' : '#C0392B';
+  const missedColor = stats.missedLast24 > 0 ? RED : GREEN;
+  const alertColor = stats.alertsCount > 0 ? ORANGE : GREEN;
+  const progressColor = complianceRate >= 80 ? GREEN : complianceRate >= 60 ? ORANGE : RED;
 
   return (
     <div style={S.page}>
@@ -388,13 +387,13 @@ export default function ProviderDashboard({ onNavigate }) {
           label="Active Clients"
           value={stats.activeClients}
           sub="Total enrolled"
-          accentColor="#1B3A6B"
+          accentColor={ACCENT}
         />
         <StatCard
           label="Checked In Today"
           value={stats.checkedInToday}
           sub={`Of ${stats.activeClients} active`}
-          accentColor="#2563EB"
+          accentColor={ACCENT}
         />
         <StatCard
           label="Missed (24 hrs)"

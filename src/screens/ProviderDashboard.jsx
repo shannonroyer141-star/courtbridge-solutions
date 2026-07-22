@@ -301,8 +301,18 @@ export default function ProviderDashboard({ onNavigate }) {
   const [mapPoints, setMapPoints] = useState([]);
   const [upcoming, setUpcoming] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [width, setWidth] = useState(window.innerWidth);
 
   useEffect(() => { fetchDashboardData(); }, []);
+
+  useEffect(() => {
+    function onResize() { setWidth(window.innerWidth); }
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const isPhone = width < 640;
+  const isTablet = width < 1024;
 
   function goToClient(clientId) {
     if (onNavigate) onNavigate('messages', clientId);
@@ -374,7 +384,7 @@ export default function ProviderDashboard({ onNavigate }) {
   const progressColor = complianceRate >= 80 ? GREEN : complianceRate >= 60 ? ORANGE : RED;
 
   return (
-    <div style={S.page}>
+    <div style={{ ...S.page, padding: isPhone ? '20px 16px' : S.page.padding }}>
       <div style={S.header}>
         <h1 style={S.headerTitle}>Provider Dashboard</h1>
         <p style={S.headerDate}>
@@ -382,7 +392,7 @@ export default function ProviderDashboard({ onNavigate }) {
         </p>
       </div>
 
-      <div style={S.statGrid}>
+      <div style={{ ...S.statGrid, gridTemplateColumns: isPhone ? '1fr 1fr' : isTablet ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)' }}>
         <StatCard
           label="Active Clients"
           value={stats.activeClients}
@@ -411,10 +421,10 @@ export default function ProviderDashboard({ onNavigate }) {
         />
       </div>
 
-      <div style={S.threeCol}>
+      <div style={{ ...S.threeCol, gridTemplateColumns: isTablet ? '1fr' : '1.2fr 1fr 1fr' }}>
         <div style={S.card}>
           <div style={S.cardHeader}>
-            <div style={{ ...S.cardDot, background: '#2563EB' }} />
+            <div style={{ ...S.cardDot, background: ACCENT }} />
             <h3 style={S.cardTitle}>Last Known Locations</h3>
           </div>
           <div style={S.mapCard}>

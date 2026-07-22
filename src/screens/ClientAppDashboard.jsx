@@ -115,6 +115,9 @@ const NAV_ITEMS = [
   { id: 'settings',   icon: '📊', label: 'My Progress' },
 ]
 
+// Items not pinned to the mobile bottom bar (Home/Check In/Messages/More cover those)
+const MORE_MENU_ITEMS = NAV_ITEMS.filter(item => !['dashboard', 'checkin', 'messages'].includes(item.id))
+
 function NavItem({ icon, label, active, showLabels, hovered, onHover, onLeave, onClick }) {
   return (
     <div
@@ -210,6 +213,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
   const [messageStatus, setMessageStatus] = useState(null)
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768)
   const [sidebarExpanded, setSidebarExpanded] = useState(false)
+  const [showMoreMenu, setShowMoreMenu] = useState(false)
   const [showLabels, setShowLabels] = useState(false)
   const [hoveredNavItem, setHoveredNavItem] = useState(null)
 
@@ -453,6 +457,10 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
 
   function compactDate(dateStr) {
     return dateStr.replaceAll('-', '')
+  }
+
+  function formatNoteDate(dateStr) {
+    return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
 
   function openNotePdf(note) {
@@ -882,12 +890,16 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                       <div style={{ fontSize: 10, color: TEXT_DIM, marginTop: 4 }}>Completed {new Date(p.completed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
                     )}
                     {notesForProgram.length > 0 && (
-                      <div style={{ marginTop: 8, paddingTop: 8, borderTop: `0.5px dashed rgba(255,255,255,0.08)` }}>
-                        <div style={{ fontSize: 9, fontWeight: 700, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: 4 }}>Progress Notes</div>
-                        {notesForProgram.map(n => (
-                          <div key={n.id} onClick={() => openNotePdf(n)} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', padding: '4px 0' }}>
-                            <div style={{ fontSize: 12, color: TEXT, fontFamily: 'ui-monospace, monospace', letterSpacing: '0.5px' }}>{compactDate(n.note_date)}</div>
-                            <div style={{ fontSize: 10, color: ACCENT, fontWeight: 600 }}>View / Save PDF →</div>
+                      <div style={{ marginTop: 10, paddingTop: 10, borderTop: `0.5px solid rgba(255,255,255,0.08)` }}>
+                        <div style={{ fontSize: 9, fontWeight: 700, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: 6 }}>Progress Notes</div>
+                        {notesForProgram.map((n, ni) => (
+                          <div key={n.id} onClick={() => openNotePdf(n)} style={{ cursor: 'pointer' }}>
+                            <ListRow
+                              icon="📝" iconBg="rgba(91,155,240,0.15)" iconColor={ACCENT}
+                              title={formatNoteDate(n.note_date)}
+                              badgeText="View →" badgeColor={ACCENT} badgeBg="rgba(91,155,240,0.1)"
+                              last={ni === notesForProgram.length - 1}
+                            />
                           </div>
                         ))}
                       </div>
@@ -919,12 +931,13 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                 <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: '16px 0 10px' }}>General Notes</div>
                 <InnerCard>
                   {progressNotes.filter(n => !n.client_program_id).map((n, i, arr) => (
-                    <div key={n.id} onClick={() => openNotePdf(n)} style={{
-                      display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer',
-                      padding: '10px 0', borderBottom: i === arr.length - 1 ? 'none' : `0.5px solid rgba(255,255,255,0.05)`,
-                    }}>
-                      <div style={{ fontSize: 13, color: TEXT, fontFamily: 'ui-monospace, monospace', letterSpacing: '0.5px' }}>{compactDate(n.note_date)}</div>
-                      <div style={{ fontSize: 11, color: ACCENT, fontWeight: 600 }}>View / Save PDF →</div>
+                    <div key={n.id} onClick={() => openNotePdf(n)} style={{ cursor: 'pointer' }}>
+                      <ListRow
+                        icon="📝" iconBg="rgba(91,155,240,0.15)" iconColor={ACCENT}
+                        title={formatNoteDate(n.note_date)}
+                        badgeText="View →" badgeColor={ACCENT} badgeBg="rgba(91,155,240,0.1)"
+                        last={i === arr.length - 1}
+                      />
                     </div>
                   ))}
                 </InnerCard>
@@ -1113,6 +1126,29 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
         </>}
       </div>
 
+      {/* MORE MENU — mobile only, overlay listing tabs that don't fit the bottom bar */}
+      {isMobile && showMoreMenu && (
+        <>
+          <div onClick={() => setShowMoreMenu(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 110 }} />
+          <div style={{
+            position: 'fixed', left: 0, right: 0, bottom: 62, background: SIDEBAR_BG,
+            borderTop: `0.5px solid rgba(255,255,255,0.08)`, borderRadius: '14px 14px 0 0',
+            zIndex: 111, padding: '8px 0 4px', maxHeight: '60vh', overflowY: 'auto',
+          }}>
+            {MORE_MENU_ITEMS.map(({ id, icon, label }) => (
+              <div key={id} onClick={() => { setActiveTab(id); setShowMoreMenu(false) }} style={{
+                display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px', cursor: 'pointer',
+                color: activeTab === id ? TEXT : 'rgba(255,255,255,0.7)',
+                background: activeTab === id ? 'rgba(91,155,240,0.1)' : 'transparent',
+              }}>
+                <span style={{ fontSize: 18 }}>{icon}</span>
+                <span style={{ fontSize: 14 }}>{label}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
       {/* BOTTOM NAV — mobile only */}
       {isMobile && (
         <div style={{
@@ -1123,13 +1159,14 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
           {[
             { id: 'dashboard', icon: '⊞', label: 'Home' },
             { id: 'checkin',   icon: '📍', label: 'Check In' },
-            { id: 'courtdates', icon: '📅', label: 'Calendar' },
-            { id: 'profile',   icon: '👤', label: 'Profile' },
+            { id: 'messages',  icon: '💬', label: 'Messages' },
+            { id: 'more',      icon: '☰', label: 'More' },
           ].map(({ id, icon, label }) => {
-            const active = activeTab === id
+            const active = id === 'more' ? showMoreMenu : (activeTab === id && !showMoreMenu)
             const handleTap = () => {
-              if (id === 'checkin') { setActiveTab('dashboard'); handleCheckIn() }
-              else setActiveTab(id)
+              if (id === 'checkin') { setShowMoreMenu(false); setActiveTab('dashboard'); handleCheckIn() }
+              else if (id === 'more') setShowMoreMenu(m => !m)
+              else { setShowMoreMenu(false); setActiveTab(id) }
             }
             return (
               <div key={id} onClick={handleTap} style={{

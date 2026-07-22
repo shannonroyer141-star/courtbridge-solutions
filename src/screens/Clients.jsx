@@ -170,6 +170,7 @@ export default function Clients({ session }) {
                   ['Program Phase', selectedClient.program_phase],
                   ['GPS Consent', selectedClient.gps_consent_signed_at ? new Date(selectedClient.gps_consent_signed_at).toLocaleDateString() : 'Pending'],
                   ['Terms Signed', selectedClient.terms_signed_at ? new Date(selectedClient.terms_signed_at).toLocaleDateString() : 'Pending'],
+                  ['SMS Consent', selectedClient.phone ? (selectedClient.sms_consent_signed_at ? new Date(selectedClient.sms_consent_signed_at).toLocaleDateString() : 'Not on file') : null],
                 ].map(([lbl, val]) => val ? (
                   <div key={lbl}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 3 }}>{lbl}</div>

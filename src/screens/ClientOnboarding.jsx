@@ -4,7 +4,7 @@ import { supabase } from '../supabase'
 export default function ClientOnboarding() {
   const [step, setStep] = useState('loading')
   const [invite, setInvite] = useState(null)
-  const [form, setForm] = useState({ password: '', confirm: '', phone: '' })
+  const [form, setForm] = useState({ password: '', confirm: '', phone: '', smsConsent: false })
   const [error, setError] = useState(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -34,6 +34,7 @@ export default function ClientOnboarding() {
     setError(null)
     if (form.password !== form.confirm) { setError('Passwords do not match.'); return }
     if (form.password.length < 8) { setError('Password must be at least 8 characters.'); return }
+    if (form.phone && !form.smsConsent) { setError('Please agree to receive text messages, or leave the phone number blank.'); return }
     setSubmitting(true)
 
     const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -58,7 +59,8 @@ export default function ClientOnboarding() {
       phone: form.phone || null,
       provider_id: invite.provider_id,
       auth_user_id: userId,
-      onboarding_complete: true
+      onboarding_complete: true,
+      sms_consent_signed_at: (form.phone && form.smsConsent) ? new Date().toISOString() : null
     }).select().single()
 
     await supabase.from('invites').update({
@@ -136,12 +138,24 @@ export default function ClientOnboarding() {
                 placeholder="Re-enter password"
                 style={{ width: '100%', padding: '11px 14px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 15, boxSizing: 'border-box' }} />
             </div>
-            <div style={{ marginBottom: 24 }}>
+            <div style={{ marginBottom: form.phone ? 16 : 24 }}>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Phone Number (optional)</label>
               <input type="tel" value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))}
                 placeholder="(555) 000-0000"
                 style={{ width: '100%', padding: '11px 14px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 15, boxSizing: 'border-box' }} />
             </div>
+            {form.phone && (
+              <div style={{ marginBottom: 24, background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, padding: 14 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>⚠ Placeholder — needs legal review before use</div>
+                <div style={{ fontSize: 13, color: '#374151', lineHeight: 1.6, marginBottom: 10 }}>
+                  By checking this box, you agree that CourtBridge Solutions and your provider may send you text messages, including urgent compliance-related alerts, at the phone number above. Message and data rates may apply. You can withdraw consent at any time by contacting your provider.
+                </div>
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: '#111827', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={form.smsConsent} onChange={e => setForm(p => ({ ...p, smsConsent: e.target.checked }))} style={{ marginTop: 2 }} />
+                  I agree to receive text messages at the number above.
+                </label>
+              </div>
+            )}
             {error && <div style={{ color: '#DC2626', fontSize: 13, marginBottom: 16 }}>{error}</div>}
             <button type="submit" disabled={submitting}
               style={{ width: '100%', padding: 14, background: BLUE, color: '#fff', border: 'none', borderRadius: 8, fontSize: 15, fontWeight: 700, cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.7 : 1 }}>

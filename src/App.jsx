@@ -30,6 +30,7 @@ import ViolationReport from './screens/ViolationReport';
 import FounderDocs from './screens/FounderDocs';
 import DocumentUpload from './screens/DocumentUpload';
 import CompletionCertificate from './screens/CompletionCertificate';
+import SensitiveNotes from './screens/SensitiveNotes';
 
 const BLUE = '#1B3A6B';
 
@@ -226,6 +227,7 @@ export default function App() {
       case 'founderdocs': return <FounderDocs session={session} />;
       case 'documents': return <DocumentUpload session={session} />;
       case 'certificates': return <CompletionCertificate session={session} />;
+      case 'sensitivenotes': return <SensitiveNotes session={session} />;
       default: return <ProviderDashboard session={session} onNavigate={navTo} />;
     }
   }
@@ -370,7 +372,6 @@ export default function App() {
             <div style={subItem('contactlog')} onClick={() => navTo('contactlog')}>Contact Log</div>
             <div style={subItem('meetinglog')} onClick={() => navTo('meetinglog')}>Meeting Log</div>
             <div style={subItem('courtdates')} onClick={() => navTo('courtdates')}>Court Dates</div>
-            <div style={subItem('documents')} onClick={() => navTo('documents')}>Documents</div>
             <div style={subItem('certificates')} onClick={() => navTo('certificates')}>Certificates</div>
           </>}
 
@@ -387,6 +388,8 @@ export default function App() {
             <div style={subItem('povisits')} onClick={() => navTo('povisits')}>PO Visits</div>
             <div style={subItem('cpstracking')} onClick={() => navTo('cpstracking')}>CPS Tracking</div>
             <div style={subItem('violationreport')} onClick={() => navTo('violationreport')}>Violations</div>
+            <div style={subItem('documents')} onClick={() => navTo('documents')}>Documents</div>
+            <div style={subItem('sensitivenotes')} onClick={() => navTo('sensitivenotes')}>Case &amp; Clinical Notes</div>
           </>}
 
           <div style={divider} />

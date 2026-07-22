@@ -12,6 +12,10 @@ export default function ClientProfile({ clientId, onNavigate }) {
   const [showAddOrder, setShowAddOrder] = useState(false);
   const [orderForm, setOrderForm] = useState({ order_name: '', order_type: 'primary', start_date: new Date().toISOString().split('T')[0], duration_weeks: '' });
   const [savingOrder, setSavingOrder] = useState(false);
+  const [progressNotes, setProgressNotes] = useState([]);
+  const [showAddNote, setShowAddNote] = useState(false);
+  const [noteForm, setNoteForm] = useState({ note_date: new Date().toISOString().split('T')[0], content: '', visible_to_client: true });
+  const [savingNote, setSavingNote] = useState(false);
 
   useEffect(() => {
     if (clientId) fetchAll();
@@ -19,13 +23,14 @@ export default function ClientProfile({ clientId, onNavigate }) {
 
   async function fetchAll() {
     setLoading(true);
-    const [{ data: c }, { data: ci }, { data: cd }, { data: dt }, { data: cp }, { data: cm }] = await Promise.all([
+    const [{ data: c }, { data: ci }, { data: cd }, { data: dt }, { data: cp }, { data: cm }, { data: pn }] = await Promise.all([
       supabase.from('clients').select('*').eq('id', clientId).single(),
       supabase.from('checkins').select('*').eq('client_id', clientId).order('checked_in_at', { ascending: false }).limit(7),
       supabase.from('court_dates').select('*').eq('client_id', clientId).order('hearing_date', { ascending: true }).limit(3),
       supabase.from('drug_tests').select('*').eq('client_id', clientId).order('test_date', { ascending: false }).limit(3),
       supabase.from('client_programs').select('*').eq('client_id', clientId).order('created_at'),
       supabase.from('client_milestones').select('*').eq('client_id', clientId).order('achieved_at', { ascending: false }),
+      supabase.from('client_progress_notes').select('*').eq('client_id', clientId).order('note_date', { ascending: false }),
     ]);
     setClient(c);
     setCheckIns(ci || []);
@@ -33,7 +38,28 @@ export default function ClientProfile({ clientId, onNavigate }) {
     setDrugTests(dt || []);
     setPrograms(cp || []);
     setMilestones(cm || []);
+    setProgressNotes(pn || []);
     setLoading(false);
+  }
+
+  async function addProgressNote() {
+    if (!noteForm.content.trim()) return;
+    setSavingNote(true);
+    await supabase.from('client_progress_notes').insert({
+      client_id: clientId,
+      note_date: noteForm.note_date,
+      content: noteForm.content.trim(),
+      visible_to_client: noteForm.visible_to_client,
+    });
+    setNoteForm({ note_date: new Date().toISOString().split('T')[0], content: '', visible_to_client: true });
+    setShowAddNote(false);
+    setSavingNote(false);
+    fetchAll();
+  }
+
+  async function deleteProgressNote(id) {
+    await supabase.from('client_progress_notes').delete().eq('id', id);
+    fetchAll();
   }
 
   async function addOrder() {
@@ -198,6 +224,47 @@ export default function ClientProfile({ clientId, onNavigate }) {
               ))}
             </div>
           </div>
+        )}
+      </div>
+
+      <div style={{ background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+          <h3 style={{ margin: 0, color: '#1e3a5f', fontSize: '15px' }}>Progress Notes</h3>
+          <button onClick={() => setShowAddNote(!showAddNote)} style={{ background: '#1e3a5f', color: 'white', border: 'none', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer' }}>+ Add Note</button>
+        </div>
+        <p style={{ color: '#9ca3af', fontSize: '12px', margin: '0 0 12px' }}>Visible to the client on their Journey screen — keep it plain-language and positive. Never put clinical/diagnostic content here; use Case &amp; Clinical Notes for that.</p>
+
+        {showAddNote && (
+          <div style={{ background: '#F9FAFB', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '14px', marginBottom: '14px' }}>
+            <input type="date" value={noteForm.note_date} onChange={e => setNoteForm({ ...noteForm, note_date: e.target.value })}
+              style={{ width: '100%', padding: '10px', marginBottom: '8px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '13px' }} />
+            <textarea placeholder="e.g. Showed up on time, we talked about job search — doing well."
+              value={noteForm.content} onChange={e => setNoteForm({ ...noteForm, content: e.target.value })}
+              style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '13px', minHeight: '70px' }} />
+            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#374151', margin: '10px 0' }}>
+              <input type="checkbox" checked={noteForm.visible_to_client} onChange={e => setNoteForm({ ...noteForm, visible_to_client: e.target.checked })} />
+              Share this note with the client
+            </label>
+            <button onClick={addProgressNote} disabled={savingNote || !noteForm.content.trim()}
+              style={{ marginTop: '10px', width: '100%', padding: '10px', background: '#27AE60', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
+              {savingNote ? 'Saving...' : 'Add Note'}
+            </button>
+          </div>
+        )}
+
+        {progressNotes.length === 0 ? <p style={{ color: '#9ca3af', margin: 0 }}>No progress notes yet.</p> : (
+          progressNotes.map(n => (
+            <div key={n.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px', padding: '10px 0', borderBottom: '1px solid #f3f4f6' }}>
+              <div>
+                <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {new Date(n.note_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  {!n.visible_to_client && <span style={{ background: '#F3F4F6', color: '#6b7280', padding: '1px 8px', borderRadius: '10px', fontSize: '10px', fontWeight: '600' }}>🔒 Private — not shared</span>}
+                </div>
+                <div style={{ fontSize: '14px', color: '#374151' }}>{n.content}</div>
+              </div>
+              <button onClick={() => deleteProgressNote(n.id)} style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>Delete</button>
+            </div>
+          ))
         )}
       </div>
 

@@ -186,6 +186,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
   const [checkIns, setCheckIns] = useState([])
   const [clientPrograms, setClientPrograms] = useState([])
   const [milestones, setMilestones] = useState([])
+  const [progressNotes, setProgressNotes] = useState([])
   const [courtDates, setCourtDates] = useState([])
   const [tasks, setTasks] = useState([])
   const [affirmationIndex, setAffirmationIndex] = useState(0)
@@ -314,6 +315,13 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
       .eq('client_id', clientData.id)
       .order('created_at')
     if (programs) setClientPrograms(programs)
+
+    const { data: notes } = await supabase
+      .from('client_progress_notes')
+      .select('*')
+      .eq('client_id', clientData.id)
+      .order('note_date', { ascending: false })
+    setProgressNotes(notes || [])
 
     const { data: existingMilestones } = await supabase
       .from('client_milestones')
@@ -658,6 +666,22 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                     </div>
                   ))}
                 </div>
+              )}
+            </InnerCard>
+
+            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: '16px 0 10px' }}>Progress Notes</div>
+            <InnerCard>
+              {progressNotes.length === 0 ? (
+                <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>Your provider hasn't shared any session notes yet.</div>
+              ) : (
+                progressNotes.map((n, i) => (
+                  <div key={n.id} style={{ padding: '10px 0', borderBottom: i === progressNotes.length - 1 ? 'none' : `0.5px solid rgba(255,255,255,0.05)` }}>
+                    <div style={{ fontSize: 10, color: TEXT_DIM, marginBottom: 3 }}>
+                      {new Date(n.note_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </div>
+                    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5 }}>{n.content}</div>
+                  </div>
+                ))
               )}
             </InnerCard>
           </div>

@@ -189,6 +189,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
   const [progressNotes, setProgressNotes] = useState([])
   const [courtDates, setCourtDates] = useState([])
   const [tasks, setTasks] = useState([])
+  const [documents, setDocuments] = useState([])
   const [affirmationIndex, setAffirmationIndex] = useState(0)
   const [loading, setLoading] = useState(true)
   const [isFirstTime, setIsFirstTime] = useState(false)
@@ -374,7 +375,20 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
       .limit(5)
     if (tk) setTasks(tk)
 
+    const { data: docs } = await supabase
+      .from('documents')
+      .select('*')
+      .eq('client_id', clientData.id)
+      .order('uploaded_at', { ascending: false })
+    if (docs) setDocuments(docs)
+
     setLoading(false)
+  }
+
+  async function viewDocument(doc) {
+    const { data, error } = await supabase.storage.from('documents').createSignedUrl(doc.file_url, 300)
+    if (error || !data?.signedUrl) return
+    window.open(data.signedUrl, '_blank')
   }
 
   async function handleCheckIn() {
@@ -569,6 +583,32 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
           </div>
           <div style={{ width: 32, height: 32, borderRadius: '50%', background: CARD_BG, border: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, color: TEXT_MUTED }}>🔔</div>
         </div>
+
+        {activeTab === 'documents' && (
+          <div style={{ margin: '16px 22px', paddingBottom: isMobile ? 80 : 20 }}>
+            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>My Documents</div>
+            <InnerCard>
+              {documents.length === 0 ? (
+                <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>No documents shared with you yet.</div>
+              ) : (
+                documents.map((d, i) => (
+                  <div key={d.id} onClick={() => viewDocument(d)} style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer',
+                    padding: '10px 0', borderBottom: i === documents.length - 1 ? 'none' : `0.5px solid rgba(255,255,255,0.05)`,
+                  }}>
+                    <div>
+                      <div style={{ fontSize: 13, color: TEXT }}>{d.file_name}</div>
+                      <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 2 }}>
+                        {d.document_type} · {new Date(d.uploaded_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </div>
+                    </div>
+                    <div style={{ fontSize: 11, color: ACCENT, fontWeight: 600 }}>View →</div>
+                  </div>
+                ))
+              )}
+            </InnerCard>
+          </div>
+        )}
 
         {activeTab === 'settings' && (
           <div style={{ margin: '16px 22px', paddingBottom: isMobile ? 80 : 20 }}>

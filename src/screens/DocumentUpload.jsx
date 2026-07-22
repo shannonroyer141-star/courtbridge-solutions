@@ -38,11 +38,9 @@ export default function DocumentUpload({ clientId }) {
       const { error: uploadError } = await supabase.storage.from('documents').upload(fileName, file);
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage.from('documents').getPublicUrl(fileName);
-
       await supabase.from('documents').insert([{
         client_id: selectedClient, provider_id: user.id,
-        file_name: file.name, file_url: publicUrl,
+        file_name: file.name, file_url: fileName,
         file_size: file.size, file_type: file.type,
         document_type: docType, notes
       }]);
@@ -58,6 +56,12 @@ export default function DocumentUpload({ clientId }) {
   }
 
   const fileIcons = { 'application/pdf': '📄', 'image/jpeg': '🖼️', 'image/png': '🖼️', 'default': '📎' };
+
+  async function viewDocument(doc) {
+    const { data, error } = await supabase.storage.from('documents').createSignedUrl(doc.file_url, 300);
+    if (error || !data?.signedUrl) { setStatus('Could not open document: ' + (error?.message || 'unknown error')); return; }
+    window.open(data.signedUrl, '_blank');
+  }
 
   return (
     <div style={{ padding: '30px', maxWidth: '800px' }}>
@@ -112,7 +116,7 @@ export default function DocumentUpload({ clientId }) {
             </div>
           </div>
           {d.file_url && (
-            <a href={d.file_url} target="_blank" rel="noreferrer" style={{ padding: '8px 16px', background: '#1B3A6B', color: 'white', borderRadius: '8px', fontSize: '13px', textDecoration: 'none', whiteSpace: 'nowrap' }}>View</a>
+            <button onClick={() => viewDocument(d)} style={{ padding: '8px 16px', background: '#1B3A6B', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', whiteSpace: 'nowrap' }}>View</button>
           )}
         </div>
       ))}

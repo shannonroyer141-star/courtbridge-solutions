@@ -50,7 +50,7 @@ export default function App() {
   const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 768);
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 768);
   const [expandedMenus, setExpandedMenus] = useState({
-    clients: false, sensitive: false, operations: false, admin: false, founder: false, settings: false
+    clients: false, sensitive: false, operations: false, admin: false, founder: false
   });
   const [isFounder, setIsFounder] = useState(false);
   const [activeClientId, setActiveClientId] = useState(null);
@@ -432,19 +432,8 @@ export default function App() {
             <div style={subItem('compliancechart')} onClick={() => navTo('compliancechart')}>Compliance Chart</div>
             <div style={subItem('orgadmin')} onClick={() => navTo('orgadmin')}>Org Settings</div>
             <div style={subItem('reports')} onClick={() => navTo('reports')}>Reports</div>
-            <div style={subItem('tasks')} onClick={() => navTo('tasks')}>Tasks</div>
-          </>}
-
-          <div style={divider} />
-
-          <div style={groupRow('settings')} onClick={() => toggleMenu('settings')}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Ic d={ICONS.settings} /><span>Settings</span>
-            </div>
-            <Ic d={expandedMenus.settings ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
-          </div>
-          {expandedMenus.settings && <>
             <div style={subItem('settings')} onClick={() => navTo('settings')}>Settings</div>
+            <div style={subItem('tasks')} onClick={() => navTo('tasks')}>Tasks</div>
             <div style={subItem('affirmations')} onClick={() => navTo('affirmations')}>Wellness</div>
           </>}
           {isFounder && (

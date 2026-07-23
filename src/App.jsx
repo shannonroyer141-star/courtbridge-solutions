@@ -340,15 +340,6 @@ export default function App() {
 
         <div style={{ flex: 1, paddingTop: 8, paddingBottom: 8 }}>
 
-          <div style={navItem('dashboard')} onClick={() => navTo('dashboard')}>
-            <Ic d={ICONS.dashboard} /><span>Dashboard</span>
-          </div>
-          <div style={navItem('calendar')} onClick={() => navTo('calendar')}>
-            <Ic d={ICONS.calendar} /><span>Calendar</span>
-          </div>
-
-          <div style={divider} />
-
           <div style={groupRow('compliance')} onClick={() => toggleMenu('compliance')}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Ic d={ICONS.compliance} /><span>Compliance</span>
@@ -356,9 +347,6 @@ export default function App() {
             <Ic d={expandedMenus.compliance ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
           </div>
           {expandedMenus.compliance && <>
-            <div style={subItem('alerts')} onClick={() => navTo('alerts')}>Alerts</div>
-            <div style={subItem('checkin')} onClick={() => navTo('checkin')}>Check-Ins</div>
-            <div style={subItem('mapview')} onClick={() => navTo('mapview')}>Map View</div>
             <div style={subItem('reports')} onClick={() => navTo('reports')}>Reports</div>
             <div style={subItem('compliancechart')} onClick={() => navTo('compliancechart')}>Compliance Chart</div>
           </>}
@@ -421,6 +409,11 @@ export default function App() {
             <Ic d={expandedMenus.admin ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
           </div>
           {expandedMenus.admin && <>
+            <div style={subItem('dashboard')} onClick={() => navTo('dashboard')}>Dashboard</div>
+            <div style={subItem('calendar')} onClick={() => navTo('calendar')}>Calendar</div>
+            <div style={subItem('checkin')} onClick={() => navTo('checkin')}>Check-Ins</div>
+            <div style={subItem('alerts')} onClick={() => navTo('alerts')}>Alerts</div>
+            <div style={subItem('mapview')} onClick={() => navTo('mapview')}>Map View</div>
             <div style={subItem('orgadmin')} onClick={() => navTo('orgadmin')}>Org Settings</div>
             <div style={subItem('clientinvite')} onClick={() => navTo('clientinvite')}>Client Invites</div>
           </>}

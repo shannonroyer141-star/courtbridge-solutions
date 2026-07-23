@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-
-const BLUE = '#1B3A6B';
+import { CARD_BG, ACCENT, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 const TEMPLATES = {
   missed_checkin: {
@@ -44,11 +43,20 @@ export default function Messages({ clientId }) {
   const [activeThreadClientId, setActiveThreadClientId] = useState(clientId || null);
   const [replyText, setReplyText] = useState('');
   const [replySending, setReplySending] = useState(false);
+  const [width, setWidth] = useState(window.innerWidth);
 
   useEffect(() => {
     fetchClients();
     fetchMessages();
   }, []);
+
+  useEffect(() => {
+    function onResize() { setWidth(window.innerWidth); }
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const isPhone = width < 640;
 
   useEffect(() => {
     if (template !== 'general') {
@@ -168,27 +176,29 @@ export default function Messages({ clientId }) {
 
   const activeThread = activeThreadClientId ? threadsByClient[activeThreadClientId] || [] : [];
   const activeThreadMeta = threadList.find(t => t.clientId === activeThreadClientId);
+  const showListOnPhone = isPhone && !activeThreadClientId;
+  const showConvoOnPhone = isPhone && !!activeThreadClientId;
 
   return (
-    <div style={{ padding: '30px', maxWidth: '1100px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-        <h1 style={{ color: BLUE, margin: 0 }}>Messages</h1>
+    <div style={{ padding: isPhone ? 14 : 30, maxWidth: 1100, fontFamily: NAV_FONT }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 10 }}>
+        <h1 style={{ color: TEXT, margin: 0, fontSize: isPhone ? 20 : 26 }}>Messages</h1>
         <button onClick={() => setShowCompose(!showCompose)}
-          style={{ padding: '10px 20px', background: BLUE, color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}>
+          style={{ padding: '10px 20px', background: ACCENT, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}>
           ✉️ Compose
         </button>
       </div>
-      <p style={{ color: '#666', marginBottom: '24px', fontSize: '14px' }}>
+      <p style={{ color: TEXT_MUTED, marginBottom: 24, fontSize: 14 }}>
         Two-way messages with your clients — replies send by email and are logged automatically.
       </p>
 
       {showCompose && (
-        <div style={{ background: 'white', border: '1px solid #ddd', borderRadius: '12px', padding: '25px', marginBottom: '24px' }}>
-          <h2 style={{ color: BLUE, marginBottom: '16px', fontSize: '16px' }}>New Message</h2>
+        <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: isPhone ? 16 : 25, marginBottom: 24 }}>
+          <h2 style={{ color: TEXT, marginBottom: 16, fontSize: 16 }}>New Message</h2>
 
-          <label style={{ fontWeight: 'bold', color: '#555', fontSize: '13px', display: 'block', marginBottom: '6px' }}>Client</label>
+          <label style={{ fontWeight: 'bold', color: TEXT_MUTED, fontSize: 13, display: 'block', marginBottom: 6 }}>Client</label>
           <select value={selectedClient} onChange={e => setSelectedClient(e.target.value)}
-            style={{ width: '100%', padding: '12px', marginBottom: '14px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px' }}>
+            style={{ width: '100%', padding: 12, marginBottom: 14, borderRadius: 8, border: `0.5px solid ${BORDER}`, fontSize: 14, background: CARD_BG, color: TEXT, fontFamily: NAV_FONT }}>
             <option value="">Select Client *</option>
             {clients.map(c => (
               <option key={c.id} value={c.id}>{c.name} {c.email ? `— ${c.email}` : '(no email)'}</option>
@@ -196,42 +206,42 @@ export default function Messages({ clientId }) {
           </select>
 
           {selectedClient && !client?.email && (
-            <div style={{ background: '#fdecea', border: '1px solid #f5c6cb', borderRadius: '8px', padding: '12px', marginBottom: '14px', fontSize: '13px', color: '#721c24' }}>
+            <div style={{ background: 'rgba(248,113,113,0.1)', border: `0.5px solid ${RED}`, borderRadius: 8, padding: 12, marginBottom: 14, fontSize: 13, color: RED }}>
               ⚠️ This client does not have an email address on file. Add their email in the Clients screen first.
             </div>
           )}
 
-          <label style={{ fontWeight: 'bold', color: '#555', fontSize: '13px', display: 'block', marginBottom: '6px' }}>Template (optional)</label>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' }}>
+          <label style={{ fontWeight: 'bold', color: TEXT_MUTED, fontSize: 13, display: 'block', marginBottom: 6 }}>Template (optional)</label>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
             {Object.entries(TEMPLATES).map(([key, t]) => (
               <button key={key} onClick={() => setTemplate(key)}
-                style={{ padding: '7px 14px', background: template === key ? BLUE : 'white', color: template === key ? 'white' : BLUE, border: `1px solid ${BLUE}`, borderRadius: '20px', cursor: 'pointer', fontSize: '12px' }}>
+                style={{ padding: '7px 14px', background: template === key ? ACCENT : 'rgba(255,255,255,0.04)', color: template === key ? 'white' : ACCENT, border: `0.5px solid ${ACCENT}`, borderRadius: 20, cursor: 'pointer', fontSize: 12 }}>
                 {t.label}
               </button>
             ))}
           </div>
 
-          <label style={{ fontWeight: 'bold', color: '#555', fontSize: '13px', display: 'block', marginBottom: '6px' }}>Subject</label>
+          <label style={{ fontWeight: 'bold', color: TEXT_MUTED, fontSize: 13, display: 'block', marginBottom: 6 }}>Subject</label>
           <input placeholder="Subject *" value={subject} onChange={e => setSubject(e.target.value)}
-            style={{ width: '100%', padding: '12px', marginBottom: '14px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '14px' }} />
+            style={{ width: '100%', padding: 12, marginBottom: 14, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', fontSize: 14, background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT }} />
 
-          <label style={{ fontWeight: 'bold', color: '#555', fontSize: '13px', display: 'block', marginBottom: '6px' }}>Message</label>
+          <label style={{ fontWeight: 'bold', color: TEXT_MUTED, fontSize: 13, display: 'block', marginBottom: 6 }}>Message</label>
           <textarea placeholder="Write your message... Replace [BRACKETS] with actual details." value={body} onChange={e => setBody(e.target.value)}
-            style={{ width: '100%', padding: '12px', marginBottom: '14px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '14px', minHeight: '200px', lineHeight: '1.6' }} />
+            style={{ width: '100%', padding: 12, marginBottom: 14, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', fontSize: 14, minHeight: 200, lineHeight: 1.6, background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT }} />
 
           {status && (
-            <div style={{ background: status.includes('✅') ? '#d4edda' : '#fdecea', border: `1px solid ${status.includes('✅') ? '#c3e6cb' : '#f5c6cb'}`, borderRadius: '8px', padding: '12px', marginBottom: '14px', fontSize: '13px', color: status.includes('✅') ? '#155724' : '#721c24' }}>
+            <div style={{ background: status.includes('✅') ? 'rgba(76,175,125,0.12)' : 'rgba(248,113,113,0.1)', border: `0.5px solid ${status.includes('✅') ? GREEN : RED}`, borderRadius: 8, padding: 12, marginBottom: 14, fontSize: 13, color: status.includes('✅') ? GREEN : RED }}>
               {status}
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <button onClick={sendMessage} disabled={sending || !selectedClient || !subject || !body}
-              style={{ flex: 2, padding: '13px', background: selectedClient && subject && body ? BLUE : '#ccc', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', cursor: 'pointer', fontWeight: 'bold' }}>
+              style={{ flex: 2, minWidth: 160, padding: 13, background: selectedClient && subject && body ? ACCENT : 'rgba(255,255,255,0.08)', color: selectedClient && subject && body ? 'white' : TEXT_DIM, border: 'none', borderRadius: 8, fontSize: 15, cursor: 'pointer', fontWeight: 'bold' }}>
               {sending ? 'Sending...' : '📤 Send Message'}
             </button>
             <button onClick={() => { setShowCompose(false); setStatus(''); }}
-              style={{ flex: 1, padding: '13px', background: 'white', color: '#666', border: '1px solid #ddd', borderRadius: '8px', fontSize: '15px', cursor: 'pointer' }}>
+              style={{ flex: 1, minWidth: 100, padding: 13, background: 'rgba(255,255,255,0.04)', color: TEXT_MUTED, border: `0.5px solid ${BORDER}`, borderRadius: 8, fontSize: 15, cursor: 'pointer' }}>
               Cancel
             </button>
           </div>
@@ -239,74 +249,81 @@ export default function Messages({ clientId }) {
       )}
 
       {threadList.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: '#666', background: 'white', border: '1px solid #ddd', borderRadius: '12px' }}>
-          <p style={{ fontSize: '40px', marginBottom: '12px' }}>✉️</p>
+        <div style={{ textAlign: 'center', padding: 40, color: TEXT_MUTED, background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12 }}>
+          <p style={{ fontSize: 40, marginBottom: 12 }}>✉️</p>
           <p>No messages yet. Compose your first message above.</p>
         </div>
       ) : (
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-          <div style={{ width: '280px', flexShrink: 0, background: 'white', border: '1px solid #ddd', borderRadius: '12px', overflow: 'hidden' }}>
-            {threadList.map(t => (
-              <div key={t.clientId} onClick={() => setActiveThreadClientId(t.clientId)}
-                style={{
-                  padding: '14px 16px', borderBottom: '1px solid #eee', cursor: 'pointer',
-                  background: activeThreadClientId === t.clientId ? '#F0F4FA' : 'white',
-                }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontWeight: 'bold', fontSize: '14px', color: BLUE }}>{t.clientName}</span>
-                  {t.hasUrgent && (
-                    <span style={{ background: '#FEE2E2', color: '#991B1B', fontSize: '10px', fontWeight: 700, padding: '2px 8px', borderRadius: '20px' }}>URGENT</span>
-                  )}
-                </div>
-                <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {t.last.sender_role === 'client' ? 'Them: ' : 'You: '}{t.last.body}
-                </p>
-                <p style={{ margin: '2px 0 0', fontSize: '11px', color: '#aaa' }}>{new Date(t.last.created_at).toLocaleDateString()}</p>
-              </div>
-            ))}
-          </div>
-
-          <div style={{ flex: 1, background: 'white', border: '1px solid #ddd', borderRadius: '12px', minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
-            {!activeThreadClientId ? (
-              <div style={{ margin: 'auto', color: '#888', fontSize: '14px' }}>Select a conversation to view it</div>
-            ) : (
-              <>
-                <div style={{ padding: '16px 20px', borderBottom: '1px solid #eee', fontWeight: 'bold', color: BLUE }}>
-                  {activeThreadMeta?.clientName}
-                </div>
-                <div style={{ flex: 1, padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '420px', overflowY: 'auto' }}>
-                  {activeThread.map(m => (
-                    <div key={m.id} style={{
-                      alignSelf: m.sender_role === 'client' ? 'flex-start' : 'flex-end',
-                      maxWidth: '75%',
-                      background: m.sender_role === 'client' ? '#F5F6F8' : BLUE,
-                      color: m.sender_role === 'client' ? '#222' : 'white',
-                      borderRadius: '10px',
-                      padding: '10px 14px',
-                      border: m.is_urgent ? '2px solid #E74C3C' : 'none',
-                    }}>
-                      {m.is_urgent && <div style={{ fontSize: '10px', fontWeight: 700, color: m.sender_role === 'client' ? '#E74C3C' : '#FFD5D5', marginBottom: '4px', textTransform: 'uppercase' }}>Urgent</div>}
-                      {m.subject && <div style={{ fontWeight: 'bold', fontSize: '13px', marginBottom: '2px' }}>{m.subject}</div>}
-                      <div style={{ fontSize: '13px', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{m.body}</div>
-                      <div style={{ fontSize: '10px', opacity: 0.7, marginTop: '6px' }}>{new Date(m.created_at).toLocaleString()}</div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ padding: '16px 20px', borderTop: '1px solid #eee' }}>
-                  <textarea value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="Type a reply..." rows={2}
-                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '14px', resize: 'vertical', fontFamily: 'inherit' }} />
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '8px' }}>
-                    <button
-                      onClick={() => sendReply({ id: activeThreadClientId, name: activeThreadMeta?.clientName, email: activeThreadMeta?.clientEmail })}
-                      disabled={replySending || !replyText.trim()}
-                      style={{ padding: '9px 20px', background: replyText.trim() ? BLUE : '#ccc', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: replyText.trim() ? 'pointer' : 'default' }}>
-                      {replySending ? 'Sending...' : 'Reply'}
-                    </button>
+        <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start', flexDirection: isPhone ? 'column' : 'row' }}>
+          {(!isPhone || showListOnPhone) && (
+            <div style={{ width: isPhone ? '100%' : 280, flexShrink: 0, background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, overflow: 'hidden' }}>
+              {threadList.map(t => (
+                <div key={t.clientId} onClick={() => setActiveThreadClientId(t.clientId)}
+                  style={{
+                    padding: '14px 16px', borderBottom: `0.5px solid ${BORDER}`, cursor: 'pointer',
+                    background: activeThreadClientId === t.clientId ? 'rgba(91,155,240,0.12)' : 'transparent',
+                  }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 'bold', fontSize: 14, color: TEXT }}>{t.clientName}</span>
+                    {t.hasUrgent && (
+                      <span style={{ background: 'rgba(248,113,113,0.15)', color: RED, fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20 }}>URGENT</span>
+                    )}
                   </div>
+                  <p style={{ margin: '4px 0 0', fontSize: 12, color: TEXT_MUTED, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {t.last.sender_role === 'client' ? 'Them: ' : 'You: '}{t.last.body}
+                  </p>
+                  <p style={{ margin: '2px 0 0', fontSize: 11, color: TEXT_DIM }}>{new Date(t.last.created_at).toLocaleDateString()}</p>
                 </div>
-              </>
-            )}
-          </div>
+              ))}
+            </div>
+          )}
+
+          {(!isPhone || showConvoOnPhone) && (
+            <div style={{ flex: 1, width: isPhone ? '100%' : 'auto', background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, minHeight: 400, display: 'flex', flexDirection: 'column' }}>
+              {!activeThreadClientId ? (
+                <div style={{ margin: 'auto', color: TEXT_MUTED, fontSize: 14, padding: 40 }}>Select a conversation to view it</div>
+              ) : (
+                <>
+                  <div style={{ padding: '16px 20px', borderBottom: `0.5px solid ${BORDER}`, fontWeight: 'bold', color: TEXT, display: 'flex', alignItems: 'center', gap: 10 }}>
+                    {isPhone && (
+                      <button onClick={() => setActiveThreadClientId(null)} style={{ background: 'none', border: 'none', color: ACCENT, fontSize: 14, cursor: 'pointer', padding: 0 }}>← Back</button>
+                    )}
+                    {activeThreadMeta?.clientName}
+                  </div>
+                  <div style={{ flex: 1, padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 420, overflowY: 'auto' }}>
+                    {activeThread.map(m => (
+                      <div key={m.id} style={{
+                        alignSelf: m.sender_role === 'client' ? 'flex-start' : 'flex-end',
+                        maxWidth: '75%',
+                        background: m.sender_role === 'client' ? 'rgba(255,255,255,0.06)' : ACCENT,
+                        color: m.sender_role === 'client' ? TEXT : 'white',
+                        borderRadius: 10,
+                        padding: '10px 14px',
+                        border: m.is_urgent ? `2px solid ${RED}` : 'none',
+                      }}>
+                        {m.is_urgent && <div style={{ fontSize: 10, fontWeight: 700, color: m.sender_role === 'client' ? RED : '#FFD5D5', marginBottom: 4, textTransform: 'uppercase' }}>Urgent</div>}
+                        {m.subject && <div style={{ fontWeight: 'bold', fontSize: 13, marginBottom: 2 }}>{m.subject}</div>}
+                        <div style={{ fontSize: 13, whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{m.body}</div>
+                        <div style={{ fontSize: 10, opacity: 0.7, marginTop: 6 }}>{new Date(m.created_at).toLocaleString()}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ padding: '16px 20px', borderTop: `0.5px solid ${BORDER}` }}>
+                    <textarea value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="Type a reply..." rows={2}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', fontSize: 14, resize: 'vertical', fontFamily: NAV_FONT, background: 'rgba(255,255,255,0.04)', color: TEXT }} />
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+                      <button
+                        onClick={() => sendReply({ id: activeThreadClientId, name: activeThreadMeta?.clientName, email: activeThreadMeta?.clientEmail })}
+                        disabled={replySending || !replyText.trim()}
+                        style={{ padding: '9px 20px', background: replyText.trim() ? ACCENT : 'rgba(255,255,255,0.08)', color: replyText.trim() ? 'white' : TEXT_DIM, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 'bold', cursor: replyText.trim() ? 'pointer' : 'default' }}>
+                        {replySending ? 'Sending...' : 'Reply'}
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

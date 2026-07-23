@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
+import { CARD_BG, ACCENT, GREEN, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme'
 
 const ISSUES = [
   {
@@ -102,8 +103,17 @@ export default function OrgAdmin({ session }) {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [openCategory, setOpenCategory] = useState(null)
+  const [width, setWidth] = useState(window.innerWidth)
 
   useEffect(() => { fetchProfile() }, [])
+
+  useEffect(() => {
+    function onResize() { setWidth(window.innerWidth) }
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  const isPhone = width < 640
 
   async function fetchProfile() {
     setLoading(true)
@@ -112,29 +122,27 @@ export default function OrgAdmin({ session }) {
     setLoading(false)
   }
 
-  const BLUE = '#1B3A6B'
-
   const field = (label, value) => (
     <div style={{ marginBottom: 14 }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 3 }}>{label}</div>
-      <div style={{ fontSize: 14, color: '#111827' }}>{value || <span style={{ color: '#D1D5DB' }}>Not set</span>}</div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 3 }}>{label}</div>
+      <div style={{ fontSize: 14, color: TEXT }}>{value || <span style={{ color: TEXT_DIM }}>Not set</span>}</div>
     </div>
   )
 
   return (
-    <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: 900, margin: '0 auto' }}>
+    <div style={{ fontFamily: NAV_FONT, maxWidth: 900, margin: '0 auto' }}>
       <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 22, fontWeight: 700, color: BLUE }}>Org Settings</div>
-        <div style={{ fontSize: 14, color: '#6B7280', marginTop: 2 }}>Organization profile and IT troubleshooting reference</div>
+        <div style={{ fontSize: 22, fontWeight: 700, color: TEXT }}>Org Settings</div>
+        <div style={{ fontSize: 14, color: TEXT_MUTED, marginTop: 2 }}>Organization profile and IT troubleshooting reference</div>
       </div>
 
       {/* ORGANIZATION PROFILE */}
-      <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, padding: 24, marginBottom: 32 }}>
-        <div style={{ fontSize: 16, fontWeight: 700, color: '#111827', marginBottom: 16 }}>Organization Profile</div>
+      <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 24, marginBottom: 32 }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: TEXT, marginBottom: 16 }}>Organization Profile</div>
         {loading ? (
-          <div style={{ color: '#6B7280', fontSize: 14 }}>Loading...</div>
+          <div style={{ color: TEXT_MUTED, fontSize: 14 }}>Loading...</div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isPhone ? '1fr' : '1fr 1fr', gap: 20 }}>
             {field('Organization Name', profile?.organization_name)}
             {field('Contact Name', profile?.contact_name)}
             {field('Email', profile?.email)}
@@ -147,15 +155,15 @@ export default function OrgAdmin({ session }) {
             {field('Alert Email', profile?.alert_email)}
           </div>
         )}
-        <div style={{ marginTop: 8, fontSize: 12, color: '#9CA3AF' }}>
+        <div style={{ marginTop: 8, fontSize: 12, color: TEXT_DIM }}>
           To update these details, contact IT or use Settings.
         </div>
       </div>
 
       {/* DATA SECURITY & PRIVACY */}
-      <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 12, padding: '18px 24px', marginBottom: 32 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#166534', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 8 }}>🔒 Data Security &amp; Privacy</div>
-        <div style={{ fontSize: 14, color: '#14532D', lineHeight: 1.7 }}>
+      <div style={{ background: 'rgba(76,175,125,0.1)', border: `0.5px solid ${GREEN}`, borderRadius: 12, padding: '18px 24px', marginBottom: 32 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: GREEN, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 8 }}>🔒 Data Security &amp; Privacy</div>
+        <div style={{ fontSize: 14, color: TEXT, lineHeight: 1.7 }}>
           Every client's records (check-ins, messages, documents, notes) are access-controlled at the database level so that only that client and your organization can see them — not other providers, not other clients. CourtBridge Solutions does not sell or share client data with third parties. Location is only captured at the moment a client taps "Check In" — this is not continuous background tracking.
           <br /><br />
           Client-facing questions or problems should always be directed to <strong>your organization</strong>, not to CourtBridge Solutions directly — clients are your clients.
@@ -163,33 +171,33 @@ export default function OrgAdmin({ session }) {
       </div>
 
       {/* IT CONTACT */}
-      <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 12, padding: '18px 24px', marginBottom: 32 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: BLUE, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 8 }}>IT / Technical Support Contact</div>
-        <div style={{ fontSize: 14, color: '#1E3A5F', lineHeight: 1.6 }}>
+      <div style={{ background: 'rgba(91,155,240,0.1)', border: `0.5px solid ${ACCENT}`, borderRadius: 12, padding: '18px 24px', marginBottom: 32 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 8 }}>IT / Technical Support Contact</div>
+        <div style={{ fontSize: 14, color: TEXT, lineHeight: 1.6 }}>
           <strong>[IT Contact Name/Email — to be filled in]</strong><br/>
           Responsible for: hosting and deployment issues, database/data integrity problems, email and messaging delivery failures, GPS/check-in system bugs, website outages, and any issue not resolved by the steps below. Contact for anything client-facing that is broken and cannot be fixed by refreshing, resending, or waiting.
         </div>
       </div>
 
       {/* TROUBLESHOOTING SOP */}
-      <div style={{ fontSize: 16, fontWeight: 700, color: '#111827', marginBottom: 4 }}>IT Troubleshooting Guide</div>
-      <div style={{ fontSize: 13, color: '#6B7280', marginBottom: 16 }}>Common issues, what to check first, and when to escalate to IT.</div>
+      <div style={{ fontSize: 16, fontWeight: 700, color: TEXT, marginBottom: 4 }}>IT Troubleshooting Guide</div>
+      <div style={{ fontSize: 13, color: TEXT_MUTED, marginBottom: 16 }}>Common issues, what to check first, and when to escalate to IT.</div>
 
       {ISSUES.map((cat, i) => (
-        <div key={i} style={{ marginBottom: 12, border: '1px solid #E5E7EB', borderRadius: 10, overflow: 'hidden' }}>
+        <div key={i} style={{ marginBottom: 12, border: `0.5px solid ${BORDER}`, borderRadius: 10, overflow: 'hidden' }}>
           <div
             onClick={() => setOpenCategory(openCategory === i ? null : i)}
-            style={{ padding: '14px 18px', background: '#F9FAFB', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 700, fontSize: 14, color: '#111827' }}
+            style={{ padding: '14px 18px', background: CARD_BG, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 700, fontSize: 14, color: TEXT }}
           >
             <span>{cat.category}</span>
-            <span style={{ color: '#9CA3AF', fontSize: 12 }}>{openCategory === i ? '▲' : '▼'}</span>
+            <span style={{ color: TEXT_DIM, fontSize: 12 }}>{openCategory === i ? '▲' : '▼'}</span>
           </div>
           {openCategory === i && (
-            <div style={{ padding: '4px 18px 16px' }}>
+            <div style={{ padding: '4px 18px 16px', background: CARD_BG }}>
               {cat.items.map((item, j) => (
                 <div key={j} style={{ marginTop: 14 }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#B91C1C', marginBottom: 6 }}>⚠ {item.problem}</div>
-                  <ol style={{ margin: 0, paddingLeft: 20, color: '#374151', fontSize: 13.5, lineHeight: 1.8 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: RED, marginBottom: 6 }}>⚠ {item.problem}</div>
+                  <ol style={{ margin: 0, paddingLeft: 20, color: TEXT_MUTED, fontSize: 13.5, lineHeight: 1.8 }}>
                     {item.steps.map((s, k) => <li key={k}>{s}</li>)}
                   </ol>
                 </div>

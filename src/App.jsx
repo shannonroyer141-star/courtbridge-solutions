@@ -110,7 +110,7 @@ export default function App() {
   function navTo(screen, clientId = null) {
     setActiveScreen(screen);
     setActiveClientId(clientId);
-    setSidebarOpen(false);
+    if (!isDesktop) setSidebarOpen(false);
   }
 
   if (isEnrollRoute) return <ClientOnboarding />;

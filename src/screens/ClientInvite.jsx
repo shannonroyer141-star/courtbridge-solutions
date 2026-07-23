@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
+import { CARD_BG, ACCENT, GREEN, ORANGE, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 export default function ClientInvite() {
   const [invites, setInvites] = useState([]);
@@ -78,57 +79,59 @@ export default function ClientInvite() {
     setStatus('✅ Invite resent to ' + invite.client_email);
   }
 
-  return (
-    <div style={{ padding: '30px', maxWidth: '700px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-        <h1 style={{ color: '#1B3A6B', margin: 0 }}>Client Invites</h1>
-        <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px', background: '#1B3A6B', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}>+ Invite Client</button>
-      </div>
-      <p style={{ color: '#666', marginBottom: '24px', fontSize: '14px' }}>Send a branded welcome email with a signup link. The client is automatically connected to your account when they sign up.</p>
+  const inputStyle = { width: '100%', padding: 12, marginBottom: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', fontSize: 14, background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT };
 
-      {status && <div style={{ background: status.includes('✅') ? '#d4edda' : '#fdecea', border: `1px solid ${status.includes('✅') ? '#c3e6cb' : '#f5c6cb'}`, borderRadius: '8px', padding: '12px', marginBottom: '16px', fontSize: '13px', color: status.includes('✅') ? '#155724' : '#721c24' }}>{status}</div>}
+  return (
+    <div style={{ padding: 30, maxWidth: 700, fontFamily: NAV_FONT }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 10 }}>
+        <h1 style={{ color: TEXT, margin: 0 }}>Client Invites</h1>
+        <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px', background: ACCENT, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}>+ Invite Client</button>
+      </div>
+      <p style={{ color: TEXT_MUTED, marginBottom: 24, fontSize: 14 }}>Send a branded welcome email with a signup link. The client is automatically connected to your account when they sign up.</p>
+
+      {status && <div style={{ background: status.includes('✅') ? 'rgba(76,175,125,0.12)' : 'rgba(255,140,66,0.12)', border: `0.5px solid ${status.includes('✅') ? GREEN : ORANGE}`, borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 13, color: status.includes('✅') ? GREEN : ORANGE }}>{status}</div>}
 
       {showForm && (
-        <div style={{ background: 'white', border: '1px solid #ddd', borderRadius: '12px', padding: '25px', marginBottom: '20px' }}>
-          <h2 style={{ color: '#1B3A6B', marginBottom: '16px', fontSize: '16px' }}>Invite a New Client</h2>
-          <input placeholder="Client Full Name *" value={form.client_name} onChange={e => setForm({...form, client_name: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '14px' }} />
-          <input placeholder="Client Email Address *" type="email" value={form.client_email} onChange={e => setForm({...form, client_email: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '14px' }} />
-          <select value={form.program_type} onChange={e => setForm({...form, program_type: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px' }}>
+        <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 25, marginBottom: 20 }}>
+          <h2 style={{ color: TEXT, marginBottom: 16, fontSize: 16 }}>Invite a New Client</h2>
+          <input placeholder="Client Full Name *" value={form.client_name} onChange={e => setForm({...form, client_name: e.target.value})} style={inputStyle} />
+          <input placeholder="Client Email Address *" type="email" value={form.client_email} onChange={e => setForm({...form, client_email: e.target.value})} style={inputStyle} />
+          <select value={form.program_type} onChange={e => setForm({...form, program_type: e.target.value})} style={inputStyle}>
             <option value="">Program Type (optional)</option>
             <option>BIP (Batterers Intervention)</option><option>DUI</option><option>Drug Court</option><option>Mental Health Court</option><option>Veterans Court</option><option>Anger Management</option><option>Substance Abuse</option><option>Probation Supervision</option>
           </select>
-          <textarea placeholder="Personal message to include in the email (optional)" value={form.message} onChange={e => setForm({...form, message: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '16px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '14px', minHeight: '80px' }} />
-          <div style={{ background: '#f0f4fa', borderRadius: '8px', padding: '12px', marginBottom: '16px', fontSize: '13px', color: '#555' }}>
+          <textarea placeholder="Personal message to include in the email (optional)" value={form.message} onChange={e => setForm({...form, message: e.target.value})} style={{ ...inputStyle, minHeight: 80, marginBottom: 16 }} />
+          <div style={{ background: 'rgba(91,155,240,0.1)', borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 13, color: TEXT_MUTED }}>
             📧 The client will receive a branded email from CourtBridge Solutions with a secure signup link. The link expires in 7 days. When they sign up, they are automatically connected to your provider account.
           </div>
-          <button onClick={sendInvite} disabled={saving || !form.client_name || !form.client_email} style={{ width: '100%', padding: '13px', background: '#1B3A6B', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', cursor: 'pointer', fontWeight: 'bold' }}>
+          <button onClick={sendInvite} disabled={saving || !form.client_name || !form.client_email} style={{ width: '100%', padding: 13, background: ACCENT, color: 'white', border: 'none', borderRadius: 8, fontSize: 15, cursor: 'pointer', fontWeight: 'bold' }}>
             {saving ? 'Sending...' : '📤 Send Invite'}
           </button>
         </div>
       )}
 
       {invites.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-          <p style={{ fontSize: '40px', marginBottom: '12px' }}>📨</p>
+        <div style={{ textAlign: 'center', padding: 40, color: TEXT_MUTED }}>
+          <p style={{ fontSize: 40, marginBottom: 12 }}>📨</p>
           <p>No invites sent yet. Invite your first client above.</p>
         </div>
       ) : (
         <div>
-          <h2 style={{ color: '#1B3A6B', marginBottom: '16px', fontSize: '16px' }}>Sent Invites</h2>
+          <h2 style={{ color: TEXT, marginBottom: 16, fontSize: 16 }}>Sent Invites</h2>
           {invites.map(i => (
-            <div key={i.id} style={{ background: 'white', border: '1px solid #ddd', borderRadius: '10px', padding: '16px', marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div key={i.id} style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 10, padding: 16, marginBottom: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
               <div>
-                <p style={{ margin: 0, fontWeight: 'bold', color: '#1B3A6B' }}>{i.client_name}</p>
-                <p style={{ margin: '3px 0 0', fontSize: '13px', color: '#666' }}>{i.client_email}</p>
-                {i.program_type && <p style={{ margin: '3px 0 0', fontSize: '12px', color: '#888' }}>{i.program_type}</p>}
-                <p style={{ margin: '3px 0 0', fontSize: '12px', color: '#888' }}>Sent {new Date(i.created_at).toLocaleDateString()} • Expires {new Date(i.expires_at).toLocaleDateString()}</p>
+                <p style={{ margin: 0, fontWeight: 'bold', color: TEXT }}>{i.client_name}</p>
+                <p style={{ margin: '3px 0 0', fontSize: 13, color: TEXT_MUTED }}>{i.client_email}</p>
+                {i.program_type && <p style={{ margin: '3px 0 0', fontSize: 12, color: TEXT_DIM }}>{i.program_type}</p>}
+                <p style={{ margin: '3px 0 0', fontSize: 12, color: TEXT_DIM }}>Sent {new Date(i.created_at).toLocaleDateString()} • Expires {new Date(i.expires_at).toLocaleDateString()}</p>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
-                <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', background: i.accepted ? '#d4edda' : '#fff3cd', color: i.accepted ? '#155724' : '#856404' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+                <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 'bold', background: i.accepted ? 'rgba(76,175,125,0.15)' : 'rgba(255,140,66,0.15)', color: i.accepted ? GREEN : ORANGE }}>
                   {i.accepted ? '✅ Signed Up' : '⏳ Pending'}
                 </span>
                 {!i.accepted && (
-                  <button onClick={() => resendInvite(i)} disabled={saving} style={{ padding: '5px 12px', background: 'white', color: '#1B3A6B', border: '1px solid #1B3A6B', borderRadius: '6px', fontSize: '12px', cursor: 'pointer' }}>
+                  <button onClick={() => resendInvite(i)} disabled={saving} style={{ padding: '5px 12px', background: 'rgba(255,255,255,0.04)', color: ACCENT, border: `0.5px solid ${ACCENT}`, borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
                     Resend
                   </button>
                 )}

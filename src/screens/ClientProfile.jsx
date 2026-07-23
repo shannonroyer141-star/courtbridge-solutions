@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
+import { CARD_BG, ACCENT, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 export default function ClientProfile({ clientId, onNavigate }) {
   const [client, setClient] = useState(null);
@@ -20,10 +21,19 @@ export default function ClientProfile({ clientId, onNavigate }) {
   const [showReactivate, setShowReactivate] = useState(false);
   const [returnForm, setReturnForm] = useState({ address: '', phone: '' });
   const [savingStatus, setSavingStatus] = useState(false);
+  const [width, setWidth] = useState(window.innerWidth);
 
   useEffect(() => {
     if (clientId) fetchAll();
   }, [clientId]);
+
+  useEffect(() => {
+    function onResize() { setWidth(window.innerWidth); }
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const isPhone = width < 640;
 
   async function fetchAll() {
     setLoading(true);
@@ -147,101 +157,102 @@ export default function ClientProfile({ clientId, onNavigate }) {
   }
 
   function getStatusColor(status) {
-    if (status === 'active') return '#16a34a';
-    if (status === 'at_risk') return '#dc2626';
-    return '#d97706';
+    if (status === 'active') return GREEN;
+    if (status === 'at_risk') return RED;
+    return ORANGE;
   }
 
-  if (loading) return <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>Loading client...</div>;
+  const cardStyle = { background: CARD_BG, borderRadius: 12, padding: isPhone ? '16px' : '20px', marginBottom: 16, border: `0.5px solid ${BORDER}` };
+  const inputStyle = { width: '100%', padding: 10, marginBottom: 8, borderRadius: 6, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', fontSize: 13, background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT };
+  const subCardStyle = { background: 'rgba(255,255,255,0.04)', border: `0.5px solid ${BORDER}`, borderRadius: 8, padding: 14, marginBottom: 14 };
+
+  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: TEXT_MUTED, fontFamily: NAV_FONT }}>Loading client...</div>;
   if (!client) return (
-    <div style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>
+    <div style={{ padding: 40, textAlign: 'center', color: TEXT_MUTED, fontFamily: NAV_FONT }}>
       No client selected.
-      {onNavigate && <div style={{ marginTop: 12 }}><button onClick={() => onNavigate('clients')} style={{ background: 'none', border: 'none', color: '#1e3a5f', fontWeight: 600, cursor: 'pointer' }}>← Back to Clients</button></div>}
+      {onNavigate && <div style={{ marginTop: 12 }}><button onClick={() => onNavigate('clients')} style={{ background: 'none', border: 'none', color: ACCENT, fontWeight: 600, cursor: 'pointer' }}>← Back to Clients</button></div>}
     </div>
   );
 
   return (
-    <div style={{ padding: '24px', maxWidth: '800px' }}>
+    <div style={{ padding: isPhone ? 14 : 24, maxWidth: 800, fontFamily: NAV_FONT }}>
       {onNavigate && (
-        <button onClick={() => onNavigate('clients')} style={{ background: 'none', border: 'none', color: '#6b7280', fontSize: '13px', cursor: 'pointer', padding: 0, marginBottom: '14px' }}>← Back to Clients</button>
+        <button onClick={() => onNavigate('clients')} style={{ background: 'none', border: 'none', color: TEXT_MUTED, fontSize: 13, cursor: 'pointer', padding: 0, marginBottom: 14 }}>← Back to Clients</button>
       )}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
-        <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#1e3a5f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '22px', fontWeight: 'bold' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
+        <div style={{ width: 56, height: 56, borderRadius: '50%', background: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 22, fontWeight: 'bold', flexShrink: 0 }}>
           {(client.name || client.email || '?')[0].toUpperCase()}
         </div>
         <div>
-          <h2 style={{ margin: 0, fontSize: '22px', color: '#1e3a5f' }}>{client.name || client.email}</h2>
-          <span style={{ background: getStatusColor(client.status), color: 'white', padding: '2px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase' }}>
+          <h2 style={{ margin: 0, fontSize: 22, color: TEXT }}>{client.name || client.email}</h2>
+          <span style={{ background: getStatusColor(client.status), color: 'white', padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, textTransform: 'uppercase' }}>
             {client.status || 'Pending'}
           </span>
         </div>
       </div>
 
-      <div style={{ background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-        <h3 style={{ margin: '0 0 12px', color: '#1e3a5f', fontSize: '15px' }}>Status</h3>
+      <div style={cardStyle}>
+        <h3 style={{ margin: '0 0 12px', color: TEXT, fontSize: 15 }}>Status</h3>
         {client.status_changed_at && (
-          <p style={{ margin: '0 0 12px', fontSize: '12px', color: '#9ca3af' }}>Last changed {new Date(client.status_changed_at).toLocaleDateString()}</p>
+          <p style={{ margin: '0 0 12px', fontSize: 12, color: TEXT_DIM }}>Last changed {new Date(client.status_changed_at).toLocaleDateString()}</p>
         )}
         {(client.status === 'terminated' || client.status === 'inactive') ? (
           <>
-            <button onClick={startReactivation} style={{ padding: '8px 16px', background: '#27AE60', color: 'white', border: 'none', borderRadius: '6px', fontSize: '13px', cursor: 'pointer' }}>
+            <button onClick={startReactivation} style={{ padding: '8px 16px', background: GREEN, color: 'white', border: 'none', borderRadius: 6, fontSize: 13, cursor: 'pointer' }}>
               ↩ Reactivate — Client Returning
             </button>
             {showReactivate && (
-              <div style={{ background: '#F9FAFB', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '14px', marginTop: '12px' }}>
-                <p style={{ margin: '0 0 10px', fontSize: '13px', color: '#374151' }}>Welcome them back — no need to redo full intake. Just confirm what's likely changed:</p>
-                <label style={{ fontSize: '11px', fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Address</label>
-                <input value={returnForm.address} onChange={e => setReturnForm({ ...returnForm, address: e.target.value })}
-                  style={{ width: '100%', padding: '10px', marginBottom: '10px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '13px' }} />
-                <label style={{ fontSize: '11px', fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Phone</label>
-                <input value={returnForm.phone} onChange={e => setReturnForm({ ...returnForm, phone: e.target.value })}
-                  style={{ width: '100%', padding: '10px', marginBottom: '12px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '13px' }} />
-                <button onClick={confirmReactivation} disabled={savingStatus} style={{ width: '100%', padding: '10px', background: '#27AE60', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
+              <div style={subCardStyle}>
+                <p style={{ margin: '0 0 10px', fontSize: 13, color: TEXT }}>Welcome them back — no need to redo full intake. Just confirm what's likely changed:</p>
+                <label style={{ fontSize: 11, fontWeight: 700, color: TEXT_DIM, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Address</label>
+                <input value={returnForm.address} onChange={e => setReturnForm({ ...returnForm, address: e.target.value })} style={inputStyle} />
+                <label style={{ fontSize: 11, fontWeight: 700, color: TEXT_DIM, textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>Phone</label>
+                <input value={returnForm.phone} onChange={e => setReturnForm({ ...returnForm, phone: e.target.value })} style={{ ...inputStyle, marginBottom: 12 }} />
+                <button onClick={confirmReactivation} disabled={savingStatus} style={{ width: '100%', padding: 10, background: GREEN, color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
                   {savingStatus ? 'Saving...' : 'Confirm Return — Set Active'}
                 </button>
               </div>
             )}
           </>
         ) : (
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button onClick={() => changeClientStatus('inactive')} disabled={savingStatus} style={{ padding: '8px 16px', background: 'white', color: '#d97706', border: '1px solid #ddd', borderRadius: '6px', fontSize: '13px', cursor: 'pointer' }}>Mark Inactive</button>
-            <button onClick={() => changeClientStatus('terminated')} disabled={savingStatus} style={{ padding: '8px 16px', background: 'white', color: '#dc2626', border: '1px solid #ddd', borderRadius: '6px', fontSize: '13px', cursor: 'pointer' }}>Terminate</button>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button onClick={() => changeClientStatus('inactive')} disabled={savingStatus} style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.04)', color: ORANGE, border: `0.5px solid ${BORDER}`, borderRadius: 6, fontSize: 13, cursor: 'pointer' }}>Mark Inactive</button>
+            <button onClick={() => changeClientStatus('terminated')} disabled={savingStatus} style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.04)', color: RED, border: `0.5px solid ${BORDER}`, borderRadius: 6, fontSize: 13, cursor: 'pointer' }}>Terminate</button>
           </div>
         )}
-        <p style={{ fontSize: '11px', color: '#9ca3af', marginTop: '10px', marginBottom: 0 }}>Terminating never deletes anything — check-ins, messages, documents, and Journey history all stay intact for if they come back.</p>
+        <p style={{ fontSize: 11, color: TEXT_DIM, marginTop: 10, marginBottom: 0 }}>Terminating never deletes anything — check-ins, messages, documents, and Journey history all stay intact for if they come back.</p>
       </div>
 
-      <div style={{ background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-          <h3 style={{ margin: 0, color: '#1e3a5f', fontSize: '15px' }}>Journey — Court Orders & Programs</h3>
-          <button onClick={() => setShowAddOrder(!showAddOrder)} style={{ background: '#1e3a5f', color: 'white', border: 'none', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer' }}>+ Add Order</button>
+      <div style={cardStyle}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+          <h3 style={{ margin: 0, color: TEXT, fontSize: 15 }}>Journey — Court Orders & Programs</h3>
+          <button onClick={() => setShowAddOrder(!showAddOrder)} style={{ background: ACCENT, color: 'white', border: 'none', borderRadius: 6, padding: '6px 12px', fontSize: 12, cursor: 'pointer' }}>+ Add Order</button>
         </div>
 
         {showAddOrder && (
-          <div style={{ background: '#F9FAFB', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '14px', marginBottom: '14px' }}>
+          <div style={subCardStyle}>
             <input placeholder="Order name (e.g. 52-Week Drug Court Program)" value={orderForm.order_name}
-              onChange={e => setOrderForm({ ...orderForm, order_name: e.target.value })}
-              style={{ width: '100%', padding: '10px', marginBottom: '8px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '13px' }} />
-            <div style={{ display: 'flex', gap: '8px' }}>
+              onChange={e => setOrderForm({ ...orderForm, order_name: e.target.value })} style={inputStyle} />
+            <div style={{ display: 'flex', gap: 8, flexDirection: isPhone ? 'column' : 'row' }}>
               <select value={orderForm.order_type} onChange={e => setOrderForm({ ...orderForm, order_type: e.target.value })}
-                style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '13px' }}>
+                style={{ flex: 1, padding: 10, borderRadius: 6, border: `0.5px solid ${BORDER}`, fontSize: 13, background: CARD_BG, color: TEXT, fontFamily: NAV_FONT }}>
                 <option value="primary">Primary order</option>
                 <option value="accompanying">Accompanying order</option>
               </select>
               <input type="date" value={orderForm.start_date} onChange={e => setOrderForm({ ...orderForm, start_date: e.target.value })}
-                style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '13px' }} />
+                style={{ flex: 1, padding: 10, borderRadius: 6, border: `0.5px solid ${BORDER}`, fontSize: 13, background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT }} />
               <input type="number" placeholder="Duration (weeks, optional)" value={orderForm.duration_weeks}
                 onChange={e => setOrderForm({ ...orderForm, duration_weeks: e.target.value })}
-                style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #ddd', fontSize: '13px' }} />
+                style={{ flex: 1, padding: 10, borderRadius: 6, border: `0.5px solid ${BORDER}`, fontSize: 13, background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT }} />
             </div>
             <button onClick={addOrder} disabled={savingOrder || !orderForm.order_name.trim()}
-              style={{ marginTop: '10px', width: '100%', padding: '10px', background: '#27AE60', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
+              style={{ marginTop: 10, width: '100%', padding: 10, background: GREEN, color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
               {savingOrder ? 'Saving...' : 'Add Order'}
             </button>
           </div>
         )}
 
-        {programs.length === 0 ? <p style={{ color: '#9ca3af', margin: 0 }}>No court orders tracked yet.</p> : (
+        {programs.length === 0 ? <p style={{ color: TEXT_MUTED, margin: 0 }}>No court orders tracked yet.</p> : (
           programs.map(p => {
             const weeksIn = Math.floor((Date.now() - new Date(p.start_date)) / (7 * 86400000));
             const pct = p.duration_weeks ? Math.min(Math.round((weeksIn / p.duration_weeks) * 100), 100) : null;
@@ -249,73 +260,72 @@ export default function ClientProfile({ clientId, onNavigate }) {
             const isTerminated = p.status === 'terminated';
             const notesForProgram = progressNotes.filter(n => n.client_program_id === p.id);
             return (
-              <div key={p.id} style={{ padding: '12px 0', borderBottom: '1px solid #f3f4f6' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '10px' }}>
+              <div key={p.id} style={{ padding: '12px 0', borderBottom: `0.5px solid ${BORDER}` }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                   <div>
-                    <div style={{ color: '#1e3a5f', fontWeight: '600', fontSize: '14px' }}>{p.order_name}</div>
-                    <div style={{ color: '#9ca3af', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.3px' }}>{p.order_type === 'accompanying' ? 'Accompanying order' : 'Primary order'}</div>
+                    <div style={{ color: TEXT, fontWeight: 600, fontSize: 14 }}>{p.order_name}</div>
+                    <div style={{ color: TEXT_DIM, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.3px' }}>{p.order_type === 'accompanying' ? 'Accompanying order' : 'Primary order'}</div>
                   </div>
                   {!isDone && !isTerminated && (
-                    <div style={{ display: 'flex', gap: '6px' }}>
-                      <button onClick={() => markComplete(p)} style={{ background: '#27AE60', color: 'white', border: 'none', borderRadius: '6px', padding: '6px 10px', fontSize: '11px', cursor: 'pointer', whiteSpace: 'nowrap' }}>🎉 Mark Complete</button>
-                      <button onClick={() => markTerminated(p)} style={{ background: 'white', color: '#dc2626', border: '1px solid #ddd', borderRadius: '6px', padding: '6px 10px', fontSize: '11px', cursor: 'pointer', whiteSpace: 'nowrap' }}>End</button>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button onClick={() => markComplete(p)} style={{ background: GREEN, color: 'white', border: 'none', borderRadius: 6, padding: '6px 10px', fontSize: 11, cursor: 'pointer', whiteSpace: 'nowrap' }}>🎉 Mark Complete</button>
+                      <button onClick={() => markTerminated(p)} style={{ background: 'rgba(255,255,255,0.04)', color: RED, border: `0.5px solid ${BORDER}`, borderRadius: 6, padding: '6px 10px', fontSize: 11, cursor: 'pointer', whiteSpace: 'nowrap' }}>End</button>
                     </div>
                   )}
-                  {isDone && <span style={{ background: '#dcfce7', color: '#16a34a', padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: '600' }}>🎉 Completed</span>}
-                  {isTerminated && <span style={{ background: '#fee2e2', color: '#dc2626', padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: '600' }}>Ended</span>}
+                  {isDone && <span style={{ background: 'rgba(76,175,125,0.15)', color: GREEN, padding: '3px 10px', borderRadius: 12, fontSize: 11, fontWeight: 600 }}>🎉 Completed</span>}
+                  {isTerminated && <span style={{ background: 'rgba(248,113,113,0.15)', color: RED, padding: '3px 10px', borderRadius: 12, fontSize: 11, fontWeight: 600 }}>Ended</span>}
                 </div>
                 {pct !== null && !isDone && !isTerminated && (
-                  <div style={{ marginTop: '8px' }}>
-                    <div style={{ height: '6px', borderRadius: '3px', background: '#f0f4fa', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${pct}%`, background: '#2563EB', borderRadius: '3px' }} />
+                  <div style={{ marginTop: 8 }}>
+                    <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${pct}%`, background: ACCENT, borderRadius: 3 }} />
                     </div>
-                    <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px' }}>Week {Math.max(weeksIn, 0)} of {p.duration_weeks}</div>
+                    <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 4 }}>Week {Math.max(weeksIn, 0)} of {p.duration_weeks}</div>
                   </div>
                 )}
                 {(isDone || isTerminated) && p.completed_at && (
-                  <div style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px' }}>{isDone ? 'Completed' : 'Ended'} {new Date(p.completed_at).toLocaleDateString()}</div>
+                  <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 4 }}>{isDone ? 'Completed' : 'Ended'} {new Date(p.completed_at).toLocaleDateString()}</div>
                 )}
 
-                <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px dashed #e5e7eb' }}>
+                <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px dashed ${BORDER}` }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.3px' }}>Progress Notes</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.3px' }}>Progress Notes</div>
                     <button onClick={() => { setNoteForm({ ...noteForm, client_program_id: p.id }); setShowAddNote(showAddNote === p.id ? null : p.id); }}
-                      style={{ background: 'none', border: 'none', color: '#2563EB', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}>
+                      style={{ background: 'none', border: 'none', color: ACCENT, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
                       {showAddNote === p.id ? 'Cancel' : '+ Note'}
                     </button>
                   </div>
 
                   {showAddNote === p.id && (
-                    <div style={{ background: '#F9FAFB', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '12px', marginTop: '8px' }}>
-                      <input type="date" value={noteForm.note_date} onChange={e => setNoteForm({ ...noteForm, note_date: e.target.value })}
-                        style={{ width: '100%', padding: '9px', marginBottom: '8px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '13px' }} />
+                    <div style={{ ...subCardStyle, padding: 12, marginTop: 8, marginBottom: 0 }}>
+                      <input type="date" value={noteForm.note_date} onChange={e => setNoteForm({ ...noteForm, note_date: e.target.value })} style={{ ...inputStyle, padding: 9 }} />
                       <textarea placeholder="e.g. Showed up on time, we talked about job search — doing well."
                         value={noteForm.content} onChange={e => setNoteForm({ ...noteForm, content: e.target.value })}
-                        style={{ width: '100%', padding: '9px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '13px', minHeight: '60px' }} />
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#374151', margin: '8px 0' }}>
+                        style={{ ...inputStyle, padding: 9, minHeight: 60, marginBottom: 0 }} />
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: TEXT, margin: '8px 0' }}>
                         <input type="checkbox" checked={noteForm.visible_to_client} onChange={e => setNoteForm({ ...noteForm, visible_to_client: e.target.checked })} />
                         Share this note with the client
                       </label>
                       <button onClick={addProgressNote} disabled={savingNote || !noteForm.content.trim()}
-                        style={{ width: '100%', padding: '9px', background: '#27AE60', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}>
+                        style={{ width: '100%', padding: 9, background: GREEN, color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
                         {savingNote ? 'Saving...' : 'Add Note'}
                       </button>
                     </div>
                   )}
 
                   {notesForProgram.length === 0 ? (
-                    <p style={{ color: '#9ca3af', fontSize: '12px', margin: '8px 0 0' }}>No notes for this order yet.</p>
+                    <p style={{ color: TEXT_MUTED, fontSize: 12, margin: '8px 0 0' }}>No notes for this order yet.</p>
                   ) : (
                     notesForProgram.map(n => (
-                      <div key={n.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', padding: '8px 0', borderTop: '1px solid #f3f4f6' }}>
+                      <div key={n.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, padding: '8px 0', borderTop: `0.5px solid ${BORDER}` }}>
                         <div>
-                          <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <div style={{ fontSize: 11, color: TEXT_DIM, marginBottom: 2, display: 'flex', alignItems: 'center', gap: 6 }}>
                             {new Date(n.note_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                            {!n.visible_to_client && <span style={{ background: '#F3F4F6', color: '#6b7280', padding: '1px 7px', borderRadius: '10px', fontSize: '9px', fontWeight: '600' }}>🔒 Private</span>}
+                            {!n.visible_to_client && <span style={{ background: 'rgba(255,255,255,0.08)', color: TEXT_MUTED, padding: '1px 7px', borderRadius: 10, fontSize: 9, fontWeight: 600 }}>🔒 Private</span>}
                           </div>
-                          <div style={{ fontSize: '13px', color: '#374151' }}>{n.content}</div>
+                          <div style={{ fontSize: 13, color: TEXT }}>{n.content}</div>
                         </div>
-                        <button onClick={() => deleteProgressNote(n.id)} style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: '11px', cursor: 'pointer', whiteSpace: 'nowrap' }}>Delete</button>
+                        <button onClick={() => deleteProgressNote(n.id)} style={{ background: 'none', border: 'none', color: RED, fontSize: 11, cursor: 'pointer', whiteSpace: 'nowrap' }}>Delete</button>
                       </div>
                     ))
                   )}
@@ -326,11 +336,11 @@ export default function ClientProfile({ clientId, onNavigate }) {
         )}
 
         {milestones.length > 0 && (
-          <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid #f3f4f6' }}>
-            <h4 style={{ margin: '0 0 10px', color: '#1e3a5f', fontSize: '13px' }}>Achievements</h4>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+          <div style={{ marginTop: 16, paddingTop: 14, borderTop: `0.5px solid ${BORDER}` }}>
+            <h4 style={{ margin: '0 0 10px', color: TEXT, fontSize: 13 }}>Achievements</h4>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {milestones.map(m => (
-                <div key={m.id} title={m.description} style={{ background: '#EFF6FF', border: '1px solid #DBEAFE', borderRadius: '8px', padding: '6px 10px', fontSize: '12px', color: '#1e3a5f' }}>
+                <div key={m.id} title={m.description} style={{ background: 'rgba(91,155,240,0.15)', border: `0.5px solid ${BORDER}`, borderRadius: 8, padding: '6px 10px', fontSize: 12, color: ACCENT }}>
                   🏅 {m.title}
                 </div>
               ))}
@@ -342,45 +352,44 @@ export default function ClientProfile({ clientId, onNavigate }) {
       {(() => {
         const generalNotes = progressNotes.filter(n => !n.client_program_id);
         return (
-          <div style={{ background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-              <h3 style={{ margin: 0, color: '#1e3a5f', fontSize: '15px' }}>General Notes</h3>
+          <div style={cardStyle}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, flexWrap: 'wrap', gap: 8 }}>
+              <h3 style={{ margin: 0, color: TEXT, fontSize: 15 }}>General Notes</h3>
               <button onClick={() => { setNoteForm({ ...noteForm, client_program_id: '' }); setShowAddNote(showAddNote === 'general' ? null : 'general'); }}
-                style={{ background: '#1e3a5f', color: 'white', border: 'none', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer' }}>
+                style={{ background: ACCENT, color: 'white', border: 'none', borderRadius: 6, padding: '6px 12px', fontSize: 12, cursor: 'pointer' }}>
                 {showAddNote === 'general' ? 'Cancel' : '+ Add Note'}
               </button>
             </div>
-            <p style={{ color: '#9ca3af', fontSize: '12px', margin: '0 0 12px' }}>Not tied to a specific order. Visible to the client on their Journey screen — keep it plain-language and positive. Never put clinical/diagnostic content here; use Case &amp; Clinical Notes for that.</p>
+            <p style={{ color: TEXT_MUTED, fontSize: 12, margin: '0 0 12px' }}>Not tied to a specific order. Visible to the client on their Journey screen — keep it plain-language and positive. Never put clinical/diagnostic content here; use Case &amp; Clinical Notes for that.</p>
 
             {showAddNote === 'general' && (
-              <div style={{ background: '#F9FAFB', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '14px', marginBottom: '14px' }}>
-                <input type="date" value={noteForm.note_date} onChange={e => setNoteForm({ ...noteForm, note_date: e.target.value })}
-                  style={{ width: '100%', padding: '10px', marginBottom: '8px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '13px' }} />
+              <div style={subCardStyle}>
+                <input type="date" value={noteForm.note_date} onChange={e => setNoteForm({ ...noteForm, note_date: e.target.value })} style={inputStyle} />
                 <textarea placeholder="e.g. Showed up on time, we talked about job search — doing well."
                   value={noteForm.content} onChange={e => setNoteForm({ ...noteForm, content: e.target.value })}
-                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '13px', minHeight: '70px' }} />
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#374151', margin: '10px 0' }}>
+                  style={{ ...inputStyle, minHeight: 70 }} />
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: TEXT, margin: '10px 0' }}>
                   <input type="checkbox" checked={noteForm.visible_to_client} onChange={e => setNoteForm({ ...noteForm, visible_to_client: e.target.checked })} />
                   Share this note with the client
                 </label>
                 <button onClick={addProgressNote} disabled={savingNote || !noteForm.content.trim()}
-                  style={{ marginTop: '10px', width: '100%', padding: '10px', background: '#27AE60', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '600' }}>
+                  style={{ marginTop: 10, width: '100%', padding: 10, background: GREEN, color: 'white', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
                   {savingNote ? 'Saving...' : 'Add Note'}
                 </button>
               </div>
             )}
 
-            {generalNotes.length === 0 ? <p style={{ color: '#9ca3af', margin: 0 }}>No general notes yet.</p> : (
+            {generalNotes.length === 0 ? <p style={{ color: TEXT_MUTED, margin: 0 }}>No general notes yet.</p> : (
               generalNotes.map(n => (
-                <div key={n.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px', padding: '10px 0', borderBottom: '1px solid #f3f4f6' }}>
+                <div key={n.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10, padding: '10px 0', borderBottom: `0.5px solid ${BORDER}` }}>
                   <div>
-                    <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ fontSize: 11, color: TEXT_DIM, marginBottom: 3, display: 'flex', alignItems: 'center', gap: 8 }}>
                       {new Date(n.note_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                      {!n.visible_to_client && <span style={{ background: '#F3F4F6', color: '#6b7280', padding: '1px 8px', borderRadius: '10px', fontSize: '10px', fontWeight: '600' }}>🔒 Private — not shared</span>}
+                      {!n.visible_to_client && <span style={{ background: 'rgba(255,255,255,0.08)', color: TEXT_MUTED, padding: '1px 8px', borderRadius: 10, fontSize: 10, fontWeight: 600 }}>🔒 Private — not shared</span>}
                     </div>
-                    <div style={{ fontSize: '14px', color: '#374151' }}>{n.content}</div>
+                    <div style={{ fontSize: 14, color: TEXT }}>{n.content}</div>
                   </div>
-                  <button onClick={() => deleteProgressNote(n.id)} style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' }}>Delete</button>
+                  <button onClick={() => deleteProgressNote(n.id)} style={{ background: 'none', border: 'none', color: RED, fontSize: 12, cursor: 'pointer', whiteSpace: 'nowrap' }}>Delete</button>
                 </div>
               ))
             )}
@@ -388,54 +397,54 @@ export default function ClientProfile({ clientId, onNavigate }) {
         );
       })()}
 
-      <div style={{ background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-        <h3 style={{ margin: '0 0 12px', color: '#1e3a5f', fontSize: '15px' }}>Signed Forms</h3>
-        {signatures.length === 0 ? <p style={{ color: '#9ca3af', margin: 0 }}>No forms signed yet.</p> : (
+      <div style={cardStyle}>
+        <h3 style={{ margin: '0 0 12px', color: TEXT, fontSize: 15 }}>Signed Forms</h3>
+        {signatures.length === 0 ? <p style={{ color: TEXT_MUTED, margin: 0 }}>No forms signed yet.</p> : (
           signatures.map(s => (
-            <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid #f3f4f6' }}>
+            <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `0.5px solid ${BORDER}` }}>
               <div>
-                <div style={{ fontSize: '14px', color: '#374151' }}>{s.form_title}</div>
-                <div style={{ fontSize: '12px', color: '#9ca3af' }}>Signed by {s.signature_name} on {new Date(s.signed_at).toLocaleDateString()}</div>
+                <div style={{ fontSize: 14, color: TEXT }}>{s.form_title}</div>
+                <div style={{ fontSize: 12, color: TEXT_DIM }}>Signed by {s.signature_name} on {new Date(s.signed_at).toLocaleDateString()}</div>
               </div>
             </div>
           ))
         )}
       </div>
 
-      <div style={{ background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-        <h3 style={{ margin: '0 0 12px', color: '#1e3a5f', fontSize: '15px' }}>Check-In History (Last 7)</h3>
-        {checkIns.length === 0 ? <p style={{ color: '#9ca3af', margin: 0 }}>No check-ins recorded.</p> : (
+      <div style={cardStyle}>
+        <h3 style={{ margin: '0 0 12px', color: TEXT, fontSize: 15 }}>Check-In History (Last 7)</h3>
+        {checkIns.length === 0 ? <p style={{ color: TEXT_MUTED, margin: 0 }}>No check-ins recorded.</p> : (
           checkIns.map(ci => (
-            <div key={ci.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f3f4f6' }}>
-              <span style={{ color: '#374151' }}>{new Date(ci.checked_in_at).toLocaleDateString()}</span>
-              <span style={{ color: '#6b7280', fontSize: '13px' }}>{ci.latitude && ci.longitude ? `${ci.latitude.toFixed(5)}, ${ci.longitude.toFixed(5)}` : 'No location'}</span>
-              <span style={{ color: '#16a34a', fontWeight: '600', fontSize: '13px' }}>✓ Checked In</span>
+            <div key={ci.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: `0.5px solid ${BORDER}`, flexWrap: 'wrap', gap: 6 }}>
+              <span style={{ color: TEXT }}>{new Date(ci.checked_in_at).toLocaleDateString()}</span>
+              <span style={{ color: TEXT_MUTED, fontSize: 13 }}>{ci.latitude && ci.longitude ? `${ci.latitude.toFixed(5)}, ${ci.longitude.toFixed(5)}` : 'No location'}</span>
+              <span style={{ color: GREEN, fontWeight: 600, fontSize: 13 }}>✓ Checked In</span>
             </div>
           ))
         )}
       </div>
 
-      <div style={{ background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-        <h3 style={{ margin: '0 0 12px', color: '#1e3a5f', fontSize: '15px' }}>Upcoming Court Dates</h3>
-        {courtDates.length === 0 ? <p style={{ color: '#9ca3af', margin: 0 }}>No upcoming court dates.</p> : (
+      <div style={cardStyle}>
+        <h3 style={{ margin: '0 0 12px', color: TEXT, fontSize: 15 }}>Upcoming Court Dates</h3>
+        {courtDates.length === 0 ? <p style={{ color: TEXT_MUTED, margin: 0 }}>No upcoming court dates.</p> : (
           courtDates.map(cd => (
-            <div key={cd.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f3f4f6' }}>
-              <span style={{ color: '#374151' }}>{new Date(cd.hearing_date).toLocaleDateString()}</span>
-              <span style={{ color: '#6b7280', fontSize: '13px' }}>{cd.court_name || 'Court'}</span>
-              <span style={{ background: '#fef3c7', color: '#92400e', padding: '2px 8px', borderRadius: '8px', fontSize: '12px' }}>{cd.hearing_type || 'Hearing'}</span>
+            <div key={cd.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: `0.5px solid ${BORDER}`, flexWrap: 'wrap', gap: 6 }}>
+              <span style={{ color: TEXT }}>{new Date(cd.hearing_date).toLocaleDateString()}</span>
+              <span style={{ color: TEXT_MUTED, fontSize: 13 }}>{cd.court_name || 'Court'}</span>
+              <span style={{ background: 'rgba(255,140,66,0.15)', color: ORANGE, padding: '2px 8px', borderRadius: 8, fontSize: 12 }}>{cd.hearing_type || 'Hearing'}</span>
             </div>
           ))
         )}
       </div>
 
-      <div style={{ background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-        <h3 style={{ margin: '0 0 12px', color: '#1e3a5f', fontSize: '15px' }}>Recent Drug Tests</h3>
-        {drugTests.length === 0 ? <p style={{ color: '#9ca3af', margin: 0 }}>No drug tests recorded.</p> : (
+      <div style={{ ...cardStyle, marginBottom: 24 }}>
+        <h3 style={{ margin: '0 0 12px', color: TEXT, fontSize: 15 }}>Recent Drug Tests</h3>
+        {drugTests.length === 0 ? <p style={{ color: TEXT_MUTED, margin: 0 }}>No drug tests recorded.</p> : (
           drugTests.map(dt => (
-            <div key={dt.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f3f4f6' }}>
-              <span style={{ color: '#374151' }}>{new Date(dt.test_date).toLocaleDateString()}</span>
-              <span style={{ color: '#6b7280', fontSize: '13px' }}>{dt.substances_tested || dt.test_type || 'Panel'}</span>
-              <span style={{ background: dt.result === 'negative' ? '#dcfce7' : '#fee2e2', color: dt.result === 'negative' ? '#16a34a' : '#dc2626', padding: '2px 8px', borderRadius: '8px', fontSize: '12px', fontWeight: '600' }}>
+            <div key={dt.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: `0.5px solid ${BORDER}`, flexWrap: 'wrap', gap: 6 }}>
+              <span style={{ color: TEXT }}>{new Date(dt.test_date).toLocaleDateString()}</span>
+              <span style={{ color: TEXT_MUTED, fontSize: 13 }}>{dt.substances_tested || dt.test_type || 'Panel'}</span>
+              <span style={{ background: dt.result === 'negative' ? 'rgba(76,175,125,0.15)' : 'rgba(248,113,113,0.15)', color: dt.result === 'negative' ? GREEN : RED, padding: '2px 8px', borderRadius: 8, fontSize: 12, fontWeight: 600 }}>
                 {dt.result || 'Pending'}
               </span>
             </div>
@@ -443,10 +452,10 @@ export default function ClientProfile({ clientId, onNavigate }) {
         )}
       </div>
 
-      <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-        <button onClick={() => onNavigate && onNavigate('messages', clientId)} style={{ background: '#1e3a5f', color: 'white', border: 'none', borderRadius: '8px', padding: '10px 20px', cursor: 'pointer', fontWeight: '600' }}>📩 Send Message</button>
-        <button style={{ background: '#dc2626', color: 'white', border: 'none', borderRadius: '8px', padding: '10px 20px', cursor: 'pointer', fontWeight: '600' }}>🚨 Create Alert</button>
-        <button style={{ background: '#16a34a', color: 'white', border: 'none', borderRadius: '8px', padding: '10px 20px', cursor: 'pointer', fontWeight: '600' }}>📄 View Reports</button>
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+        <button onClick={() => onNavigate && onNavigate('messages', clientId)} style={{ background: ACCENT, color: 'white', border: 'none', borderRadius: 8, padding: '10px 20px', cursor: 'pointer', fontWeight: 600 }}>📩 Send Message</button>
+        <button style={{ background: RED, color: 'white', border: 'none', borderRadius: 8, padding: '10px 20px', cursor: 'pointer', fontWeight: 600 }}>🚨 Create Alert</button>
+        <button style={{ background: GREEN, color: 'white', border: 'none', borderRadius: 8, padding: '10px 20px', cursor: 'pointer', fontWeight: 600 }}>📄 View Reports</button>
       </div>
     </div>
   );

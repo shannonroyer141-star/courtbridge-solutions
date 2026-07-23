@@ -309,6 +309,36 @@ export default function App() {
     userSelect: 'none',
   });
 
+  const subGroupRow = (menu) => ({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '5px 10px 5px 26px',
+    fontSize: 12.5,
+    fontWeight: 400,
+    color: 'rgba(255,255,255,0.6)',
+    borderRadius: 6,
+    cursor: 'pointer',
+    margin: '1px 6px',
+    fontFamily: NAV_FONT,
+    userSelect: 'none',
+  });
+
+  const subSubItem = (id) => ({
+    display: 'flex',
+    alignItems: 'center',
+    padding: '5px 10px 5px 46px',
+    fontSize: 12,
+    fontWeight: activeScreen === id ? 500 : 400,
+    color: activeScreen === id ? TEXT : 'rgba(255,255,255,0.45)',
+    background: activeScreen === id ? ACCENT : 'transparent',
+    borderRadius: 6,
+    cursor: 'pointer',
+    margin: '1px 6px',
+    fontFamily: NAV_FONT,
+    userSelect: 'none',
+  });
+
   const divider = { margin: '5px 12px', borderTop: `0.5px solid ${BORDER}` };
 
   const userInitial = session?.user?.email?.[0]?.toUpperCase() || 'P';
@@ -349,13 +379,12 @@ export default function App() {
             <Ic d={expandedMenus.admin ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
           </div>
           {expandedMenus.admin && <>
-            <div style={subItem('dashboard')} onClick={() => navTo('dashboard')}>Dashboard</div>
+            <div style={subItem('alerts')} onClick={() => navTo('alerts')}>Alerts</div>
             <div style={subItem('calendar')} onClick={() => navTo('calendar')}>Calendar</div>
             <div style={subItem('checkin')} onClick={() => navTo('checkin')}>Check-Ins</div>
-            <div style={subItem('alerts')} onClick={() => navTo('alerts')}>Alerts</div>
-            <div style={subItem('mapview')} onClick={() => navTo('mapview')}>Map View</div>
-            <div style={subItem('orgadmin')} onClick={() => navTo('orgadmin')}>Org Settings</div>
             <div style={subItem('clientinvite')} onClick={() => navTo('clientinvite')}>Client Invites</div>
+            <div style={subItem('dashboard')} onClick={() => navTo('dashboard')}>Dashboard</div>
+            <div style={subItem('mapview')} onClick={() => navTo('mapview')}>Map View</div>
           </>}
 
           <div style={divider} />
@@ -368,29 +397,27 @@ export default function App() {
           </div>
           {expandedMenus.clients && <>
             <div style={subItem('clients')} onClick={() => navTo('clients')}>All Clients</div>
+            <div style={subItem('certificates')} onClick={() => navTo('certificates')}>Certificates</div>
             <div style={subItem('clientintake')} onClick={() => navTo('clientintake')}>Client Intake</div>
             <div style={subItem('messages')} onClick={() => navTo('messages')}>Messages</div>
-            <div style={subItem('contactlog')} onClick={() => navTo('contactlog')}>Contact Log</div>
-            <div style={subItem('meetinglog')} onClick={() => navTo('meetinglog')}>Meeting Log</div>
-            <div style={subItem('courtdates')} onClick={() => navTo('courtdates')}>Court Dates</div>
-            <div style={subItem('certificates')} onClick={() => navTo('certificates')}>Certificates</div>
-          </>}
 
-          <div style={divider} />
-
-          <div style={groupRow('sensitive')} onClick={() => toggleMenu('sensitive')}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Ic d={ICONS.admin} /><span>Sensitive Records</span>
+            <div style={subGroupRow('sensitive')} onClick={() => toggleMenu('sensitive')}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Ic d={ICONS.admin} size={12} /><span>Sensitive Records</span>
+              </div>
+              <Ic d={expandedMenus.sensitive ? ICONS.chevronDown : ICONS.chevronRight} size={11} />
             </div>
-            <Ic d={expandedMenus.sensitive ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
-          </div>
-          {expandedMenus.sensitive && <>
-            <div style={subItem('drugtests')} onClick={() => navTo('drugtests')}>Drug Tests</div>
-            <div style={subItem('povisits')} onClick={() => navTo('povisits')}>PO Visits</div>
-            <div style={subItem('cpstracking')} onClick={() => navTo('cpstracking')}>CPS Tracking</div>
-            <div style={subItem('violationreport')} onClick={() => navTo('violationreport')}>Violations</div>
-            <div style={subItem('documents')} onClick={() => navTo('documents')}>Documents</div>
-            <div style={subItem('sensitivenotes')} onClick={() => navTo('sensitivenotes')}>Case &amp; Clinical Notes</div>
+            {expandedMenus.sensitive && <>
+              <div style={subSubItem('sensitivenotes')} onClick={() => navTo('sensitivenotes')}>Case &amp; Clinical Notes</div>
+              <div style={subSubItem('contactlog')} onClick={() => navTo('contactlog')}>Contact Log</div>
+              <div style={subSubItem('courtdates')} onClick={() => navTo('courtdates')}>Court Dates</div>
+              <div style={subSubItem('cpstracking')} onClick={() => navTo('cpstracking')}>CPS Tracking</div>
+              <div style={subSubItem('documents')} onClick={() => navTo('documents')}>Documents</div>
+              <div style={subSubItem('drugtests')} onClick={() => navTo('drugtests')}>Drug Tests</div>
+              <div style={subSubItem('meetinglog')} onClick={() => navTo('meetinglog')}>Meeting Log</div>
+              <div style={subSubItem('povisits')} onClick={() => navTo('povisits')}>PO Visits</div>
+              <div style={subSubItem('violationreport')} onClick={() => navTo('violationreport')}>Violations</div>
+            </>}
           </>}
 
           <div style={divider} />
@@ -402,9 +429,10 @@ export default function App() {
             <Ic d={expandedMenus.operations ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
           </div>
           {expandedMenus.operations && <>
-            <div style={subItem('tasks')} onClick={() => navTo('tasks')}>Tasks</div>
-            <div style={subItem('reports')} onClick={() => navTo('reports')}>Reports</div>
             <div style={subItem('compliancechart')} onClick={() => navTo('compliancechart')}>Compliance Chart</div>
+            <div style={subItem('orgadmin')} onClick={() => navTo('orgadmin')}>Org Settings</div>
+            <div style={subItem('reports')} onClick={() => navTo('reports')}>Reports</div>
+            <div style={subItem('tasks')} onClick={() => navTo('tasks')}>Tasks</div>
           </>}
 
           <div style={divider} />

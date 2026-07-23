@@ -30,6 +30,7 @@ import ClientInvite from './screens/ClientInvite';
 import ViolationReport from './screens/ViolationReport';
 import FounderDocs from './screens/FounderDocs';
 import BusinessOrganizer from './screens/BusinessOrganizer';
+import ProviderOnboarding from './screens/ProviderOnboarding';
 import DocumentUpload from './screens/DocumentUpload';
 import CompletionCertificate from './screens/CompletionCertificate';
 import SensitiveNotes from './screens/SensitiveNotes';
@@ -49,7 +50,7 @@ export default function App() {
   const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 768);
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 768);
   const [expandedMenus, setExpandedMenus] = useState({
-    compliance: false, clients: false, sensitive: false, operations: false, admin: false, founder: false
+    clients: false, sensitive: false, operations: false, admin: false, founder: false, settings: false
   });
   const [isFounder, setIsFounder] = useState(false);
   const [activeClientId, setActiveClientId] = useState(null);
@@ -229,6 +230,7 @@ export default function App() {
       case 'violationreport': return <ViolationReport session={session} />;
       case 'founderdocs': return <FounderDocs session={session} />;
       case 'businessorganizer': return <BusinessOrganizer session={session} />;
+      case 'provideronboarding': return <ProviderOnboarding session={session} />;
       case 'documents': return <DocumentUpload session={session} />;
       case 'certificates': return <CompletionCertificate session={session} />;
       case 'sensitivenotes': return <SensitiveNotes session={session} />;
@@ -340,15 +342,20 @@ export default function App() {
 
         <div style={{ flex: 1, paddingTop: 8, paddingBottom: 8 }}>
 
-          <div style={groupRow('compliance')} onClick={() => toggleMenu('compliance')}>
+          <div style={groupRow('admin')} onClick={() => toggleMenu('admin')}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Ic d={ICONS.compliance} /><span>Compliance</span>
+              <Ic d={ICONS.admin} /><span>Admin</span>
             </div>
-            <Ic d={expandedMenus.compliance ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
+            <Ic d={expandedMenus.admin ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
           </div>
-          {expandedMenus.compliance && <>
-            <div style={subItem('reports')} onClick={() => navTo('reports')}>Reports</div>
-            <div style={subItem('compliancechart')} onClick={() => navTo('compliancechart')}>Compliance Chart</div>
+          {expandedMenus.admin && <>
+            <div style={subItem('dashboard')} onClick={() => navTo('dashboard')}>Dashboard</div>
+            <div style={subItem('calendar')} onClick={() => navTo('calendar')}>Calendar</div>
+            <div style={subItem('checkin')} onClick={() => navTo('checkin')}>Check-Ins</div>
+            <div style={subItem('alerts')} onClick={() => navTo('alerts')}>Alerts</div>
+            <div style={subItem('mapview')} onClick={() => navTo('mapview')}>Map View</div>
+            <div style={subItem('orgadmin')} onClick={() => navTo('orgadmin')}>Org Settings</div>
+            <div style={subItem('clientinvite')} onClick={() => navTo('clientinvite')}>Client Invites</div>
           </>}
 
           <div style={divider} />
@@ -367,7 +374,6 @@ export default function App() {
             <div style={subItem('meetinglog')} onClick={() => navTo('meetinglog')}>Meeting Log</div>
             <div style={subItem('courtdates')} onClick={() => navTo('courtdates')}>Court Dates</div>
             <div style={subItem('certificates')} onClick={() => navTo('certificates')}>Certificates</div>
-            <div style={subItem('forms')} onClick={() => navTo('forms')}>Forms &amp; Signatures</div>
           </>}
 
           <div style={divider} />
@@ -397,35 +403,22 @@ export default function App() {
           </div>
           {expandedMenus.operations && <>
             <div style={subItem('tasks')} onClick={() => navTo('tasks')}>Tasks</div>
-            <div style={subItem('programs')} onClick={() => navTo('programs')}>Programs</div>
+            <div style={subItem('reports')} onClick={() => navTo('reports')}>Reports</div>
+            <div style={subItem('compliancechart')} onClick={() => navTo('compliancechart')}>Compliance Chart</div>
           </>}
 
           <div style={divider} />
 
-          <div style={groupRow('admin')} onClick={() => toggleMenu('admin')}>
+          <div style={groupRow('settings')} onClick={() => toggleMenu('settings')}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Ic d={ICONS.admin} /><span>Admin</span>
+              <Ic d={ICONS.settings} /><span>Settings</span>
             </div>
-            <Ic d={expandedMenus.admin ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
+            <Ic d={expandedMenus.settings ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
           </div>
-          {expandedMenus.admin && <>
-            <div style={subItem('dashboard')} onClick={() => navTo('dashboard')}>Dashboard</div>
-            <div style={subItem('calendar')} onClick={() => navTo('calendar')}>Calendar</div>
-            <div style={subItem('checkin')} onClick={() => navTo('checkin')}>Check-Ins</div>
-            <div style={subItem('alerts')} onClick={() => navTo('alerts')}>Alerts</div>
-            <div style={subItem('mapview')} onClick={() => navTo('mapview')}>Map View</div>
-            <div style={subItem('orgadmin')} onClick={() => navTo('orgadmin')}>Org Settings</div>
-            <div style={subItem('clientinvite')} onClick={() => navTo('clientinvite')}>Client Invites</div>
+          {expandedMenus.settings && <>
+            <div style={subItem('settings')} onClick={() => navTo('settings')}>Settings</div>
+            <div style={subItem('affirmations')} onClick={() => navTo('affirmations')}>Wellness</div>
           </>}
-
-          <div style={divider} />
-
-          <div style={navItem('affirmations')} onClick={() => navTo('affirmations')}>
-            <Ic d={ICONS.wellness} /><span>Wellness</span>
-          </div>
-          <div style={navItem('settings')} onClick={() => navTo('settings')}>
-            <Ic d={ICONS.settings} /><span>Settings</span>
-          </div>
           {isFounder && (
             <>
               <div style={groupRow('founder')} onClick={() => toggleMenu('founder')}>
@@ -437,6 +430,9 @@ export default function App() {
               {expandedMenus.founder && <>
                 <div style={subItem('founderdocs')} onClick={() => navTo('founderdocs')}>Founder Docs</div>
                 <div style={subItem('businessorganizer')} onClick={() => navTo('businessorganizer')}>Business Organizer</div>
+                <div style={subItem('forms')} onClick={() => navTo('forms')}>Forms &amp; Signatures</div>
+                <div style={subItem('provideronboarding')} onClick={() => navTo('provideronboarding')}>Provider Onboarding</div>
+                <div style={subItem('programs')} onClick={() => navTo('programs')}>Programs</div>
               </>}
             </>
           )}

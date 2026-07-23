@@ -50,7 +50,7 @@ export default function App() {
   const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 768);
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 768);
   const [expandedMenus, setExpandedMenus] = useState({
-    clients: false, sensitive: false, operations: false, admin: false, founder: false, compliance: false
+    clients: false, sensitive: false, founder: false, org: false
   });
   const [pendingInvites, setPendingInvites] = useState(0);
   const [isFounder, setIsFounder] = useState(false);
@@ -386,28 +386,18 @@ export default function App() {
           <div style={navItem('dashboard')} onClick={() => navTo('dashboard')}>
             <Ic d={ICONS.dashboard} /><span>Dashboard</span>
           </div>
-
-          <div style={divider} />
-
-          <div style={groupRow('admin')} onClick={() => toggleMenu('admin')}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Ic d={ICONS.admin} /><span>Admin</span>
-            </div>
-            <Ic d={expandedMenus.admin ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
+          <div style={navItem('alerts')} onClick={() => navTo('alerts')}>
+            <Ic d={ICONS.compliance} /><span>Alerts</span>
           </div>
-          {expandedMenus.admin && <>
-            <div style={subItem('clientinvite')} onClick={() => navTo('clientinvite')}>
-              <span style={{ flex: 1 }}>Client Invites</span>
-              {pendingInvites > 0 && (
-                <span style={{ background: ORANGE, color: '#fff', fontSize: 10, fontWeight: 700, borderRadius: 10, padding: '1px 7px', marginLeft: 6 }}>{pendingInvites}</span>
-              )}
-            </div>
-            <div style={subItem('messages')} onClick={() => navTo('messages')}>Messages</div>
-            <div style={subItem('settings')} onClick={() => navTo('settings')}>My Preferences</div>
-            <div style={subItem('orgadmin')} onClick={() => navTo('orgadmin')}>Org Settings</div>
-            <div style={subItem('tasks')} onClick={() => navTo('tasks')}>Tasks</div>
-            <div style={subItem('affirmations')} onClick={() => navTo('affirmations')}>Wellness</div>
-          </>}
+          <div style={navItem('messages')} onClick={() => navTo('messages')}>
+            <Ic d={ICONS.clients} /><span>Messages</span>
+          </div>
+          <div style={navItem('clientinvite')} onClick={() => navTo('clientinvite')}>
+            <Ic d={ICONS.admin} /><span style={{ flex: 1 }}>Client Invites</span>
+            {pendingInvites > 0 && (
+              <span style={{ background: ORANGE, color: '#fff', fontSize: 10, fontWeight: 700, borderRadius: 10, padding: '1px 7px' }}>{pendingInvites}</span>
+            )}
+          </div>
 
           <div style={divider} />
 
@@ -419,8 +409,12 @@ export default function App() {
           </div>
           {expandedMenus.clients && <>
             <div style={subItem('clients')} onClick={() => navTo('clients')}>All Clients</div>
+            <div style={subItem('calendar')} onClick={() => navTo('calendar')}>Calendar</div>
             <div style={subItem('certificates')} onClick={() => navTo('certificates')}>Certificates</div>
+            <div style={subItem('checkin')} onClick={() => navTo('checkin')}>Check-Ins</div>
             <div style={subItem('clientintake')} onClick={() => navTo('clientintake')}>Client Intake</div>
+            <div style={subItem('mapview')} onClick={() => navTo('mapview')}>Map View</div>
+            <div style={subItem('tasks')} onClick={() => navTo('tasks')}>Tasks</div>
 
             <div style={subGroupRow('sensitive')} onClick={() => toggleMenu('sensitive')}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -444,18 +438,17 @@ export default function App() {
 
           <div style={divider} />
 
-          <div style={groupRow('compliance')} onClick={() => toggleMenu('compliance')}>
+          <div style={groupRow('org')} onClick={() => toggleMenu('org')}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Ic d={ICONS.compliance} /><span>Compliance</span>
+              <Ic d={ICONS.admin} /><span>Org &amp; Preferences</span>
             </div>
-            <Ic d={expandedMenus.compliance ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
+            <Ic d={expandedMenus.org ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
           </div>
-          {expandedMenus.compliance && <>
-            <div style={subItem('alerts')} onClick={() => navTo('alerts')}>Alerts</div>
-            <div style={subItem('calendar')} onClick={() => navTo('calendar')}>Calendar</div>
-            <div style={subItem('checkin')} onClick={() => navTo('checkin')}>Check-Ins</div>
+          {expandedMenus.org && <>
             <div style={subItem('compliancechart')} onClick={() => navTo('compliancechart')}>Compliance Chart</div>
-            <div style={subItem('mapview')} onClick={() => navTo('mapview')}>Map View</div>
+            <div style={subItem('settings')} onClick={() => navTo('settings')}>My Preferences</div>
+            <div style={subItem('orgadmin')} onClick={() => navTo('orgadmin')}>Org Settings</div>
+            <div style={subItem('affirmations')} onClick={() => navTo('affirmations')}>Wellness</div>
           </>}
 
           <div style={divider} />

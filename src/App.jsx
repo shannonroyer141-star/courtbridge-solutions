@@ -386,6 +386,9 @@ export default function App() {
           <div style={navItem('dashboard')} onClick={() => navTo('dashboard')}>
             <Ic d={ICONS.dashboard} /><span>Dashboard</span>
           </div>
+          <div style={navItem('calendar')} onClick={() => navTo('calendar')}>
+            <Ic d={ICONS.calendar} /><span>Calendar</span>
+          </div>
           <div style={navItem('alerts')} onClick={() => navTo('alerts')}>
             <Ic d={ICONS.compliance} /><span>Alerts</span>
           </div>
@@ -409,7 +412,6 @@ export default function App() {
           </div>
           {expandedMenus.clients && <>
             <div style={subItem('clients')} onClick={() => navTo('clients')}>All Clients</div>
-            <div style={subItem('calendar')} onClick={() => navTo('calendar')}>Calendar</div>
             <div style={subItem('certificates')} onClick={() => navTo('certificates')}>Certificates</div>
             <div style={subItem('checkin')} onClick={() => navTo('checkin')}>Check-Ins</div>
             <div style={subItem('clientintake')} onClick={() => navTo('clientintake')}>Client Intake</div>

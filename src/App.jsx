@@ -378,23 +378,6 @@ export default function App() {
 
           <div style={divider} />
 
-          <div style={groupRow('compliance')} onClick={() => toggleMenu('compliance')}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Ic d={ICONS.compliance} /><span>Compliance</span>
-            </div>
-            <Ic d={expandedMenus.compliance ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
-          </div>
-          {expandedMenus.compliance && <>
-            <div style={subItem('alerts')} onClick={() => navTo('alerts')}>Alerts</div>
-            <div style={subItem('calendar')} onClick={() => navTo('calendar')}>Calendar</div>
-            <div style={subItem('checkin')} onClick={() => navTo('checkin')}>Check-Ins</div>
-            <div style={subItem('compliancechart')} onClick={() => navTo('compliancechart')}>Compliance Chart</div>
-            <div style={subItem('mapview')} onClick={() => navTo('mapview')}>Map View</div>
-            <div style={subItem('reports')} onClick={() => navTo('reports')}>Reports</div>
-          </>}
-
-          <div style={divider} />
-
           <div style={groupRow('admin')} onClick={() => toggleMenu('admin')}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Ic d={ICONS.admin} /><span>Admin</span>
@@ -438,6 +421,23 @@ export default function App() {
               <div style={subSubItem('povisits')} onClick={() => navTo('povisits')}>PO Visits</div>
               <div style={subSubItem('violationreport')} onClick={() => navTo('violationreport')}>Violations</div>
             </>}
+          </>}
+
+          <div style={divider} />
+
+          <div style={groupRow('compliance')} onClick={() => toggleMenu('compliance')}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Ic d={ICONS.compliance} /><span>Compliance</span>
+            </div>
+            <Ic d={expandedMenus.compliance ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
+          </div>
+          {expandedMenus.compliance && <>
+            <div style={subItem('alerts')} onClick={() => navTo('alerts')}>Alerts</div>
+            <div style={subItem('calendar')} onClick={() => navTo('calendar')}>Calendar</div>
+            <div style={subItem('checkin')} onClick={() => navTo('checkin')}>Check-Ins</div>
+            <div style={subItem('compliancechart')} onClick={() => navTo('compliancechart')}>Compliance Chart</div>
+            <div style={subItem('mapview')} onClick={() => navTo('mapview')}>Map View</div>
+            <div style={subItem('reports')} onClick={() => navTo('reports')}>Reports</div>
           </>}
 
           <div style={divider} />

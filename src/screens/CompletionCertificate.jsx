@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
+import { CARD_BG, GREEN, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 export default function CompletionCertificate() {
   const [certificates, setCertificates] = useState([]);
@@ -39,7 +40,6 @@ export default function CompletionCertificate() {
   }
 
   function printCertificate(cert) {
-    const client = clients.find(c => c.id === cert.client_id);
     const win = window.open('', '_blank');
     win.document.write(`
       <html><head><title>Completion Certificate</title>
@@ -83,56 +83,58 @@ export default function CompletionCertificate() {
     win.print();
   }
 
+  const inputStyle = { width: '100%', padding: 12, marginBottom: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', fontSize: 14, background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT };
+
   return (
-    <div style={{ padding: '30px', maxWidth: '800px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-        <h1 style={{ color: '#1B3A6B', margin: 0 }}>Completion Certificates</h1>
-        <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px', background: '#27AE60', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}>🎓 Issue Certificate</button>
+    <div style={{ padding: 30, maxWidth: 800, fontFamily: NAV_FONT }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 10 }}>
+        <h1 style={{ color: TEXT, margin: 0 }}>Completion Certificates</h1>
+        <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px', background: GREEN, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}>🎓 Issue Certificate</button>
       </div>
-      <p style={{ color: '#666', marginBottom: '24px', fontSize: '14px' }}>Generate professional completion certificates for clients who finish their program. Print and submit to the court.</p>
+      <p style={{ color: TEXT_MUTED, marginBottom: 24, fontSize: 14 }}>Generate professional completion certificates for clients who finish their program. Print and submit to the court.</p>
 
       {showForm && (
-        <div style={{ background: 'white', border: '2px solid #27AE60', borderRadius: '12px', padding: '25px', marginBottom: '20px' }}>
-          <h2 style={{ color: '#27AE60', marginBottom: '16px', fontSize: '16px' }}>🎓 Issue Completion Certificate</h2>
-          <select value={form.client_id} onChange={e => setForm({...form, client_id: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px' }}>
+        <div style={{ background: CARD_BG, border: `2px solid ${GREEN}`, borderRadius: 12, padding: 25, marginBottom: 20 }}>
+          <h2 style={{ color: GREEN, marginBottom: 16, fontSize: 16 }}>🎓 Issue Completion Certificate</h2>
+          <select value={form.client_id} onChange={e => setForm({...form, client_id: e.target.value})} style={inputStyle}>
             <option value="">Select Client *</option>
             {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
-          <input placeholder="Program Name *" value={form.program_name} onChange={e => setForm({...form, program_name: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '14px' }} />
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <div style={{ flex: 1 }}>
-              <label style={{ fontSize: '12px', color: '#666', display: 'block', marginBottom: '4px' }}>Completion Date</label>
-              <input type="date" value={form.completion_date} onChange={e => setForm({...form, completion_date: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '14px' }} />
+          <input placeholder="Program Name *" value={form.program_name} onChange={e => setForm({...form, program_name: e.target.value})} style={inputStyle} />
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <div style={{ flex: 1, minWidth: 140 }}>
+              <label style={{ fontSize: 12, color: TEXT_MUTED, display: 'block', marginBottom: 4 }}>Completion Date</label>
+              <input type="date" value={form.completion_date} onChange={e => setForm({...form, completion_date: e.target.value})} style={inputStyle} />
             </div>
-            <div style={{ flex: 1 }}>
-              <label style={{ fontSize: '12px', color: '#666', display: 'block', marginBottom: '4px' }}>Total Sessions</label>
-              <input type="number" placeholder="e.g. 26" value={form.total_sessions} onChange={e => setForm({...form, total_sessions: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '14px' }} />
+            <div style={{ flex: 1, minWidth: 140 }}>
+              <label style={{ fontSize: 12, color: TEXT_MUTED, display: 'block', marginBottom: 4 }}>Total Sessions</label>
+              <input type="number" placeholder="e.g. 26" value={form.total_sessions} onChange={e => setForm({...form, total_sessions: e.target.value})} style={inputStyle} />
             </div>
-            <div style={{ flex: 1 }}>
-              <label style={{ fontSize: '12px', color: '#666', display: 'block', marginBottom: '4px' }}>Total Check-Ins</label>
-              <input type="number" placeholder="e.g. 180" value={form.total_checkins} onChange={e => setForm({...form, total_checkins: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '14px' }} />
+            <div style={{ flex: 1, minWidth: 140 }}>
+              <label style={{ fontSize: 12, color: TEXT_MUTED, display: 'block', marginBottom: 4 }}>Total Check-Ins</label>
+              <input type="number" placeholder="e.g. 180" value={form.total_checkins} onChange={e => setForm({...form, total_checkins: e.target.value})} style={inputStyle} />
             </div>
           </div>
-          <button onClick={handleSave} disabled={saving || !form.client_id || !form.program_name} style={{ width: '100%', padding: '13px', background: '#27AE60', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', cursor: 'pointer', fontWeight: 'bold' }}>
+          <button onClick={handleSave} disabled={saving || !form.client_id || !form.program_name} style={{ width: '100%', padding: 13, background: GREEN, color: 'white', border: 'none', borderRadius: 8, fontSize: 15, cursor: 'pointer', fontWeight: 'bold' }}>
             {saving ? 'Saving...' : '🎓 Issue Certificate'}
           </button>
         </div>
       )}
 
       {certificates.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-          <p style={{ fontSize: '40px', marginBottom: '12px' }}>🎓</p>
+        <div style={{ textAlign: 'center', padding: 40, color: TEXT_MUTED }}>
+          <p style={{ fontSize: 40, marginBottom: 12 }}>🎓</p>
           <p>No certificates issued yet.</p>
         </div>
       ) : certificates.map(cert => (
-        <div key={cert.id} style={{ background: 'white', border: '1px solid #ddd', borderRadius: '10px', padding: '16px', marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div key={cert.id} style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 10, padding: 16, marginBottom: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
           <div>
-            <p style={{ margin: 0, fontWeight: 'bold', color: '#1B3A6B' }}>{cert.clients?.name}</p>
-            <p style={{ margin: '3px 0 0', fontSize: '14px', color: '#333' }}>{cert.program_name}</p>
-            <p style={{ margin: '3px 0 0', fontSize: '12px', color: '#888' }}>Completed: {new Date(cert.completion_date).toLocaleDateString()} • Cert #: {cert.certificate_number}</p>
-            {cert.total_sessions && <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#888' }}>{cert.total_sessions} sessions • {cert.total_checkins} check-ins</p>}
+            <p style={{ margin: 0, fontWeight: 'bold', color: TEXT }}>{cert.clients?.name}</p>
+            <p style={{ margin: '3px 0 0', fontSize: 14, color: TEXT }}>{cert.program_name}</p>
+            <p style={{ margin: '3px 0 0', fontSize: 12, color: TEXT_DIM }}>Completed: {new Date(cert.completion_date).toLocaleDateString()} • Cert #: {cert.certificate_number}</p>
+            {cert.total_sessions && <p style={{ margin: '2px 0 0', fontSize: 12, color: TEXT_DIM }}>{cert.total_sessions} sessions • {cert.total_checkins} check-ins</p>}
           </div>
-          <button onClick={() => printCertificate(cert)} style={{ padding: '10px 18px', background: '#27AE60', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', whiteSpace: 'nowrap' }}>🖨️ Print Certificate</button>
+          <button onClick={() => printCertificate(cert)} style={{ padding: '10px 18px', background: GREEN, color: 'white', border: 'none', borderRadius: 8, fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap' }}>🖨️ Print Certificate</button>
         </div>
       ))}
     </div>

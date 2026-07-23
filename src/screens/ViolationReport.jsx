@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
+import { CARD_BG, ACCENT, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 export default function ViolationReport() {
   const [reports, setReports] = useState([]);
@@ -31,7 +32,6 @@ export default function ViolationReport() {
   }
 
   function printReport(r) {
-    const client = clients.find(c => c.id === r.client_id);
     const win = window.open('', '_blank');
     win.document.write(`
       <html><head><title>Violation Report</title>
@@ -61,73 +61,79 @@ export default function ViolationReport() {
     win.print();
   }
 
-  const statusColors = { draft: { bg: '#fff3cd', color: '#856404' }, submitted: { bg: '#cce5ff', color: '#004085' }, reviewed: { bg: '#d4edda', color: '#155724' } };
+  const statusColors = {
+    draft: { bg: 'rgba(255,140,66,0.15)', color: ORANGE },
+    submitted: { bg: 'rgba(91,155,240,0.15)', color: ACCENT },
+    reviewed: { bg: 'rgba(76,175,125,0.15)', color: GREEN },
+  };
+
+  const inputStyle = { width: '100%', padding: 12, marginBottom: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', fontSize: 14, background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT };
 
   return (
-    <div style={{ padding: '30px', maxWidth: '800px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-        <h1 style={{ color: '#1B3A6B', margin: 0 }}>Violation Reports</h1>
-        <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px', background: '#E74C3C', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}>+ New Violation Report</button>
+    <div style={{ padding: 30, maxWidth: 800, fontFamily: NAV_FONT }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 10 }}>
+        <h1 style={{ color: TEXT, margin: 0 }}>Violation Reports</h1>
+        <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px', background: RED, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}>+ New Violation Report</button>
       </div>
-      <p style={{ color: '#666', marginBottom: '24px', fontSize: '14px' }}>Generate court-ready violation notices when a client fails to meet their compliance requirements.</p>
+      <p style={{ color: TEXT_MUTED, marginBottom: 24, fontSize: 14 }}>Generate court-ready violation notices when a client fails to meet their compliance requirements.</p>
 
       {showForm && (
-        <div style={{ background: 'white', border: '2px solid #E74C3C', borderRadius: '12px', padding: '25px', marginBottom: '20px' }}>
-          <h2 style={{ color: '#E74C3C', marginBottom: '16px', fontSize: '16px' }}>⚠️ New Violation Report</h2>
-          <select value={form.client_id} onChange={e => setForm({...form, client_id: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px' }}>
+        <div style={{ background: CARD_BG, border: `2px solid ${RED}`, borderRadius: 12, padding: 25, marginBottom: 20 }}>
+          <h2 style={{ color: RED, marginBottom: 16, fontSize: 16 }}>⚠️ New Violation Report</h2>
+          <select value={form.client_id} onChange={e => setForm({...form, client_id: e.target.value})} style={inputStyle}>
             <option value="">Select Client *</option>
             {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <div style={{ flex: 1 }}>
-              <label style={{ fontSize: '12px', color: '#666', display: 'block', marginBottom: '4px' }}>Report Date</label>
-              <input type="date" value={form.report_date} onChange={e => setForm({...form, report_date: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '14px' }} />
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <div style={{ flex: 1, minWidth: 140 }}>
+              <label style={{ fontSize: 12, color: TEXT_MUTED, display: 'block', marginBottom: 4 }}>Report Date</label>
+              <input type="date" value={form.report_date} onChange={e => setForm({...form, report_date: e.target.value})} style={inputStyle} />
             </div>
-            <div style={{ flex: 1 }}>
-              <label style={{ fontSize: '12px', color: '#666', display: 'block', marginBottom: '4px' }}>Violation Type</label>
-              <select value={form.violation_type} onChange={e => setForm({...form, violation_type: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px' }}>
+            <div style={{ flex: 1, minWidth: 140 }}>
+              <label style={{ fontSize: 12, color: TEXT_MUTED, display: 'block', marginBottom: 4 }}>Violation Type</label>
+              <select value={form.violation_type} onChange={e => setForm({...form, violation_type: e.target.value})} style={inputStyle}>
                 <option value="">Select *</option>
                 <option>Missed Check-Ins</option><option>Failed Drug Test</option><option>Missed PO Visit</option><option>Wrong Location</option><option>Missed Court Date</option><option>Multiple Violations</option>
               </select>
             </div>
           </div>
-          <textarea placeholder="Describe the violation in detail *" value={form.description} onChange={e => setForm({...form, description: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '14px', minHeight: '100px' }} />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px' }}>
-            <div><label style={{ fontSize: '12px', color: '#666', display: 'block', marginBottom: '4px' }}>Missed Check-Ins</label><input type="number" min="0" value={form.missed_checkins} onChange={e => setForm({...form, missed_checkins: parseInt(e.target.value)})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '14px' }} /></div>
-            <div><label style={{ fontSize: '12px', color: '#666', display: 'block', marginBottom: '4px' }}>Last Check-In Date</label><input type="date" value={form.last_checkin} onChange={e => setForm({...form, last_checkin: e.target.value})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '14px' }} /></div>
-            <div><label style={{ fontSize: '12px', color: '#666', display: 'block', marginBottom: '4px' }}>Failed Drug Tests</label><input type="number" min="0" value={form.drug_test_failures} onChange={e => setForm({...form, drug_test_failures: parseInt(e.target.value)})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '14px' }} /></div>
-            <div><label style={{ fontSize: '12px', color: '#666', display: 'block', marginBottom: '4px' }}>Missed PO Visits</label><input type="number" min="0" value={form.missed_po_visits} onChange={e => setForm({...form, missed_po_visits: parseInt(e.target.value)})} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '14px' }} /></div>
+          <textarea placeholder="Describe the violation in detail *" value={form.description} onChange={e => setForm({...form, description: e.target.value})} style={{ ...inputStyle, minHeight: 100 }} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginBottom: 12 }}>
+            <div><label style={{ fontSize: 12, color: TEXT_MUTED, display: 'block', marginBottom: 4 }}>Missed Check-Ins</label><input type="number" min="0" value={form.missed_checkins} onChange={e => setForm({...form, missed_checkins: parseInt(e.target.value)})} style={{ ...inputStyle, padding: 10, marginBottom: 0 }} /></div>
+            <div><label style={{ fontSize: 12, color: TEXT_MUTED, display: 'block', marginBottom: 4 }}>Last Check-In Date</label><input type="date" value={form.last_checkin} onChange={e => setForm({...form, last_checkin: e.target.value})} style={{ ...inputStyle, padding: 10, marginBottom: 0 }} /></div>
+            <div><label style={{ fontSize: 12, color: TEXT_MUTED, display: 'block', marginBottom: 4 }}>Failed Drug Tests</label><input type="number" min="0" value={form.drug_test_failures} onChange={e => setForm({...form, drug_test_failures: parseInt(e.target.value)})} style={{ ...inputStyle, padding: 10, marginBottom: 0 }} /></div>
+            <div><label style={{ fontSize: 12, color: TEXT_MUTED, display: 'block', marginBottom: 4 }}>Missed PO Visits</label><input type="number" min="0" value={form.missed_po_visits} onChange={e => setForm({...form, missed_po_visits: parseInt(e.target.value)})} style={{ ...inputStyle, padding: 10, marginBottom: 0 }} /></div>
           </div>
-          <textarea placeholder="Recommended action (e.g. return to court, increase check-in frequency)" value={form.recommended_action} onChange={e => setForm({...form, recommended_action: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '14px', minHeight: '70px' }} />
-          <input placeholder="Submitted to (e.g. Officer Martinez, Sarasota County Court)" value={form.submitted_to} onChange={e => setForm({...form, submitted_to: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '16px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '14px' }} />
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button onClick={() => handleSave('draft')} disabled={saving} style={{ flex: 1, padding: '12px', background: 'white', color: '#1B3A6B', border: '1px solid #1B3A6B', borderRadius: '8px', fontSize: '14px', cursor: 'pointer' }}>Save as Draft</button>
-            <button onClick={() => handleSave('submitted')} disabled={saving || !form.client_id || !form.violation_type || !form.description} style={{ flex: 2, padding: '12px', background: '#E74C3C', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', cursor: 'pointer', fontWeight: 'bold' }}>{saving ? 'Saving...' : '⚠️ Save & Mark Submitted'}</button>
+          <textarea placeholder="Recommended action (e.g. return to court, increase check-in frequency)" value={form.recommended_action} onChange={e => setForm({...form, recommended_action: e.target.value})} style={{ ...inputStyle, minHeight: 70 }} />
+          <input placeholder="Submitted to (e.g. Officer Martinez, Sarasota County Court)" value={form.submitted_to} onChange={e => setForm({...form, submitted_to: e.target.value})} style={{ ...inputStyle, marginBottom: 16 }} />
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <button onClick={() => handleSave('draft')} disabled={saving} style={{ flex: 1, minWidth: 120, padding: 12, background: 'rgba(255,255,255,0.04)', color: TEXT, border: `0.5px solid ${BORDER}`, borderRadius: 8, fontSize: 14, cursor: 'pointer' }}>Save as Draft</button>
+            <button onClick={() => handleSave('submitted')} disabled={saving || !form.client_id || !form.violation_type || !form.description} style={{ flex: 2, minWidth: 160, padding: 12, background: RED, color: 'white', border: 'none', borderRadius: 8, fontSize: 14, cursor: 'pointer', fontWeight: 'bold' }}>{saving ? 'Saving...' : '⚠️ Save & Mark Submitted'}</button>
           </div>
         </div>
       )}
 
       {reports.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-          <p style={{ fontSize: '40px', marginBottom: '12px' }}>✅</p>
+        <div style={{ textAlign: 'center', padding: 40, color: TEXT_MUTED }}>
+          <p style={{ fontSize: 40, marginBottom: 12 }}>✅</p>
           <p>No violation reports. All clients are in compliance.</p>
         </div>
       ) : reports.map(r => {
         const s = statusColors[r.status] || statusColors.draft;
         return (
-          <div key={r.id} style={{ background: 'white', border: '1px solid #ddd', borderRadius: '10px', padding: '16px', marginBottom: '10px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+          <div key={r.id} style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 10, padding: 16, marginBottom: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8, flexWrap: 'wrap', gap: 10 }}>
               <div>
-                <p style={{ margin: 0, fontWeight: 'bold', color: '#1B3A6B' }}>{r.clients?.name}</p>
-                <p style={{ margin: '3px 0 0', fontSize: '13px', color: '#E74C3C', fontWeight: 'bold' }}>{r.violation_type}</p>
-                <p style={{ margin: '3px 0 0', fontSize: '12px', color: '#888' }}>{new Date(r.report_date).toLocaleDateString()}</p>
+                <p style={{ margin: 0, fontWeight: 'bold', color: TEXT }}>{r.clients?.name}</p>
+                <p style={{ margin: '3px 0 0', fontSize: 13, color: RED, fontWeight: 'bold' }}>{r.violation_type}</p>
+                <p style={{ margin: '3px 0 0', fontSize: 12, color: TEXT_DIM }}>{new Date(r.report_date).toLocaleDateString()}</p>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
-                <span style={{ padding: '4px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold', background: s.bg, color: s.color }}>{r.status.toUpperCase()}</span>
-                <button onClick={() => printReport(r)} style={{ padding: '5px 12px', background: '#1B3A6B', color: 'white', border: 'none', borderRadius: '6px', fontSize: '12px', cursor: 'pointer' }}>🖨️ Print</button>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+                <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 'bold', background: s.bg, color: s.color }}>{r.status.toUpperCase()}</span>
+                <button onClick={() => printReport(r)} style={{ padding: '5px 12px', background: ACCENT, color: 'white', border: 'none', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>🖨️ Print</button>
               </div>
             </div>
-            <p style={{ margin: 0, fontSize: '13px', color: '#555' }}>{r.description?.substring(0, 150)}{r.description?.length > 150 ? '...' : ''}</p>
+            <p style={{ margin: 0, fontSize: 13, color: TEXT_MUTED }}>{r.description?.substring(0, 150)}{r.description?.length > 150 ? '...' : ''}</p>
           </div>
         );
       })}

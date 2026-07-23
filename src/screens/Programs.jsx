@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
+import { CARD_BG, GREEN, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 export default function Programs() {
   const [programs, setPrograms] = useState([]);
@@ -23,37 +24,39 @@ export default function Programs() {
     fetchPrograms();
   }
 
+  const inputStyle = { padding: 12, marginBottom: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT };
+
   return (
-    <div style={{ padding: '30px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h1 style={{ color: '#1B3A6B', margin: 0 }}>Programs</h1>
-        <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px', background: '#1B3A6B', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}>+ Add Program</button>
+    <div style={{ padding: 30, fontFamily: NAV_FONT }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 10 }}>
+        <h1 style={{ color: TEXT, margin: 0 }}>Programs</h1>
+        <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px', background: GREEN, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}>+ Add Program</button>
       </div>
       {showForm && (
-        <div style={{ background: 'white', border: '1px solid #ddd', borderRadius: '12px', padding: '25px', marginBottom: '20px' }}>
-          <input placeholder="Program Name *" value={form.program_name} onChange={e => setForm({...form, program_name: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box' }} />
-          <select value={form.program_type} onChange={e => setForm({...form, program_type: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd' }}>
+        <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 25, marginBottom: 20 }}>
+          <input placeholder="Program Name *" value={form.program_name} onChange={e => setForm({...form, program_name: e.target.value})} style={{ width: '100%', ...inputStyle }} />
+          <select value={form.program_type} onChange={e => setForm({...form, program_type: e.target.value})} style={{ width: '100%', ...inputStyle }}>
             <option value="">Program Type</option>
             <option>BIP (Batterers Intervention)</option><option>DUI</option><option>Drug Court</option><option>Mental Health Court</option><option>Veterans Court</option><option>Anger Management</option><option>Substance Abuse</option><option>Specialty Court</option>
           </select>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <input placeholder="Duration (weeks)" value={form.duration_weeks} onChange={e => setForm({...form, duration_weeks: e.target.value})} style={{ flex: 1, padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box' }} />
-            <input placeholder="Frequency" value={form.frequency} onChange={e => setForm({...form, frequency: e.target.value})} style={{ flex: 1, padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box' }} />
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <input placeholder="Duration (weeks)" value={form.duration_weeks} onChange={e => setForm({...form, duration_weeks: e.target.value})} style={{ flex: 1, minWidth: 140, ...inputStyle }} />
+            <input placeholder="Frequency" value={form.frequency} onChange={e => setForm({...form, frequency: e.target.value})} style={{ flex: 1, minWidth: 140, ...inputStyle }} />
           </div>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <input placeholder="Approved Latitude" value={form.approved_latitude} onChange={e => setForm({...form, approved_latitude: e.target.value})} style={{ flex: 1, padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box' }} />
-            <input placeholder="Approved Longitude" value={form.approved_longitude} onChange={e => setForm({...form, approved_longitude: e.target.value})} style={{ flex: 1, padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box' }} />
-            <input placeholder="Radius (miles)" value={form.allowed_radius_miles} onChange={e => setForm({...form, allowed_radius_miles: e.target.value})} style={{ flex: 1, padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box' }} />
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            <input placeholder="Approved Latitude" value={form.approved_latitude} onChange={e => setForm({...form, approved_latitude: e.target.value})} style={{ flex: 1, minWidth: 120, ...inputStyle }} />
+            <input placeholder="Approved Longitude" value={form.approved_longitude} onChange={e => setForm({...form, approved_longitude: e.target.value})} style={{ flex: 1, minWidth: 120, ...inputStyle }} />
+            <input placeholder="Radius (miles)" value={form.allowed_radius_miles} onChange={e => setForm({...form, allowed_radius_miles: e.target.value})} style={{ flex: 1, minWidth: 120, ...inputStyle }} />
           </div>
-          <textarea placeholder="Description" value={form.description} onChange={e => setForm({...form, description: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', minHeight: '70px' }} />
-          <button onClick={handleSave} disabled={saving} style={{ padding: '12px 25px', background: '#27AE60', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '15px' }}>{saving ? 'Saving...' : 'Save Program'}</button>
+          <textarea placeholder="Description" value={form.description} onChange={e => setForm({...form, description: e.target.value})} style={{ width: '100%', minHeight: 70, marginBottom: 15, ...inputStyle }} />
+          <button onClick={handleSave} disabled={saving} style={{ padding: '12px 25px', background: GREEN, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 15 }}>{saving ? 'Saving...' : 'Save Program'}</button>
         </div>
       )}
-      {programs.length === 0 ? <p style={{ color: '#666' }}>No programs yet.</p> : programs.map(p => (
-        <div key={p.id} style={{ background: 'white', border: '1px solid #ddd', borderRadius: '10px', padding: '20px', marginBottom: '12px' }}>
-          <h3 style={{ margin: 0, color: '#1B3A6B' }}>{p.program_name || p.name}</h3>
-          {p.program_type && <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#666' }}>{p.program_type}</p>}
-          {p.duration_weeks && <p style={{ margin: '3px 0 0', fontSize: '13px', color: '#888' }}>{p.duration_weeks} weeks • {p.frequency}</p>}
+      {programs.length === 0 ? <p style={{ color: TEXT_MUTED }}>No programs yet.</p> : programs.map(p => (
+        <div key={p.id} style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 10, padding: 20, marginBottom: 12 }}>
+          <h3 style={{ margin: 0, color: TEXT }}>{p.program_name || p.name}</h3>
+          {p.program_type && <p style={{ margin: '4px 0 0', fontSize: 13, color: TEXT_MUTED }}>{p.program_type}</p>}
+          {p.duration_weeks && <p style={{ margin: '3px 0 0', fontSize: 13, color: TEXT_DIM }}>{p.duration_weeks} weeks • {p.frequency}</p>}
         </div>
       ))}
     </div>

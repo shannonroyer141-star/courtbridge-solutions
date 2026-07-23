@@ -35,7 +35,7 @@ import DocumentUpload from './screens/DocumentUpload';
 import CompletionCertificate from './screens/CompletionCertificate';
 import SensitiveNotes from './screens/SensitiveNotes';
 import ClientIntake from './screens/ClientIntake';
-import { BLUE, DARK_BG, CARD_BG, ACCENT, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from './theme';
+import { BLUE, DARK_BG, CARD_BG, ACCENT, ORANGE, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from './theme';
 
 const isEnrollRoute = window.location.pathname === '/enroll' &&
   new URLSearchParams(window.location.search).has('token');
@@ -52,6 +52,7 @@ export default function App() {
   const [expandedMenus, setExpandedMenus] = useState({
     clients: false, sensitive: false, operations: false, admin: false, founder: false, compliance: false
   });
+  const [pendingInvites, setPendingInvites] = useState(0);
   const [isFounder, setIsFounder] = useState(false);
   const [activeClientId, setActiveClientId] = useState(null);
 
@@ -87,6 +88,16 @@ export default function App() {
     setRole(data?.role || 'provider');
     setIsFounder(!!data?.is_founder);
     setLoading(false);
+    fetchPendingInvites(userId);
+  }
+
+  async function fetchPendingInvites(userId) {
+    const { count } = await supabase.from('invites')
+      .select('*', { count: 'exact', head: true })
+      .eq('provider_id', userId)
+      .eq('accepted', false)
+      .gt('expires_at', new Date().toISOString());
+    setPendingInvites(count || 0);
   }
 
   async function handleLogin(e) {
@@ -385,7 +396,12 @@ export default function App() {
             <Ic d={expandedMenus.admin ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
           </div>
           {expandedMenus.admin && <>
-            <div style={subItem('clientinvite')} onClick={() => navTo('clientinvite')}>Client Invites</div>
+            <div style={subItem('clientinvite')} onClick={() => navTo('clientinvite')}>
+              <span style={{ flex: 1 }}>Client Invites</span>
+              {pendingInvites > 0 && (
+                <span style={{ background: ORANGE, color: '#fff', fontSize: 10, fontWeight: 700, borderRadius: 10, padding: '1px 7px', marginLeft: 6 }}>{pendingInvites}</span>
+              )}
+            </div>
             <div style={subItem('messages')} onClick={() => navTo('messages')}>Messages</div>
             <div style={subItem('settings')} onClick={() => navTo('settings')}>My Preferences</div>
             <div style={subItem('orgadmin')} onClick={() => navTo('orgadmin')}>Org Settings</div>

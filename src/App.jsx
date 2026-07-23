@@ -387,9 +387,10 @@ export default function App() {
           {expandedMenus.admin && <>
             <div style={subItem('clientinvite')} onClick={() => navTo('clientinvite')}>Client Invites</div>
             <div style={subItem('messages')} onClick={() => navTo('messages')}>Messages</div>
+            <div style={subItem('settings')} onClick={() => navTo('settings')}>My Preferences</div>
             <div style={subItem('orgadmin')} onClick={() => navTo('orgadmin')}>Org Settings</div>
-            <div style={subItem('settings')} onClick={() => navTo('settings')}>Settings</div>
             <div style={subItem('tasks')} onClick={() => navTo('tasks')}>Tasks</div>
+            <div style={subItem('affirmations')} onClick={() => navTo('affirmations')}>Wellness</div>
           </>}
 
           <div style={divider} />
@@ -420,6 +421,7 @@ export default function App() {
               <div style={subSubItem('drugtests')} onClick={() => navTo('drugtests')}>Drug Tests</div>
               <div style={subSubItem('meetinglog')} onClick={() => navTo('meetinglog')}>Meeting Log</div>
               <div style={subSubItem('povisits')} onClick={() => navTo('povisits')}>PO Visits</div>
+              <div style={subSubItem('reports')} onClick={() => navTo('reports')}>Reports</div>
               <div style={subSubItem('violationreport')} onClick={() => navTo('violationreport')}>Violations</div>
             </>}
           </>}
@@ -438,20 +440,10 @@ export default function App() {
             <div style={subItem('checkin')} onClick={() => navTo('checkin')}>Check-Ins</div>
             <div style={subItem('compliancechart')} onClick={() => navTo('compliancechart')}>Compliance Chart</div>
             <div style={subItem('mapview')} onClick={() => navTo('mapview')}>Map View</div>
-            <div style={subItem('reports')} onClick={() => navTo('reports')}>Reports</div>
           </>}
 
           <div style={divider} />
 
-          <div style={groupRow('operations')} onClick={() => toggleMenu('operations')}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Ic d={ICONS.operations} /><span>Operations</span>
-            </div>
-            <Ic d={expandedMenus.operations ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
-          </div>
-          {expandedMenus.operations && <>
-            <div style={subItem('affirmations')} onClick={() => navTo('affirmations')}>Wellness</div>
-          </>}
           {isFounder && (
             <>
               <div style={groupRow('founder')} onClick={() => toggleMenu('founder')}>

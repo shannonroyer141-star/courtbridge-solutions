@@ -50,7 +50,7 @@ export default function Settings() {
 
   return (
     <div style={{ padding: 30, maxWidth: 600, fontFamily: NAV_FONT }}>
-      <h1 style={{ color: TEXT, marginBottom: 30 }}>Settings</h1>
+      <h1 style={{ color: TEXT, marginBottom: 30 }}>My Preferences</h1>
       <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 25, marginBottom: 20 }}>
         <h2 style={{ color: TEXT, marginBottom: 20, fontSize: 16 }}>Check-In Rules</h2>
         <label style={{ display: 'block', fontWeight: 'bold', color: TEXT_MUTED, marginBottom: 8 }}>Required Check-In Frequency</label>

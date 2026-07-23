@@ -1,28 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-
-const BLUE = '#1B3A6B';
+import { CARD_BG, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 const S = {
-  page: { padding: '32px 36px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' },
+  page: { padding: '32px 36px', fontFamily: NAV_FONT },
   header: { marginBottom: '28px' },
-  title: { fontSize: '22px', fontWeight: '700', color: BLUE, margin: '0 0 4px' },
-  subtitle: { fontSize: '13px', color: '#8A9BB0', margin: 0 },
-  card: { background: '#fff', borderRadius: '10px', border: '1px solid #E8EDF4', boxShadow: '0 1px 4px rgba(27,58,107,0.06)', overflow: 'hidden' },
-  row: { padding: '16px 20px', borderBottom: '1px solid #F5F7FA' },
-  rowTop: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' },
-  name: { fontSize: '14px', fontWeight: '600', color: '#1E2D3D' },
-  sub: { fontSize: '12px', color: '#B0BCC8', marginTop: '2px' },
+  title: { fontSize: '22px', fontWeight: '700', color: TEXT, margin: '0 0 4px' },
+  subtitle: { fontSize: '13px', color: TEXT_MUTED, margin: 0 },
+  card: { background: CARD_BG, borderRadius: '10px', border: `0.5px solid ${BORDER}`, overflow: 'hidden' },
+  row: { padding: '16px 20px', borderBottom: `0.5px solid ${BORDER}` },
+  rowTop: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: 8 },
+  name: { fontSize: '14px', fontWeight: '600', color: TEXT },
+  sub: { fontSize: '12px', color: TEXT_DIM, marginTop: '2px' },
   pct: { fontSize: '16px', fontWeight: '700' },
-  track: { background: '#F0F4FA', borderRadius: '6px', height: '8px', overflow: 'hidden' },
-  emptyState: { padding: '48px 20px', textAlign: 'center', color: '#8A9BB0', fontSize: '14px' },
-  loading: { padding: '30px', color: '#8A9BB0' },
+  track: { background: 'rgba(255,255,255,0.08)', borderRadius: '6px', height: '8px', overflow: 'hidden' },
+  emptyState: { padding: '48px 20px', textAlign: 'center', color: TEXT_MUTED, fontSize: '14px' },
+  loading: { padding: '30px', color: TEXT_MUTED },
 };
 
 function rateColor(rate) {
-  if (rate >= 80) return '#1A7A47';
-  if (rate >= 60) return '#D4580A';
-  return '#C0392B';
+  if (rate >= 80) return GREEN;
+  if (rate >= 60) return ORANGE;
+  return RED;
 }
 
 export default function ComplianceChart({ session }) {

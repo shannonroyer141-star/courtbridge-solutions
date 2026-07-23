@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
+import { CARD_BG, ACCENT, GREEN, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from '../theme';
 
 export default function Reports() {
   const [clients, setClients] = useState([]);
@@ -45,43 +46,45 @@ export default function Reports() {
   const client = clients.find(c => c.id === selectedClient);
 
   return (
-    <div style={{ padding: '30px', maxWidth: '800px' }}>
-      <h1 style={{ color: '#1B3A6B', marginBottom: '30px' }}>Court-Ready Report</h1>
-      <div style={{ background: 'white', border: '1px solid #ddd', borderRadius: '12px', padding: '25px', marginBottom: '20px' }}>
+    <div style={{ padding: 30, maxWidth: 800, fontFamily: NAV_FONT }}>
+      <h1 style={{ color: TEXT, marginBottom: 30 }}>Court-Ready Report</h1>
+      <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 25, marginBottom: 20 }}>
         <select value={selectedClient} onChange={e => setSelectedClient(e.target.value)}
-          style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '16px', marginBottom: '15px' }}>
+          style={{ width: '100%', padding: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, fontSize: 16, marginBottom: 15, background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT }}>
           <option value="">-- Select a client --</option>
           {clients.map(c => <option key={c.id} value={c.id}>{c.name || c.client_name}</option>)}
         </select>
-        <button onClick={fetchCheckins} style={{ padding: '12px 25px', background: '#1B3A6B', color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', cursor: 'pointer', marginRight: '10px' }}>Load Report</button>
-        {checkins.length > 0 && <>
-          <button onClick={printReport} style={{ padding: '12px 25px', background: '#27AE60', color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', cursor: 'pointer', marginRight: '10px' }}>🖨️ Print PDF</button>
-          <button onClick={exportCSV} style={{ padding: '12px 25px', background: '#1B3A6B', color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', cursor: 'pointer' }}>⬇️ Export CSV</button>
-        </>}
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <button onClick={fetchCheckins} style={{ padding: '12px 25px', background: ACCENT, color: 'white', border: 'none', borderRadius: 8, fontSize: 16, cursor: 'pointer' }}>Load Report</button>
+          {checkins.length > 0 && <>
+            <button onClick={printReport} style={{ padding: '12px 25px', background: GREEN, color: 'white', border: 'none', borderRadius: 8, fontSize: 16, cursor: 'pointer' }}>🖨️ Print PDF</button>
+            <button onClick={exportCSV} style={{ padding: '12px 25px', background: ACCENT, color: 'white', border: 'none', borderRadius: 8, fontSize: 16, cursor: 'pointer' }}>⬇️ Export CSV</button>
+          </>}
+        </div>
       </div>
-      {loading && <p>Loading...</p>}
+      {loading && <p style={{ color: TEXT_MUTED }}>Loading...</p>}
       {checkins.length > 0 && (
-        <div style={{ background: 'white', border: '1px solid #ddd', borderRadius: '12px', padding: '30px' }}>
-          <div style={{ borderBottom: '3px solid #1B3A6B', paddingBottom: '20px', marginBottom: '20px' }}>
+        <div style={{ background: '#fff', border: '1px solid #ddd', borderRadius: 12, padding: 30, overflowX: 'auto' }}>
+          <div style={{ borderBottom: '3px solid #1B3A6B', paddingBottom: 20, marginBottom: 20 }}>
             <h2 style={{ color: '#1B3A6B', margin: 0 }}>CourtBridge Solutions</h2>
             <p style={{ color: '#666', margin: '5px 0 0' }}>Compliance Report — Generated {new Date().toLocaleString()}</p>
           </div>
-          <p><strong>Client:</strong> {client?.name || client?.client_name}</p>
-          <p><strong>Total Check-Ins:</strong> {checkins.length}</p>
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
+          <p style={{ color: '#222' }}><strong>Client:</strong> {client?.name || client?.client_name}</p>
+          <p style={{ color: '#222' }}><strong>Total Check-Ins:</strong> {checkins.length}</p>
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: 20 }}>
             <thead>
               <tr style={{ background: '#1B3A6B', color: 'white' }}>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Date & Time</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Latitude</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Longitude</th>
+                <th style={{ padding: 12, textAlign: 'left' }}>Date & Time</th>
+                <th style={{ padding: 12, textAlign: 'left' }}>Latitude</th>
+                <th style={{ padding: 12, textAlign: 'left' }}>Longitude</th>
               </tr>
             </thead>
             <tbody>
               {checkins.map((c, i) => (
                 <tr key={c.id} style={{ background: i % 2 === 0 ? '#f9f9f9' : 'white' }}>
-                  <td style={{ padding: '12px', borderBottom: '1px solid #eee' }}>{new Date(c.checked_in_at).toLocaleString()}</td>
-                  <td style={{ padding: '12px', borderBottom: '1px solid #eee' }}>{c.latitude || '—'}</td>
-                  <td style={{ padding: '12px', borderBottom: '1px solid #eee' }}>{c.longitude || '—'}</td>
+                  <td style={{ padding: 12, borderBottom: '1px solid #eee', color: '#222' }}>{new Date(c.checked_in_at).toLocaleString()}</td>
+                  <td style={{ padding: 12, borderBottom: '1px solid #eee', color: '#222' }}>{c.latitude || '—'}</td>
+                  <td style={{ padding: 12, borderBottom: '1px solid #eee', color: '#222' }}>{c.longitude || '—'}</td>
                 </tr>
               ))}
             </tbody>

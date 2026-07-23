@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
+import { CARD_BG, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from '../theme';
 
 export default function Tasks() {
   const [tasks, setTasks] = useState([]);
@@ -36,53 +37,54 @@ export default function Tasks() {
     fetchTasks();
   }
 
-  const priorityColors = { High: '#E74C3C', Medium: '#F39C12', Low: '#27AE60' };
+  const priorityColors = { High: RED, Medium: ORANGE, Low: GREEN };
+  const inputStyle = { width: '100%', padding: 12, marginBottom: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT };
 
   return (
-    <div style={{ padding: '30px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h1 style={{ color: '#1B3A6B', margin: 0 }}>Tasks</h1>
-        <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px', background: '#1B3A6B', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}>+ Add Task</button>
+    <div style={{ padding: 30, fontFamily: NAV_FONT }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 10 }}>
+        <h1 style={{ color: TEXT, margin: 0 }}>Tasks</h1>
+        <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px', background: GREEN, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14 }}>+ Add Task</button>
       </div>
       {showForm && (
-        <div style={{ background: 'white', border: '1px solid #ddd', borderRadius: '12px', padding: '25px', marginBottom: '20px' }}>
-          <select value={form.client_id} onChange={e => setForm({...form, client_id: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd' }}>
+        <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 25, marginBottom: 20 }}>
+          <select value={form.client_id} onChange={e => setForm({...form, client_id: e.target.value})} style={inputStyle}>
             <option value="">Select Client *</option>
             {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
-          <input placeholder="Task Title *" value={form.title} onChange={e => setForm({...form, title: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box' }} />
-          <input placeholder="Assigned To" value={form.assigned_to} onChange={e => setForm({...form, assigned_to: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box' }} />
-          <input type="date" value={form.due_date} onChange={e => setForm({...form, due_date: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box' }} />
-          <select value={form.priority} onChange={e => setForm({...form, priority: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '15px', borderRadius: '8px', border: '1px solid #ddd' }}>
+          <input placeholder="Task Title *" value={form.title} onChange={e => setForm({...form, title: e.target.value})} style={inputStyle} />
+          <input placeholder="Assigned To" value={form.assigned_to} onChange={e => setForm({...form, assigned_to: e.target.value})} style={inputStyle} />
+          <input type="date" value={form.due_date} onChange={e => setForm({...form, due_date: e.target.value})} style={inputStyle} />
+          <select value={form.priority} onChange={e => setForm({...form, priority: e.target.value})} style={{ ...inputStyle, marginBottom: 15 }}>
             <option>High</option><option>Medium</option><option>Low</option>
           </select>
-          <button onClick={handleSave} disabled={saving || !form.title || !form.client_id} style={{ padding: '12px 25px', background: '#27AE60', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '15px' }}>{saving ? 'Saving...' : 'Save Task'}</button>
+          <button onClick={handleSave} disabled={saving || !form.title || !form.client_id} style={{ padding: '12px 25px', background: GREEN, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 15 }}>{saving ? 'Saving...' : 'Save Task'}</button>
         </div>
       )}
       {tasks.filter(t => !t.completed).map(t => (
-        <div key={t.id} style={{ background: 'white', border: '1px solid #ddd', borderRadius: '10px', padding: '16px', marginBottom: '10px', display: 'flex', gap: '14px', alignItems: 'center' }}>
-          <input type="checkbox" checked={false} onChange={() => toggleComplete(t)} style={{ width: '18px', height: '18px', cursor: 'pointer' }} />
-          <div style={{ flex: 1 }}>
-            <p style={{ margin: 0, fontWeight: 'bold', color: '#1B3A6B' }}>{t.title}</p>
-            {t.clients?.name && <p style={{ margin: '3px 0 0', fontSize: '13px', color: '#666' }}>{t.clients.name}</p>}
-            {t.assigned_to && <p style={{ margin: '3px 0 0', fontSize: '13px', color: '#666' }}>→ {t.assigned_to}</p>}
-            {t.due_date && <p style={{ margin: '3px 0 0', fontSize: '13px', color: '#888' }}>Due: {new Date(t.due_date).toLocaleDateString()}</p>}
+        <div key={t.id} style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 10, padding: 16, marginBottom: 10, display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
+          <input type="checkbox" checked={false} onChange={() => toggleComplete(t)} style={{ width: 18, height: 18, cursor: 'pointer' }} />
+          <div style={{ flex: 1, minWidth: 160 }}>
+            <p style={{ margin: 0, fontWeight: 'bold', color: TEXT }}>{t.title}</p>
+            {t.clients?.name && <p style={{ margin: '3px 0 0', fontSize: 13, color: TEXT_MUTED }}>{t.clients.name}</p>}
+            {t.assigned_to && <p style={{ margin: '3px 0 0', fontSize: 13, color: TEXT_MUTED }}>→ {t.assigned_to}</p>}
+            {t.due_date && <p style={{ margin: '3px 0 0', fontSize: 13, color: TEXT_MUTED }}>Due: {new Date(t.due_date).toLocaleDateString()}</p>}
           </div>
-          <span style={{ background: priorityColors[t.priority], color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '12px' }}>{t.priority}</span>
+          <span style={{ background: priorityColors[t.priority], color: 'white', padding: '4px 10px', borderRadius: 20, fontSize: 12 }}>{t.priority}</span>
         </div>
       ))}
       {tasks.filter(t => t.completed).length > 0 && (
-        <div style={{ marginTop: '20px' }}>
-          <h2 style={{ color: '#888', marginBottom: '12px', fontSize: '16px' }}>Completed</h2>
+        <div style={{ marginTop: 20 }}>
+          <h2 style={{ color: TEXT_MUTED, marginBottom: 12, fontSize: 16 }}>Completed</h2>
           {tasks.filter(t => t.completed).map(t => (
-            <div key={t.id} style={{ background: '#f9f9f9', border: '1px solid #eee', borderRadius: '10px', padding: '14px', marginBottom: '8px', display: 'flex', gap: '14px', alignItems: 'center', opacity: 0.7 }}>
-              <input type="checkbox" checked={true} onChange={() => toggleComplete(t)} style={{ width: '18px', height: '18px', cursor: 'pointer' }} />
-              <p style={{ margin: 0, color: '#888', textDecoration: 'line-through' }}>{t.title}</p>
+            <div key={t.id} style={{ background: 'rgba(255,255,255,0.02)', border: `0.5px solid ${BORDER}`, borderRadius: 10, padding: 14, marginBottom: 8, display: 'flex', gap: 14, alignItems: 'center', opacity: 0.7 }}>
+              <input type="checkbox" checked={true} onChange={() => toggleComplete(t)} style={{ width: 18, height: 18, cursor: 'pointer' }} />
+              <p style={{ margin: 0, color: TEXT_MUTED, textDecoration: 'line-through' }}>{t.title}</p>
             </div>
           ))}
         </div>
       )}
-      {tasks.length === 0 && <p style={{ color: '#666' }}>No tasks yet.</p>}
+      {tasks.length === 0 && <p style={{ color: TEXT_MUTED }}>No tasks yet.</p>}
     </div>
   );
 }

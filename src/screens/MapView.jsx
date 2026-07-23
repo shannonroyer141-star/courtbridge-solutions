@@ -6,6 +6,7 @@ import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { supabase } from '../supabase';
+import { CARD_BG, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -17,71 +18,63 @@ L.Icon.Default.mergeOptions({
 const S = {
   page: {
     padding: '32px 36px',
-    background: '#FFFFFF',
     minHeight: '100vh',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontFamily: NAV_FONT,
   },
   header: {
     marginBottom: '24px',
     paddingBottom: '24px',
-    borderBottom: '1px solid #E8EDF4',
+    borderBottom: `0.5px solid ${BORDER}`,
   },
   headerTitle: {
     fontSize: '22px',
     fontWeight: '700',
-    color: '#1B3A6B',
+    color: TEXT,
     margin: '0 0 4px',
     letterSpacing: '-0.3px',
   },
   headerSub: {
     fontSize: '13px',
-    color: '#8A9BB0',
+    color: TEXT_MUTED,
     margin: 0,
     fontWeight: '400',
   },
-  layout: {
-    display: 'grid',
-    gridTemplateColumns: '2fr 1fr',
-    gap: '20px',
-  },
   mapCard: {
-    background: '#FFFFFF',
+    background: CARD_BG,
     borderRadius: '10px',
-    border: '1px solid #E8EDF4',
-    boxShadow: '0 1px 4px rgba(27,58,107,0.06)',
+    border: `0.5px solid ${BORDER}`,
     overflow: 'hidden',
     height: '560px',
   },
   card: {
-    background: '#FFFFFF',
+    background: CARD_BG,
     borderRadius: '10px',
-    border: '1px solid #E8EDF4',
-    boxShadow: '0 1px 4px rgba(27,58,107,0.06)',
+    border: `0.5px solid ${BORDER}`,
     overflow: 'hidden',
   },
   cardHeader: {
     padding: '16px 20px',
-    borderBottom: '1px solid #F0F4FA',
+    borderBottom: `0.5px solid ${BORDER}`,
   },
   cardTitle: {
     fontSize: '14px',
     fontWeight: '600',
-    color: '#1B3A6B',
+    color: TEXT,
     margin: 0,
   },
   listRow: {
     padding: '11px 20px',
-    borderBottom: '1px solid #F5F7FA',
+    borderBottom: `0.5px solid ${BORDER}`,
   },
   listName: {
     fontSize: '14px',
     fontWeight: '500',
-    color: '#1E2D3D',
+    color: TEXT,
     marginBottom: '2px',
   },
   listSub: {
     fontSize: '12px',
-    color: '#B0BCC8',
+    color: TEXT_DIM,
   },
   emptyState: {
     padding: '32px 20px',
@@ -89,7 +82,7 @@ const S = {
   },
   emptyText: {
     fontSize: '14px',
-    color: '#8A9BB0',
+    color: TEXT_MUTED,
     margin: 0,
   },
   loadingWrap: {
@@ -100,7 +93,7 @@ const S = {
   },
   loadingText: {
     fontSize: '14px',
-    color: '#8A9BB0',
+    color: TEXT_MUTED,
   },
 };
 
@@ -129,8 +122,17 @@ function formatTime(value) {
 export default function MapView() {
   const [loading, setLoading] = useState(true);
   const [latestByClient, setLatestByClient] = useState([]);
+  const [width, setWidth] = useState(window.innerWidth);
 
   useEffect(() => { fetchLocations(); }, []);
+
+  useEffect(() => {
+    function onResize() { setWidth(window.innerWidth); }
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const isTablet = width < 1024;
 
   async function fetchLocations() {
     setLoading(true);
@@ -173,14 +175,14 @@ export default function MapView() {
   );
 
   return (
-    <div style={S.page}>
+    <div style={{ ...S.page, padding: isTablet ? '20px' : S.page.padding }}>
       <div style={S.header}>
         <h1 style={S.headerTitle}>Map View</h1>
         <p style={S.headerSub}>Last known check-in location for each client</p>
       </div>
 
-      <div style={S.layout}>
-        <div style={S.mapCard}>
+      <div style={{ display: 'grid', gridTemplateColumns: isTablet ? '1fr' : '2fr 1fr', gap: 20 }}>
+        <div style={{ ...S.mapCard, height: isTablet ? 360 : 560 }}>
           <MapContainer center={DEFAULT_CENTER} zoom={DEFAULT_ZOOM} style={{ height: '100%', width: '100%' }}>
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

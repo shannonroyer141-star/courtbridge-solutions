@@ -386,8 +386,10 @@ export default function App() {
           </div>
           {expandedMenus.admin && <>
             <div style={subItem('clientinvite')} onClick={() => navTo('clientinvite')}>Client Invites</div>
+            <div style={subItem('messages')} onClick={() => navTo('messages')}>Messages</div>
             <div style={subItem('orgadmin')} onClick={() => navTo('orgadmin')}>Org Settings</div>
             <div style={subItem('settings')} onClick={() => navTo('settings')}>Settings</div>
+            <div style={subItem('tasks')} onClick={() => navTo('tasks')}>Tasks</div>
           </>}
 
           <div style={divider} />
@@ -402,7 +404,6 @@ export default function App() {
             <div style={subItem('clients')} onClick={() => navTo('clients')}>All Clients</div>
             <div style={subItem('certificates')} onClick={() => navTo('certificates')}>Certificates</div>
             <div style={subItem('clientintake')} onClick={() => navTo('clientintake')}>Client Intake</div>
-            <div style={subItem('messages')} onClick={() => navTo('messages')}>Messages</div>
 
             <div style={subGroupRow('sensitive')} onClick={() => toggleMenu('sensitive')}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -449,7 +450,6 @@ export default function App() {
             <Ic d={expandedMenus.operations ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
           </div>
           {expandedMenus.operations && <>
-            <div style={subItem('tasks')} onClick={() => navTo('tasks')}>Tasks</div>
             <div style={subItem('affirmations')} onClick={() => navTo('affirmations')}>Wellness</div>
           </>}
           {isFounder && (

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
+import { CARD_BG, ACCENT, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 export default function Settings() {
   const [checkinFreq, setCheckinFreq] = useState('24');
@@ -41,17 +42,19 @@ export default function Settings() {
     setTimeout(() => setSaved(false), 3000);
   }
 
+  const inputStyle = { width: '100%', padding: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, fontSize: 16, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT };
+
   if (loading) return (
-    <div style={{ padding: '30px', color: '#666' }}>Loading settings...</div>
+    <div style={{ padding: 30, color: TEXT_MUTED, fontFamily: NAV_FONT }}>Loading settings...</div>
   );
 
   return (
-    <div style={{ padding: '30px', maxWidth: '600px' }}>
-      <h1 style={{ color: '#1B3A6B', marginBottom: '30px' }}>Settings</h1>
-      <div style={{ background: 'white', border: '1px solid #ddd', borderRadius: '12px', padding: '25px', marginBottom: '20px' }}>
-        <h2 style={{ color: '#1B3A6B', marginBottom: '20px', fontSize: '16px' }}>Check-In Rules</h2>
-        <label style={{ display: 'block', fontWeight: 'bold', color: '#555', marginBottom: '8px' }}>Required Check-In Frequency</label>
-        <select value={checkinFreq} onChange={e => setCheckinFreq(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '16px', marginBottom: '20px' }}>
+    <div style={{ padding: 30, maxWidth: 600, fontFamily: NAV_FONT }}>
+      <h1 style={{ color: TEXT, marginBottom: 30 }}>Settings</h1>
+      <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 25, marginBottom: 20 }}>
+        <h2 style={{ color: TEXT, marginBottom: 20, fontSize: 16 }}>Check-In Rules</h2>
+        <label style={{ display: 'block', fontWeight: 'bold', color: TEXT_MUTED, marginBottom: 8 }}>Required Check-In Frequency</label>
+        <select value={checkinFreq} onChange={e => setCheckinFreq(e.target.value)} style={{ ...inputStyle, marginBottom: 20 }}>
           <option value="12">Every 12 hours</option>
           <option value="24">Every 24 hours</option>
           <option value="48">Every 48 hours</option>
@@ -59,15 +62,15 @@ export default function Settings() {
           <option value="168">Once a week</option>
         </select>
       </div>
-      <div style={{ background: 'white', border: '1px solid #ddd', borderRadius: '12px', padding: '25px', marginBottom: '20px' }}>
-        <h2 style={{ color: '#1B3A6B', marginBottom: '20px', fontSize: '16px' }}>Alert Settings</h2>
-        <label style={{ display: 'block', fontWeight: 'bold', color: '#555', marginBottom: '8px' }}>Send missed check-in alerts to</label>
-        <input type="email" placeholder="provider@email.com" value={alertEmail} onChange={e => setAlertEmail(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '16px', boxSizing: 'border-box', marginBottom: '20px' }} />
-        <label style={{ display: 'block', fontWeight: 'bold', color: '#555', marginBottom: '8px' }}>Your phone number (for urgent client alerts)</label>
-        <input type="tel" placeholder="+15550001234" value={phone} onChange={e => setPhone(e.target.value)} style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '16px', boxSizing: 'border-box' }} />
-        <p style={{ fontSize: '12px', color: '#888', marginTop: '6px' }}>When a client marks a message urgent, we text this number. Use the full format including country code, e.g. +15550001234.</p>
+      <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 25, marginBottom: 20 }}>
+        <h2 style={{ color: TEXT, marginBottom: 20, fontSize: 16 }}>Alert Settings</h2>
+        <label style={{ display: 'block', fontWeight: 'bold', color: TEXT_MUTED, marginBottom: 8 }}>Send missed check-in alerts to</label>
+        <input type="email" placeholder="provider@email.com" value={alertEmail} onChange={e => setAlertEmail(e.target.value)} style={{ ...inputStyle, marginBottom: 20 }} />
+        <label style={{ display: 'block', fontWeight: 'bold', color: TEXT_MUTED, marginBottom: 8 }}>Your phone number (for urgent client alerts)</label>
+        <input type="tel" placeholder="+15550001234" value={phone} onChange={e => setPhone(e.target.value)} style={inputStyle} />
+        <p style={{ fontSize: 12, color: TEXT_DIM, marginTop: 6 }}>When a client marks a message urgent, we text this number. Use the full format including country code, e.g. +15550001234.</p>
       </div>
-      <button onClick={saveSettings} style={{ width: '100%', padding: '14px', background: '#1B3A6B', color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', cursor: 'pointer' }}>
+      <button onClick={saveSettings} style={{ width: '100%', padding: 14, background: ACCENT, color: 'white', border: 'none', borderRadius: 8, fontSize: 16, cursor: 'pointer' }}>
         {saved ? '✅ Saved!' : 'Save Settings'}
       </button>
     </div>

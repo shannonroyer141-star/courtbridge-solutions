@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
+import { CARD_BG, ACCENT, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 export default function SMSAlerts() {
   const [logs, setLogs] = useState([]);
@@ -62,54 +63,55 @@ export default function SMSAlerts() {
   }
 
   const client = clients.find(c => c.id === form.client_id);
+  const inputStyle = { width: '100%', padding: 12, marginBottom: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', fontSize: 14, background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT };
 
   return (
-    <div style={{ padding: '30px', maxWidth: '700px' }}>
-      <h1 style={{ color: '#1B3A6B', marginBottom: '8px' }}>SMS Alerts</h1>
-      <p style={{ color: '#666', marginBottom: '16px', fontSize: '14px' }}>Send text message alerts to clients. Requires Twilio credentials in Supabase secrets.</p>
+    <div style={{ padding: 30, maxWidth: 700, fontFamily: NAV_FONT }}>
+      <h1 style={{ color: TEXT, marginBottom: 8 }}>SMS Alerts</h1>
+      <p style={{ color: TEXT_MUTED, marginBottom: 16, fontSize: 14 }}>Send text message alerts to clients. Requires Twilio credentials in Supabase secrets.</p>
 
-      <div style={{ background: '#fff3cd', border: '1px solid #F39C12', borderRadius: '8px', padding: '14px', marginBottom: '24px', fontSize: '13px', color: '#856404' }}>
+      <div style={{ background: 'rgba(255,140,66,0.12)', border: `0.5px solid ${ORANGE}`, borderRadius: 8, padding: 14, marginBottom: 24, fontSize: 13, color: ORANGE }}>
         🔧 To activate SMS: Sign up free at <strong>twilio.com</strong> → get Account SID, Auth Token, and a phone number → add them to Supabase Edge Function secrets as <strong>TWILIO_ACCOUNT_SID</strong>, <strong>TWILIO_AUTH_TOKEN</strong>, and <strong>TWILIO_PHONE_NUMBER</strong>.
       </div>
 
-      <div style={{ background: 'white', border: '1px solid #ddd', borderRadius: '12px', padding: '25px', marginBottom: '24px' }}>
-        <h2 style={{ color: '#1B3A6B', marginBottom: '16px', fontSize: '16px' }}>Send SMS</h2>
-        <select value={form.client_id} onChange={e => setForm({...form, client_id: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '14px' }}>
+      <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 25, marginBottom: 24 }}>
+        <h2 style={{ color: TEXT, marginBottom: 16, fontSize: 16 }}>Send SMS</h2>
+        <select value={form.client_id} onChange={e => setForm({...form, client_id: e.target.value})} style={inputStyle}>
           <option value="">Select Client *</option>
           {clients.map(c => <option key={c.id} value={c.id}>{c.name} {c.phone ? `— ${c.phone}` : '(no phone)'}</option>)}
         </select>
         {form.client_id && !client?.phone && (
-          <div style={{ background: '#fdecea', borderRadius: '8px', padding: '10px', marginBottom: '12px', fontSize: '13px', color: '#721c24' }}>⚠️ This client has no phone number. Add it in their profile first.</div>
+          <div style={{ background: 'rgba(248,113,113,0.1)', borderRadius: 8, padding: 10, marginBottom: 12, fontSize: 13, color: RED }}>⚠️ This client has no phone number. Add it in their profile first.</div>
         )}
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
           {Object.keys(TEMPLATES).map(key => (
             <button key={key} onClick={() => { setForm({...form, message_type: key, message: TEMPLATES[key]}); }}
-              style={{ padding: '6px 12px', background: form.message_type === key ? '#1B3A6B' : 'white', color: form.message_type === key ? 'white' : '#1B3A6B', border: '1px solid #1B3A6B', borderRadius: '20px', cursor: 'pointer', fontSize: '12px' }}>
+              style={{ padding: '6px 12px', background: form.message_type === key ? ACCENT : 'rgba(255,255,255,0.04)', color: form.message_type === key ? 'white' : ACCENT, border: `0.5px solid ${ACCENT}`, borderRadius: 20, cursor: 'pointer', fontSize: 12 }}>
               {key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
             </button>
           ))}
         </div>
-        <textarea placeholder="Message text... Use [NAME] to insert client's first name." value={form.message} onChange={e => setForm({...form, message: e.target.value})} style={{ width: '100%', padding: '12px', marginBottom: '8px', borderRadius: '8px', border: '1px solid #ddd', boxSizing: 'border-box', fontSize: '14px', minHeight: '100px' }} />
-        <p style={{ fontSize: '12px', color: '#888', marginBottom: '12px' }}>{form.message.length} characters {form.message.length > 160 ? '— will send as 2 messages' : ''}</p>
-        {status && <div style={{ background: status.includes('✅') ? '#d4edda' : '#fff3cd', border: `1px solid ${status.includes('✅') ? '#c3e6cb' : '#F39C12'}`, borderRadius: '8px', padding: '12px', marginBottom: '12px', fontSize: '13px', color: status.includes('✅') ? '#155724' : '#856404' }}>{status}</div>}
-        <button onClick={sendSMS} disabled={sending || !form.client_id || !form.message} style={{ width: '100%', padding: '13px', background: form.client_id && form.message ? '#1B3A6B' : '#ccc', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', cursor: 'pointer', fontWeight: 'bold' }}>
+        <textarea placeholder="Message text... Use [NAME] to insert client's first name." value={form.message} onChange={e => setForm({...form, message: e.target.value})} style={{ ...inputStyle, minHeight: 100, marginBottom: 8 }} />
+        <p style={{ fontSize: 12, color: TEXT_DIM, marginBottom: 12 }}>{form.message.length} characters {form.message.length > 160 ? '— will send as 2 messages' : ''}</p>
+        {status && <div style={{ background: status.includes('✅') ? 'rgba(76,175,125,0.12)' : 'rgba(255,140,66,0.12)', border: `0.5px solid ${status.includes('✅') ? GREEN : ORANGE}`, borderRadius: 8, padding: 12, marginBottom: 12, fontSize: 13, color: status.includes('✅') ? GREEN : ORANGE }}>{status}</div>}
+        <button onClick={sendSMS} disabled={sending || !form.client_id || !form.message} style={{ width: '100%', padding: 13, background: form.client_id && form.message ? ACCENT : 'rgba(255,255,255,0.08)', color: form.client_id && form.message ? 'white' : TEXT_DIM, border: 'none', borderRadius: 8, fontSize: 15, cursor: 'pointer', fontWeight: 'bold' }}>
           {sending ? 'Sending...' : '📱 Send SMS'}
         </button>
       </div>
 
-      <h2 style={{ color: '#1B3A6B', marginBottom: '16px', fontSize: '16px' }}>SMS Log</h2>
-      {logs.length === 0 ? <p style={{ color: '#666' }}>No messages sent yet.</p> : logs.map(l => (
-        <div key={l.id} style={{ background: 'white', border: '1px solid #ddd', borderRadius: '10px', padding: '14px', marginBottom: '8px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
+      <h2 style={{ color: TEXT, marginBottom: 16, fontSize: 16 }}>SMS Log</h2>
+      {logs.length === 0 ? <p style={{ color: TEXT_MUTED }}>No messages sent yet.</p> : logs.map(l => (
+        <div key={l.id} style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 10, padding: 14, marginBottom: 8 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6, flexWrap: 'wrap', gap: 8 }}>
             <div>
-              <p style={{ margin: 0, fontWeight: 'bold', color: '#1B3A6B', fontSize: '13px' }}>{l.clients?.name}</p>
-              <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#888' }}>{l.phone_number} • {new Date(l.sent_at).toLocaleString()}</p>
+              <p style={{ margin: 0, fontWeight: 'bold', color: TEXT, fontSize: 13 }}>{l.clients?.name}</p>
+              <p style={{ margin: '2px 0 0', fontSize: 12, color: TEXT_DIM }}>{l.phone_number} • {new Date(l.sent_at).toLocaleString()}</p>
             </div>
-            <span style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 'bold', background: l.status === 'delivered' ? '#d4edda' : '#fff3cd', color: l.status === 'delivered' ? '#155724' : '#856404' }}>
+            <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 'bold', background: l.status === 'delivered' ? 'rgba(76,175,125,0.15)' : 'rgba(255,140,66,0.15)', color: l.status === 'delivered' ? GREEN : ORANGE }}>
               {l.status === 'delivered' ? '✅ Delivered' : l.status === 'pending_configuration' ? '⏳ Pending Setup' : '📤 Sent'}
             </span>
           </div>
-          <p style={{ margin: 0, fontSize: '13px', color: '#444' }}>{l.message}</p>
+          <p style={{ margin: 0, fontSize: 13, color: TEXT_MUTED }}>{l.message}</p>
         </div>
       ))}
     </div>

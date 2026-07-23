@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
+import { DARK_BG, CARD_BG, ACCENT, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme'
 
 export default function ClientOnboarding() {
   const [step, setStep] = useState('loading')
@@ -75,33 +76,34 @@ export default function ClientOnboarding() {
     setStep('success')
   }
 
-  const BLUE = '#1B3A6B'
+  const labelStyle = { display: 'block', fontSize: 12, fontWeight: 700, color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }
+  const inputStyle = { width: '100%', padding: '11px 14px', border: `0.5px solid ${BORDER}`, borderRadius: 8, fontSize: 15, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT }
 
   if (step === 'loading') return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F5F6F8', fontFamily: 'Arial, sans-serif' }}>
-      <div style={{ color: BLUE }}>Verifying your enrollment link...</div>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: DARK_BG, fontFamily: NAV_FONT }}>
+      <div style={{ color: TEXT_MUTED }}>Verifying your enrollment link...</div>
     </div>
   )
 
   if (step === 'invalid') return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F5F6F8', fontFamily: 'Arial, sans-serif', padding: 24 }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: DARK_BG, fontFamily: NAV_FONT, padding: 24 }}>
       <div style={{ textAlign: 'center', maxWidth: 420 }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
-        <div style={{ fontSize: 20, fontWeight: 700, color: '#111827', marginBottom: 8 }}>Invalid or Expired Link</div>
-        <div style={{ fontSize: 15, color: '#6B7280' }}>This enrollment link is invalid or has already been used. Please contact your program coordinator for a new link.</div>
+        <div style={{ fontSize: 20, fontWeight: 700, color: TEXT, marginBottom: 8 }}>Invalid or Expired Link</div>
+        <div style={{ fontSize: 15, color: TEXT_MUTED }}>This enrollment link is invalid or has already been used. Please contact your program coordinator for a new link.</div>
       </div>
     </div>
   )
 
   if (step === 'success') return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F5F6F8', fontFamily: 'Arial, sans-serif', padding: 24 }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: DARK_BG, fontFamily: NAV_FONT, padding: 24 }}>
       <div style={{ textAlign: 'center', maxWidth: 420 }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
-        <div style={{ fontSize: 22, fontWeight: 700, color: '#111827', marginBottom: 8 }}>You're enrolled!</div>
-        <div style={{ fontSize: 15, color: '#6B7280', marginBottom: 24 }}>
+        <div style={{ fontSize: 22, fontWeight: 700, color: TEXT, marginBottom: 8 }}>You're enrolled!</div>
+        <div style={{ fontSize: 15, color: TEXT_MUTED, marginBottom: 24 }}>
           Check your email ({invite?.client_email}) for a confirmation link, then log in to CourtBridge.
         </div>
-        <div style={{ background: '#EFF6FF', borderRadius: 10, padding: 16, fontSize: 14, color: BLUE }}>
+        <div style={{ background: 'rgba(91,155,240,0.12)', borderRadius: 10, padding: 16, fontSize: 14, color: ACCENT }}>
           <strong>Next step:</strong> Open your email, click the confirmation link, then return here to log in.
         </div>
       </div>
@@ -109,81 +111,81 @@ export default function ClientOnboarding() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F5F6F8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Arial, sans-serif', padding: 24 }}>
-      <div style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 440, overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-        <div style={{ background: BLUE, padding: '28px 32px 20px' }}>
+    <div style={{ minHeight: '100vh', background: DARK_BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: NAV_FONT, padding: 24 }}>
+      <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 16, width: '100%', maxWidth: 440, overflow: 'hidden' }}>
+        <div style={{ background: ACCENT, padding: '28px 32px 20px' }}>
           <div style={{ color: '#fff', fontSize: 20, fontWeight: 700 }}>CourtBridge Solutions</div>
-          <div style={{ color: '#A8C4E0', fontSize: 13, marginTop: 4 }}>Complete Your Enrollment</div>
+          <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, marginTop: 4 }}>Complete Your Enrollment</div>
         </div>
         <div style={{ padding: '24px 32px 32px' }}>
           {invite?.client_name && (
-            <div style={{ background: '#F0F9FF', borderRadius: 8, padding: '10px 14px', marginBottom: 16, fontSize: 14, color: BLUE }}>
+            <div style={{ background: 'rgba(91,155,240,0.12)', borderRadius: 8, padding: '10px 14px', marginBottom: 16, fontSize: 14, color: ACCENT }}>
               Welcome, <strong>{invite.client_name}</strong>
               {invite.program_type && <span> · {invite.program_type.replace(/_/g, ' ')}</span>}
             </div>
           )}
-          <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, padding: '14px 16px', marginBottom: 20, textAlign: 'left' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>To finish setting up your account</div>
-            <ol style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: '#374151', lineHeight: 1.9, textAlign: 'left' }}>
+          <div style={{ background: 'rgba(255,255,255,0.03)', border: `0.5px solid ${BORDER}`, borderRadius: 8, padding: '14px 16px', marginBottom: 20, textAlign: 'left' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>To finish setting up your account</div>
+            <ol style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: TEXT, lineHeight: 1.9, textAlign: 'left' }}>
               <li>Create a password (at least 8 characters)</li>
               <li>Add your phone number if you'd like text alerts (optional)</li>
               <li>Read and agree to the program waiver</li>
               <li>Submit to complete your enrollment</li>
             </ol>
           </div>
-          <div style={{ background: '#F0F9FF', border: '1px solid #DBEAFE', borderRadius: 8, padding: '12px 16px', marginBottom: 20, fontSize: 13, color: '#1e3a5f', lineHeight: 1.6, textAlign: 'left' }}>
+          <div style={{ background: 'rgba(91,155,240,0.1)', border: `0.5px solid ${ACCENT}`, borderRadius: 8, padding: '12px 16px', marginBottom: 20, fontSize: 13, color: TEXT, lineHeight: 1.6, textAlign: 'left' }}>
             📍 <strong>About your location:</strong> this app is not a continuous tracking system — it does not run in the background or follow you around. It only captures your location the one moment you tap "Check In," so your provider can confirm that check-in happened where it was supposed to.
           </div>
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Email</label>
+              <label style={labelStyle}>Email</label>
               <input value={invite?.client_email || ''} disabled
-                style={{ width: '100%', padding: '11px 14px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 15, background: '#F9FAFB', color: '#6B7280', boxSizing: 'border-box' }} />
+                style={{ ...inputStyle, background: 'rgba(255,255,255,0.02)', color: TEXT_DIM }} />
             </div>
             <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Create Password</label>
+              <label style={labelStyle}>Create Password</label>
               <input type="password" value={form.password} onChange={e => setForm(p => ({ ...p, password: e.target.value }))} required minLength={8}
                 placeholder="Minimum 8 characters"
-                style={{ width: '100%', padding: '11px 14px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 15, boxSizing: 'border-box' }} />
+                style={inputStyle} />
             </div>
             <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Confirm Password</label>
+              <label style={labelStyle}>Confirm Password</label>
               <input type="password" value={form.confirm} onChange={e => setForm(p => ({ ...p, confirm: e.target.value }))} required
                 placeholder="Re-enter password"
-                style={{ width: '100%', padding: '11px 14px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 15, boxSizing: 'border-box' }} />
+                style={inputStyle} />
             </div>
-            <div style={{ marginBottom: 20, background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, padding: 14 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>⚠ Placeholder — needs legal review before use</div>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Program Waiver &amp; Consent</div>
-              <div style={{ fontSize: 13, color: '#374151', lineHeight: 1.6, marginBottom: 10, maxHeight: 140, overflowY: 'auto', background: '#fff', border: '1px solid #E5E7EB', borderRadius: 6, padding: 10 }}>
+            <div style={{ marginBottom: 20, background: 'rgba(255,255,255,0.03)', border: `0.5px solid ${BORDER}`, borderRadius: 8, padding: 14 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>⚠ Placeholder — needs legal review before use</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>Program Waiver &amp; Consent</div>
+              <div style={{ fontSize: 13, color: TEXT, lineHeight: 1.6, marginBottom: 10, maxHeight: 140, overflowY: 'auto', background: 'rgba(255,255,255,0.03)', border: `0.5px solid ${BORDER}`, borderRadius: 6, padding: 10 }}>
                 By enrolling, you acknowledge that your participation in this program is subject to the terms set by your referring court, probation officer, or agency. You understand that your check-ins, location data, and compliance record are recorded and may be shared with your provider, probation officer, or the court as required. This program does not provide legal advice. You agree to comply with your program's requirements and to communicate promptly with your provider about any issues affecting your participation.
               </div>
-              <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: '#111827', cursor: 'pointer' }}>
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: TEXT, cursor: 'pointer' }}>
                 <input type="checkbox" checked={form.termsAccepted} onChange={e => setForm(p => ({ ...p, termsAccepted: e.target.checked }))} style={{ marginTop: 2 }} required />
                 I have read and agree to the program waiver above.
               </label>
             </div>
             <div style={{ marginBottom: form.phone ? 16 : 24 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Phone Number (optional)</label>
+              <label style={labelStyle}>Phone Number (optional)</label>
               <input type="tel" value={form.phone} onChange={e => setForm(p => ({ ...p, phone: e.target.value }))}
                 placeholder="(555) 000-0000"
-                style={{ width: '100%', padding: '11px 14px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 15, boxSizing: 'border-box' }} />
+                style={inputStyle} />
             </div>
             {form.phone && (
-              <div style={{ marginBottom: 24, background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 8, padding: 14 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>⚠ Placeholder — needs legal review before use</div>
-                <div style={{ fontSize: 13, color: '#374151', lineHeight: 1.6, marginBottom: 10 }}>
+              <div style={{ marginBottom: 24, background: 'rgba(255,255,255,0.03)', border: `0.5px solid ${BORDER}`, borderRadius: 8, padding: 14 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>⚠ Placeholder — needs legal review before use</div>
+                <div style={{ fontSize: 13, color: TEXT, lineHeight: 1.6, marginBottom: 10 }}>
                   By checking this box, you agree that CourtBridge Solutions and your provider may send you text messages, including urgent compliance-related alerts, at the phone number above. Message and data rates may apply. You can withdraw consent at any time by contacting your provider.
                 </div>
-                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: '#111827', cursor: 'pointer' }}>
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13, color: TEXT, cursor: 'pointer' }}>
                   <input type="checkbox" checked={form.smsConsent} onChange={e => setForm(p => ({ ...p, smsConsent: e.target.checked }))} style={{ marginTop: 2 }} />
                   I agree to receive text messages at the number above.
                 </label>
               </div>
             )}
-            {error && <div style={{ color: '#DC2626', fontSize: 13, marginBottom: 16 }}>{error}</div>}
+            {error && <div style={{ color: RED, fontSize: 13, marginBottom: 16 }}>{error}</div>}
             <button type="submit" disabled={submitting}
-              style={{ width: '100%', padding: 14, background: BLUE, color: '#fff', border: 'none', borderRadius: 8, fontSize: 15, fontWeight: 700, cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.7 : 1 }}>
+              style={{ width: '100%', padding: 14, background: ACCENT, color: '#fff', border: 'none', borderRadius: 8, fontSize: 15, fontWeight: 700, cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.7 : 1 }}>
               {submitting ? 'Creating account...' : 'Complete Enrollment'}
             </button>
           </form>

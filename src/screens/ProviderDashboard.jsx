@@ -282,9 +282,9 @@ const S = {
   },
 };
 
-function StatCard({ label, value, sub, valueColor = TEXT, accentColor = ACCENT }) {
+function StatCard({ label, value, sub, valueColor = TEXT, accentColor = ACCENT, onClick }) {
   return (
-    <div style={{ ...S.statCard, borderTop: `3px solid ${accentColor}` }}>
+    <div style={{ ...S.statCard, borderTop: `3px solid ${accentColor}`, cursor: onClick ? 'pointer' : 'default' }} onClick={onClick}>
       <div style={S.statLabel}>{label}</div>
       <div style={{ ...S.statValue, color: valueColor }}>{value}</div>
       {sub && <div style={S.statSub}>{sub}</div>}
@@ -398,12 +398,14 @@ export default function ProviderDashboard({ onNavigate }) {
           value={stats.activeClients}
           sub="Total enrolled"
           accentColor={ACCENT}
+          onClick={() => onNavigate && onNavigate('clients')}
         />
         <StatCard
           label="Checked In Today"
           value={stats.checkedInToday}
           sub={`Of ${stats.activeClients} active`}
           accentColor={ACCENT}
+          onClick={() => onNavigate && onNavigate('checkin')}
         />
         <StatCard
           label="Missed (24 hrs)"
@@ -411,6 +413,7 @@ export default function ProviderDashboard({ onNavigate }) {
           sub={stats.missedLast24 === 0 ? 'All checked in' : 'Need follow-up'}
           valueColor={missedColor}
           accentColor={missedColor}
+          onClick={() => onNavigate && onNavigate('alerts')}
         />
         <StatCard
           label="Open Alerts"
@@ -418,6 +421,7 @@ export default function ProviderDashboard({ onNavigate }) {
           sub={stats.alertsCount === 0 ? 'No action needed' : 'Needs review'}
           valueColor={alertColor}
           accentColor={alertColor}
+          onClick={() => onNavigate && onNavigate('alerts')}
         />
       </div>
 
@@ -457,13 +461,14 @@ export default function ProviderDashboard({ onNavigate }) {
               </div>
             ) : (
               urgentMessages.map(m => (
-                <div key={m.id} style={S.urgentRow}>
+                <div key={m.id} style={{ ...S.urgentRow, cursor: onNavigate ? 'pointer' : 'default' }}
+                  onClick={() => onNavigate && onNavigate('clientprofile', m.client_id)}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div style={S.listName}>{m.clients?.name || 'Unknown'}</div>
                     <span style={S.urgentBadge}>Urgent</span>
                   </div>
                   <div style={S.urgentSnippet}>{m.body}</div>
-                  <button style={{ ...S.linkBtn, marginTop: '4px' }} onClick={() => goToClient(m.client_id)}>Reply →</button>
+                  <button style={{ ...S.linkBtn, marginTop: '4px' }} onClick={e => { e.stopPropagation(); goToClient(m.client_id); }}>Reply →</button>
                 </div>
               ))
             )}
@@ -482,7 +487,8 @@ export default function ProviderDashboard({ onNavigate }) {
               </div>
             ) : (
               upcoming.map(item => (
-                <div key={item.id} style={S.listRow}>
+                <div key={item.id} style={{ ...S.listRow, cursor: onNavigate ? 'pointer' : 'default' }}
+                  onClick={() => onNavigate && onNavigate(item.id.startsWith('court-') ? 'courtdates' : 'tasks')}>
                   <div style={S.listName}>{item.label}</div>
                   <div style={S.listSub}>
                     {item.date ? new Date(item.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
@@ -508,12 +514,13 @@ export default function ProviderDashboard({ onNavigate }) {
               </div>
             ) : (
               missedClients.map(client => (
-                <div key={client.id} style={S.listRow}>
+                <div key={client.id} style={{ ...S.listRow, cursor: onNavigate ? 'pointer' : 'default' }}
+                  onClick={() => onNavigate && onNavigate('clientprofile', client.id)}>
                   <div>
                     <div style={S.listName}>{client.name}</div>
                     <div style={S.listSubAlert}>No check-in today</div>
                   </div>
-                  <button style={S.contactBtn} onClick={() => goToClient(client.id)}>Contact</button>
+                  <button style={S.contactBtn} onClick={e => { e.stopPropagation(); goToClient(client.id); }}>Contact</button>
                 </div>
               ))
             )}
@@ -532,7 +539,8 @@ export default function ProviderDashboard({ onNavigate }) {
               </div>
             ) : (
               recentActivity.map(ci => (
-                <div key={ci.id} style={S.listRow}>
+                <div key={ci.id} style={{ ...S.listRow, cursor: onNavigate ? 'pointer' : 'default' }}
+                  onClick={() => onNavigate && onNavigate('clientprofile', ci.client_id)}>
                   <div>
                     <div style={S.listName}>{ci.clients?.name || 'Unknown'}</div>
                     <div style={S.listSub}>
@@ -549,7 +557,7 @@ export default function ProviderDashboard({ onNavigate }) {
         </div>
       </div>
 
-      <div style={S.complianceCard}>
+      <div style={{ ...S.complianceCard, cursor: onNavigate ? 'pointer' : 'default' }} onClick={() => onNavigate && onNavigate('compliancechart')}>
         <div style={S.cardHeader}>
           <div style={S.cardDot} />
           <h3 style={S.cardTitle}>Weekly Compliance Rate</h3>

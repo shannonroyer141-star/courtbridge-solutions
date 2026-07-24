@@ -1,23 +1,39 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, GREEN, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, GREEN, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 export default function Programs() {
   const [programs, setPrograms] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ program_name: '', program_type: '', duration_weeks: '', frequency: '', description: '', approved_latitude: '', approved_longitude: '', allowed_radius_miles: '0.25' });
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
 
   useEffect(() => { fetchPrograms(); }, []);
 
   async function fetchPrograms() {
-    const { data } = await supabase.from('programs').select('*').order('name');
+    const { data } = await supabase.from('programs').select('*').order('program_name');
     if (data) setPrograms(data);
   }
 
   async function handleSave() {
     setSaving(true);
-    await supabase.from('programs').insert([form]);
+    setSaveError(null);
+    const { data: { user } } = await supabase.auth.getUser();
+    const payload = {
+      ...form,
+      provider_id: user.id,
+      duration_weeks: form.duration_weeks ? parseInt(form.duration_weeks, 10) : null,
+      approved_latitude: form.approved_latitude ? parseFloat(form.approved_latitude) : null,
+      approved_longitude: form.approved_longitude ? parseFloat(form.approved_longitude) : null,
+      allowed_radius_miles: form.allowed_radius_miles ? parseFloat(form.allowed_radius_miles) : null,
+    };
+    const { error } = await supabase.from('programs').insert([payload]);
+    if (error) {
+      setSaveError('Could not save program: ' + error.message);
+      setSaving(false);
+      return;
+    }
     setForm({ program_name: '', program_type: '', duration_weeks: '', frequency: '', description: '', approved_latitude: '', approved_longitude: '', allowed_radius_miles: '0.25' });
     setShowForm(false);
     setSaving(false);
@@ -49,6 +65,7 @@ export default function Programs() {
             <input placeholder="Radius (miles)" value={form.allowed_radius_miles} onChange={e => setForm({...form, allowed_radius_miles: e.target.value})} style={{ flex: 1, minWidth: 120, ...inputStyle }} />
           </div>
           <textarea placeholder="Description" value={form.description} onChange={e => setForm({...form, description: e.target.value})} style={{ width: '100%', minHeight: 70, marginBottom: 15, ...inputStyle }} />
+          {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}
           <button onClick={handleSave} disabled={saving} style={{ padding: '12px 25px', background: GREEN, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 15 }}>{saving ? 'Saving...' : 'Save Program'}</button>
         </div>
       )}

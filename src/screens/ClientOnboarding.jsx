@@ -134,7 +134,7 @@ export default function ClientOnboarding() {
             </ol>
           </div>
           <div style={{ background: 'rgba(91,155,240,0.1)', border: `0.5px solid ${ACCENT}`, borderRadius: 8, padding: '12px 16px', marginBottom: 20, fontSize: 13, color: TEXT, lineHeight: 1.6, textAlign: 'left' }}>
-            📍 <strong>About your location:</strong> this app is not a continuous tracking system — it does not run in the background or follow you around. It only captures your location the one moment you tap "Check In," so your provider can confirm that check-in happened where it was supposed to.
+            📍 <strong>About your location:</strong> this app is not a continuous tracking system — it does not run in the background or follow you around. It only captures your location in the brief moments you tap "Check In" or "Check Out," so your provider can confirm your visit happened where and for how long it was supposed to.
           </div>
           <form onSubmit={handleSubmit}>
             <div style={{ marginBottom: 16 }}>

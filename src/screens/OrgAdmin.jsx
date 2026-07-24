@@ -164,7 +164,7 @@ export default function OrgAdmin({ session }) {
       <div style={{ background: 'rgba(76,175,125,0.1)', border: `0.5px solid ${GREEN}`, borderRadius: 12, padding: '18px 24px', marginBottom: 32 }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: GREEN, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 8 }}>🔒 Data Security &amp; Privacy</div>
         <div style={{ fontSize: 14, color: TEXT, lineHeight: 1.7 }}>
-          Every client's records (check-ins, messages, documents, notes) are access-controlled at the database level so that only that client and your organization can see them — not other providers, not other clients. CourtBridge Solutions does not sell or share client data with third parties. Location is only captured at the moment a client taps "Check In" — this is not continuous background tracking.
+          Every client's records (check-ins, messages, documents, notes) are access-controlled at the database level so that only that client and your organization can see them — not other providers, not other clients. CourtBridge Solutions does not sell or share client data with third parties. Location is only captured at the moments a client taps "Check In" or "Check Out" — this is not continuous background tracking.
           <br /><br />
           Client-facing questions or problems should always be directed to <strong>your organization</strong>, not to CourtBridge Solutions directly — clients are your clients.
         </div>

@@ -414,13 +414,20 @@ export default function ClientProfile({ clientId, onNavigate }) {
       <div style={cardStyle}>
         <h3 style={{ margin: '0 0 12px', color: TEXT, fontSize: 15 }}>Check-In History (Last 7)</h3>
         {checkIns.length === 0 ? <p style={{ color: TEXT_MUTED, margin: 0 }}>No check-ins recorded.</p> : (
-          checkIns.map(ci => (
-            <div key={ci.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: `0.5px solid ${BORDER}`, flexWrap: 'wrap', gap: 6 }}>
-              <span style={{ color: TEXT }}>{new Date(ci.checked_in_at).toLocaleDateString()}</span>
-              <span style={{ color: TEXT_MUTED, fontSize: 13 }}>{ci.latitude && ci.longitude ? `${ci.latitude.toFixed(5)}, ${ci.longitude.toFixed(5)}` : 'No location'}</span>
-              <span style={{ color: GREEN, fontWeight: 600, fontSize: 13 }}>✓ Checked In</span>
-            </div>
-          ))
+          checkIns.map(ci => {
+            const durationMin = ci.checked_out_at ? Math.round((new Date(ci.checked_out_at) - new Date(ci.checked_in_at)) / 60000) : null
+            return (
+              <div key={ci.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: `0.5px solid ${BORDER}`, flexWrap: 'wrap', gap: 6 }}>
+                <span style={{ color: TEXT }}>{new Date(ci.checked_in_at).toLocaleDateString()}</span>
+                <span style={{ color: TEXT_MUTED, fontSize: 13 }}>{ci.latitude && ci.longitude ? `${ci.latitude.toFixed(5)}, ${ci.longitude.toFixed(5)}` : 'No location'}</span>
+                {durationMin !== null ? (
+                  <span style={{ color: GREEN, fontWeight: 600, fontSize: 13 }}>✓ {Math.floor(durationMin / 60)}h {durationMin % 60}m</span>
+                ) : (
+                  <span style={{ color: ORANGE, fontWeight: 600, fontSize: 13 }}>Checked in, no check-out</span>
+                )}
+              </div>
+            )
+          })
         )}
       </div>
 

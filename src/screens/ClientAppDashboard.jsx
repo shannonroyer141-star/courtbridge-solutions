@@ -204,6 +204,8 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
   const [isFirstTime, setIsFirstTime] = useState(false)
   const [checkingIn, setCheckingIn] = useState(false)
   const [checkInMsg, setCheckInMsg] = useState(null)
+  const [checkingOut, setCheckingOut] = useState(false)
+  const [checkOutMsg, setCheckOutMsg] = useState(null)
   const [activeTab, setActiveTab] = useState('dashboard')
   const [threadMessages, setThreadMessages] = useState([])
   const [messagesLoading, setMessagesLoading] = useState(false)
@@ -526,6 +528,36 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
     }
   }
 
+  async function handleCheckOut() {
+    if (!todaysCheckin || checkedOutToday) return
+    setCheckingOut(true)
+    setCheckOutMsg(null)
+    try {
+      const now = new Date().toISOString()
+      const pos = await new Promise((resolve, reject) =>
+        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 })
+      )
+      const { latitude, longitude } = pos.coords
+      const { data, error } = await supabase.from('checkins').update({
+        checked_out_at: now,
+        checkout_latitude: latitude,
+        checkout_longitude: longitude,
+        checkout_gps_accuracy_meters: Math.round(pos.coords.accuracy),
+      }).eq('id', todaysCheckin.id).select()
+      if (error) throw error
+      if (!data || data.length === 0) throw new Error('Check-out could not be saved. Please contact your provider.')
+      setCheckOutMsg({ type: 'success', text: 'Check-out complete! Session recorded.' })
+      fetchClientData()
+    } catch (err) {
+      if (err.code === 1) setCheckOutMsg({ type: 'error', text: 'Location access denied. Please enable GPS.' })
+      else if (err.code === 2) setCheckOutMsg({ type: 'error', text: 'Could not get your location. Please try again.' })
+      else if (err.code === 3) setCheckOutMsg({ type: 'error', text: 'Location request timed out. Please try again.' })
+      else setCheckOutMsg({ type: 'error', text: err.message || 'Something went wrong. Please try again.' })
+    } finally {
+      setCheckingOut(false)
+    }
+  }
+
   const pop = (client?.population_type && POPULATION_CONFIG[client.population_type])
     ? POPULATION_CONFIG[client.population_type]
     : POPULATION_CONFIG.other
@@ -555,6 +587,11 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
 
   const affirmation = pop.affirmations[affirmationIndex % pop.affirmations.length]
   const checkedInToday = checkIns.some(c => new Date(c.checked_in_at).toDateString() === new Date().toDateString())
+  const todaysCheckin = checkIns.find(c => new Date(c.checked_in_at).toDateString() === new Date().toDateString())
+  const checkedOutToday = !!todaysCheckin?.checked_out_at
+  const sessionMinutes = (todaysCheckin?.checked_in_at && todaysCheckin?.checked_out_at)
+    ? Math.round((new Date(todaysCheckin.checked_out_at) - new Date(todaysCheckin.checked_in_at)) / 60000)
+    : null
   const streak = checkIns.reduce((acc, ci, i, arr) => {
     if (i === 0) return 1
     const diff = (new Date(arr[i - 1].checked_in_at) - new Date(ci.checked_in_at)) / 86400000
@@ -846,7 +883,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
             <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: '16px 0 10px' }}>🔒 Your Privacy & Security</div>
             <InnerCard>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>
-                Your records are private — only you and your provider can see them, no one else. We do not sell or share your information with third parties. Location is only captured the moment you tap "Check In," not continuous tracking.
+                Your records are private — only you and your provider can see them, no one else. We do not sell or share your information with third parties. Location is only captured the moment you tap "Check In" or "Check Out" — two brief moments, not continuous tracking.
                 <br /><br />
                 Questions or problems? Please contact <strong style={{ color: TEXT }}>your provider</strong> directly rather than CourtBridge Solutions.
               </div>
@@ -1023,19 +1060,41 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                 {checkInMsg.text}
               </div>
             )}
-            <div
-              onClick={handleCheckIn}
-              style={{
-                marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 6,
-                background: checkedInToday ? 'rgba(76,175,125,0.2)' : 'rgba(255,255,255,0.15)',
-                border: `0.5px solid ${checkedInToday ? 'rgba(76,175,125,0.4)' : 'rgba(255,255,255,0.25)'}`,
-                color: TEXT, fontSize: 12, padding: '7px 14px', borderRadius: 8,
-                cursor: checkedInToday || checkingIn ? 'default' : 'pointer',
-                opacity: checkingIn ? 0.7 : 1,
-              }}
-            >
-              {checkingIn ? 'Getting your location...' : checkedInToday ? '✓ Checked in today' : `${pop.checkInLabel} 📍`}
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <div
+                onClick={handleCheckIn}
+                style={{
+                  marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 6,
+                  background: checkedInToday ? 'rgba(76,175,125,0.2)' : 'rgba(255,255,255,0.15)',
+                  border: `0.5px solid ${checkedInToday ? 'rgba(76,175,125,0.4)' : 'rgba(255,255,255,0.25)'}`,
+                  color: TEXT, fontSize: 12, padding: '7px 14px', borderRadius: 8,
+                  cursor: checkedInToday || checkingIn ? 'default' : 'pointer',
+                  opacity: checkingIn ? 0.7 : 1,
+                }}
+              >
+                {checkingIn ? 'Getting your location...' : checkedInToday ? '✓ Checked in today' : `${pop.checkInLabel} 📍`}
+              </div>
+              {checkedInToday && (
+                <div
+                  onClick={handleCheckOut}
+                  style={{
+                    marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 6,
+                    background: checkedOutToday ? 'rgba(76,175,125,0.2)' : 'rgba(255,140,66,0.2)',
+                    border: `0.5px solid ${checkedOutToday ? 'rgba(76,175,125,0.4)' : 'rgba(255,140,66,0.4)'}`,
+                    color: TEXT, fontSize: 12, padding: '7px 14px', borderRadius: 8,
+                    cursor: checkedOutToday || checkingOut ? 'default' : 'pointer',
+                    opacity: checkingOut ? 0.7 : 1,
+                  }}
+                >
+                  {checkingOut ? 'Getting your location...' : checkedOutToday ? `✓ Checked out — ${Math.floor(sessionMinutes / 60)}h ${sessionMinutes % 60}m` : 'Check Out 📍'}
+                </div>
+              )}
             </div>
+            {checkOutMsg && (
+              <div style={{ marginTop: 8, fontSize: 12, color: checkOutMsg.type === 'success' ? GREEN : ORANGE }}>
+                {checkOutMsg.text}
+              </div>
+            )}
           </div>
         </div>
 

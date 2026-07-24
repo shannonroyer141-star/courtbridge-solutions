@@ -7,6 +7,7 @@ export default function POVisits() {
   const [clients, setClients] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
   const [form, setForm] = useState({ client_id: '', visit_date: '', visit_time: '', visit_type: 'In-Person', po_name: '', po_agency: '', po_phone: '', location: '', outcome: '', next_visit_date: '', notes: '', status: 'completed' });
 
   useEffect(() => { fetchVisits(); fetchClients(); }, []);
@@ -23,7 +24,13 @@ export default function POVisits() {
 
   async function handleSave() {
     setSaving(true);
-    await supabase.from('po_visits').insert([form]);
+    setSaveError(null);
+    const { error } = await supabase.from('po_visits').insert([form]);
+    if (error) {
+      setSaveError('Could not save visit: ' + error.message);
+      setSaving(false);
+      return;
+    }
     setForm({ client_id: '', visit_date: '', visit_time: '', visit_type: 'In-Person', po_name: '', po_agency: '', po_phone: '', location: '', outcome: '', next_visit_date: '', notes: '', status: 'completed' });
     setShowForm(false);
     setSaving(false);
@@ -65,6 +72,7 @@ export default function POVisits() {
           <input placeholder="PO Name" value={form.po_name} onChange={e => setForm({...form, po_name: e.target.value})} style={{ width: '100%', ...inputStyle }} />
           <input placeholder="PO Agency" value={form.po_agency} onChange={e => setForm({...form, po_agency: e.target.value})} style={{ width: '100%', ...inputStyle }} />
           <textarea placeholder="Notes" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} style={{ width: '100%', minHeight: 60, marginBottom: 15, ...inputStyle }} />
+          {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}
           <button onClick={handleSave} disabled={saving || !form.client_id || !form.visit_date} style={{ width: '100%', padding: 13, background: GREEN, color: 'white', border: 'none', borderRadius: 8, fontSize: 15, cursor: 'pointer' }}>{saving ? 'Saving...' : 'Save Visit Record'}</button>
         </div>
       )}

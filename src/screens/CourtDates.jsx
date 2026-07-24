@@ -7,6 +7,7 @@ export default function CourtDates() {
   const [clients, setClients] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
   const [form, setForm] = useState({ client_id: '', hearing_type: '', hearing_date: '', hearing_time: '', court_name: '', courtroom: '', judge_name: '', attorney_name: '', documents_required: '', notes: '', status: 'upcoming' });
 
   useEffect(() => { fetchHearings(); fetchClients(); }, []);
@@ -23,7 +24,13 @@ export default function CourtDates() {
 
   async function handleSave() {
     setSaving(true);
-    await supabase.from('court_dates').insert([form]);
+    setSaveError(null);
+    const { error } = await supabase.from('court_dates').insert([form]);
+    if (error) {
+      setSaveError('Could not save hearing: ' + error.message);
+      setSaving(false);
+      return;
+    }
     setForm({ client_id: '', hearing_type: '', hearing_date: '', hearing_time: '', court_name: '', courtroom: '', judge_name: '', attorney_name: '', documents_required: '', notes: '', status: 'upcoming' });
     setShowForm(false);
     setSaving(false);
@@ -63,6 +70,7 @@ export default function CourtDates() {
             <input placeholder="Judge Name" value={form.judge_name} onChange={e => setForm({...form, judge_name: e.target.value})} style={{ flex: 1, minWidth: 140, ...inputStyle }} />
           </div>
           <textarea placeholder="Documents required" value={form.documents_required} onChange={e => setForm({...form, documents_required: e.target.value})} style={{ width: '100%', minHeight: 60, marginBottom: 15, ...inputStyle }} />
+          {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}
           <button onClick={handleSave} disabled={saving || !form.client_id || !form.hearing_date} style={{ width: '100%', padding: 13, background: GREEN, color: 'white', border: 'none', borderRadius: 8, fontSize: 15, cursor: 'pointer' }}>{saving ? 'Saving...' : 'Save Hearing'}</button>
         </div>
       )}

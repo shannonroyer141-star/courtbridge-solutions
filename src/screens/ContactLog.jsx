@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, GREEN, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, GREEN, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 export default function ContactLog() {
   const [logs, setLogs] = useState([]);
@@ -8,6 +8,7 @@ export default function ContactLog() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ client_id: '', contact_date: '', contact_type: '', direction: 'Outbound', summary: '', outcome: '' });
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
 
   useEffect(() => { fetchLogs(); fetchClients(); }, []);
 
@@ -23,7 +24,14 @@ export default function ContactLog() {
 
   async function handleSave() {
     setSaving(true);
-    await supabase.from('contact_log').insert([form]);
+    setSaveError(null);
+    const { data: { user } } = await supabase.auth.getUser();
+    const { error } = await supabase.from('contact_log').insert([{ ...form, provider_id: user.id }]);
+    if (error) {
+      setSaveError('Could not save log: ' + error.message);
+      setSaving(false);
+      return;
+    }
     setForm({ client_id: '', contact_date: '', contact_type: '', direction: 'Outbound', summary: '', outcome: '' });
     setShowForm(false);
     setSaving(false);
@@ -54,6 +62,7 @@ export default function ContactLog() {
           </select>
           <textarea placeholder="Summary *" value={form.summary} onChange={e => setForm({...form, summary: e.target.value})} style={{ ...inputStyle, minHeight: 80 }} />
           <input placeholder="Outcome / Next steps" value={form.outcome} onChange={e => setForm({...form, outcome: e.target.value})} style={{ ...inputStyle, marginBottom: 15 }} />
+          {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}
           <button onClick={handleSave} disabled={saving} style={{ padding: '12px 25px', background: GREEN, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 15 }}>{saving ? 'Saving...' : 'Save Log'}</button>
         </div>
       )}

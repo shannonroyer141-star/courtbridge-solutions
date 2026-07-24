@@ -7,6 +7,7 @@ export default function CPSTracking() {
   const [clients, setClients] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
   const [form, setForm] = useState({ client_id: '', case_number: '', agency: 'DCF', case_type: '', case_worker_name: '', case_worker_phone: '', case_worker_email: '', open_date: '', next_hearing_date: '', children_involved: '', reunification_goal: true, safety_plan: false, out_of_home: false, notes: '', status: 'active' });
 
   useEffect(() => { fetchCases(); fetchClients(); }, []);
@@ -23,7 +24,13 @@ export default function CPSTracking() {
 
   async function handleSave() {
     setSaving(true);
-    await supabase.from('cps_cases').insert([form]);
+    setSaveError(null);
+    const { error } = await supabase.from('cps_cases').insert([form]);
+    if (error) {
+      setSaveError('Could not save case: ' + error.message);
+      setSaving(false);
+      return;
+    }
     setForm({ client_id: '', case_number: '', agency: 'DCF', case_type: '', case_worker_name: '', case_worker_phone: '', case_worker_email: '', open_date: '', next_hearing_date: '', children_involved: '', reunification_goal: true, safety_plan: false, out_of_home: false, notes: '', status: 'active' });
     setShowForm(false);
     setSaving(false);
@@ -82,6 +89,7 @@ export default function CPSTracking() {
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14, color: TEXT }}><input type="checkbox" checked={form.out_of_home} onChange={e => setForm({...form, out_of_home: e.target.checked})} />Out of Home</label>
           </div>
           <textarea placeholder="Notes" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} style={{ width: '100%', minHeight: 70, marginBottom: 15, ...inputStyle }} />
+          {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}
           <button onClick={handleSave} disabled={saving || !form.client_id} style={{ width: '100%', padding: 13, background: GREEN, color: 'white', border: 'none', borderRadius: 8, fontSize: 15, cursor: 'pointer' }}>{saving ? 'Saving...' : 'Save CPS Case'}</button>
         </div>
       )}

@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, ACCENT, GREEN, ORANGE, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, ACCENT, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from '../theme';
 
 export default function MeetingLog() {
   const [meetings, setMeetings] = useState([]);
   const [clients, setClients] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
   const [form, setForm] = useState({ client_id: '', meeting_type: 'AA', meeting_date: '', meeting_time: '', location_name: '', verification_method: 'gps', secretary_name: '', notes: '', verified: false });
 
   useEffect(() => { fetchMeetings(); fetchClients(); }, []);
@@ -23,7 +24,13 @@ export default function MeetingLog() {
 
   async function handleSave() {
     setSaving(true);
-    await supabase.from('meeting_log').insert([form]);
+    setSaveError(null);
+    const { error } = await supabase.from('meeting_log').insert([form]);
+    if (error) {
+      setSaveError('Could not save meeting: ' + error.message);
+      setSaving(false);
+      return;
+    }
     setForm({ client_id: '', meeting_type: 'AA', meeting_date: '', meeting_time: '', location_name: '', verification_method: 'gps', secretary_name: '', notes: '', verified: false });
     setShowForm(false);
     setSaving(false);
@@ -63,6 +70,7 @@ export default function MeetingLog() {
           <input placeholder="Location Name" value={form.location_name} onChange={e => setForm({...form, location_name: e.target.value})} style={{ width: '100%', ...inputStyle }} />
           <input placeholder="Secretary Name (optional)" value={form.secretary_name} onChange={e => setForm({...form, secretary_name: e.target.value})} style={{ width: '100%', ...inputStyle }} />
           <textarea placeholder="Notes" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} style={{ width: '100%', minHeight: 60, marginBottom: 15, ...inputStyle }} />
+          {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}
           <button onClick={handleSave} disabled={saving || !form.client_id || !form.meeting_date} style={{ width: '100%', padding: 13, background: GREEN, color: 'white', border: 'none', borderRadius: 8, fontSize: 15, cursor: 'pointer' }}>{saving ? 'Saving...' : 'Save Meeting Record'}</button>
         </div>
       )}

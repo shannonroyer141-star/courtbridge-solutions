@@ -8,6 +8,7 @@ export default function DrugTests() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ client_id: '', test_date: '', result: '', substances_tested: '', notes: '' });
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
 
   useEffect(() => { fetchTests(); fetchClients(); }, []);
 
@@ -23,7 +24,14 @@ export default function DrugTests() {
 
   async function handleSave() {
     setSaving(true);
-    await supabase.from('drug_tests').insert([form]);
+    setSaveError(null);
+    const { data: { user } } = await supabase.auth.getUser();
+    const { error } = await supabase.from('drug_tests').insert([{ ...form, provider_id: user.id }]);
+    if (error) {
+      setSaveError('Could not save test: ' + error.message);
+      setSaving(false);
+      return;
+    }
     setForm({ client_id: '', test_date: '', result: '', substances_tested: '', notes: '' });
     setShowForm(false);
     setSaving(false);
@@ -50,6 +58,7 @@ export default function DrugTests() {
             <option>Negative</option><option>Positive</option><option>Refused</option><option>No Show</option>
           </select>
           <input placeholder="Substances tested" value={form.substances_tested} onChange={e => setForm({...form, substances_tested: e.target.value})} style={inputStyle} />
+          {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}
           <button onClick={handleSave} disabled={saving} style={{ padding: '12px 25px', background: GREEN, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 15 }}>{saving ? 'Saving...' : 'Save Test'}</button>
         </div>
       )}

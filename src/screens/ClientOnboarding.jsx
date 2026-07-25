@@ -45,7 +45,11 @@ export default function ClientOnboarding() {
     if (authError) { setError(authError.message); setSubmitting(false); return }
 
     const userId = authData.user?.id
-    if (!userId) { setError('Account creation failed. Please try again.'); setSubmitting(false); return }
+    if (!userId) {
+      setError('This email may already have an account. Try logging in at the main page instead, or contact your coordinator for a new enrollment link.')
+      setSubmitting(false)
+      return
+    }
 
     await supabase.from('profiles').insert({
       id: userId,

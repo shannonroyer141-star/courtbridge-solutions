@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
+import { CARD_BG, ACCENT, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme'
 
 export default function CheckInHistory({ session }) {
   const [checkins, setCheckins] = useState([])
@@ -35,8 +36,6 @@ export default function CheckInHistory({ session }) {
     setLoading(false)
   }
 
-  const BLUE = '#1B3A6B'
-
   const filtered = checkins.filter(c =>
     c.client_name.toLowerCase().includes(search.toLowerCase())
   )
@@ -48,13 +47,13 @@ export default function CheckInHistory({ session }) {
   }
 
   return (
-    <div style={{ fontFamily: 'Arial, sans-serif', maxWidth: 900, margin: '0 auto' }}>
+    <div style={{ fontFamily: NAV_FONT, maxWidth: 900, margin: '0 auto', padding: 24 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <div style={{ fontSize: 22, fontWeight: 700, color: BLUE }}>Check-In Log</div>
-          <div style={{ fontSize: 14, color: '#6B7280', marginTop: 2 }}>GPS-verified check-ins from your clients</div>
+          <div style={{ fontSize: 22, fontWeight: 700, color: TEXT }}>Check-In Log</div>
+          <div style={{ fontSize: 14, color: TEXT_MUTED, marginTop: 2 }}>GPS-verified check-ins from your clients</div>
         </div>
-        <button onClick={fetchCheckins} style={{ padding: '8px 16px', background: BLUE, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}>
+        <button onClick={fetchCheckins} style={{ padding: '8px 16px', background: ACCENT, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}>
           Refresh
         </button>
       </div>
@@ -64,41 +63,41 @@ export default function CheckInHistory({ session }) {
         placeholder="Search by client name..."
         value={search}
         onChange={e => setSearch(e.target.value)}
-        style={{ width: '100%', padding: '10px 14px', border: '1px solid #E5E7EB', borderRadius: 8, fontSize: 14, marginBottom: 20, boxSizing: 'border-box' }}
+        style={{ width: '100%', padding: '10px 14px', border: `0.5px solid ${BORDER}`, borderRadius: 8, fontSize: 14, marginBottom: 20, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT }}
       />
 
-      {loading && <div style={{ color: '#6B7280', fontSize: 15 }}>Loading check-ins...</div>}
+      {loading && <div style={{ color: TEXT_MUTED, fontSize: 15 }}>Loading check-ins...</div>}
 
       {!loading && filtered.length === 0 && (
-        <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: 12, padding: 32, textAlign: 'center' }}>
+        <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 32, textAlign: 'center' }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>📍</div>
-          <div style={{ fontSize: 18, fontWeight: 600, color: '#374151' }}>No check-ins yet</div>
-          <div style={{ fontSize: 14, color: '#9CA3AF', marginTop: 4 }}>Client check-ins will appear here once they start using the app</div>
+          <div style={{ fontSize: 18, fontWeight: 600, color: TEXT }}>No check-ins yet</div>
+          <div style={{ fontSize: 14, color: TEXT_DIM, marginTop: 4 }}>Client check-ins will appear here once they start using the app</div>
         </div>
       )}
 
       {!loading && filtered.length > 0 && (
-        <div style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 12, overflow: 'hidden' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr 1.5fr 2fr', gap: 12, padding: '12px 20px', background: '#F9FAFB', borderBottom: '1px solid #E5E7EB', fontSize: 12, fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+        <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, overflow: 'hidden' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr 1.5fr 2fr', gap: 12, padding: '12px 20px', background: 'rgba(255,255,255,0.03)', borderBottom: `0.5px solid ${BORDER}`, fontSize: 12, fontWeight: 700, color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             <div>Client</div>
             <div>Date &amp; Time</div>
             <div>Location</div>
             <div>Notes</div>
           </div>
           {filtered.map(c => (
-            <div key={c.id} style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr 1.5fr 2fr', gap: 12, padding: '14px 20px', borderBottom: '1px solid #F3F4F6', fontSize: 14, alignItems: 'center' }}>
-              <div style={{ fontWeight: 600, color: '#111827' }}>{c.client_name}</div>
-              <div style={{ color: '#374151' }}>{formatTime(c.checked_in_at)}</div>
+            <div key={c.id} style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr 1.5fr 2fr', gap: 12, padding: '14px 20px', borderBottom: `0.5px solid ${BORDER}`, fontSize: 14, alignItems: 'center' }}>
+              <div style={{ fontWeight: 600, color: TEXT }}>{c.client_name}</div>
+              <div style={{ color: TEXT_MUTED }}>{formatTime(c.checked_in_at)}</div>
               <div>
                 {c.latitude && c.longitude ? (
-                  <a href={`https://www.google.com/maps?q=${c.latitude},${c.longitude}`} target="_blank" rel="noopener noreferrer" style={{ color: BLUE, textDecoration: 'none', fontSize: 13 }}>
+                  <a href={`https://www.google.com/maps?q=${c.latitude},${c.longitude}`} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'none', fontSize: 13 }}>
                     View on map
                   </a>
                 ) : (
-                  <span style={{ color: '#9CA3AF', fontSize: 13 }}>No location</span>
+                  <span style={{ color: TEXT_DIM, fontSize: 13 }}>No location</span>
                 )}
               </div>
-              <div style={{ color: '#6B7280', fontSize: 13 }}>{c.notes || '—'}</div>
+              <div style={{ color: TEXT_MUTED, fontSize: 13 }}>{c.notes || '—'}</div>
             </div>
           ))}
         </div>

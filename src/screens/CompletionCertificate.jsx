@@ -152,6 +152,7 @@ export default function CompletionCertificate() {
   const [saveError, setSaveError] = useState(null);
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState({ client_id: '', program_name: '', completion_date: new Date().toISOString().split('T')[0], total_sessions: '', total_checkins: '', template: 'navy_classic' });
+  const [previewKey, setPreviewKey] = useState(null);
 
   useEffect(() => { fetchCertificates(); fetchClients(); fetchProfile(); }, []);
 
@@ -186,6 +187,16 @@ export default function CompletionCertificate() {
     setShowForm(false);
     setSaving(false);
     fetchCertificates();
+  }
+
+  function sampleHtml(templateKey) {
+    const tpl = TEMPLATES[templateKey] || TEMPLATES.navy_classic;
+    return `<html><head><title>Preview</title></head>${tpl.body(
+      'Jordan Michaels', 'Batterers Intervention Program (BIP)', 'July 27, 2026',
+      'Total Sessions Completed: 26', 'Total Check-Ins: 180',
+      profile?.contact_name || 'Provider Name', profile?.organization_name || 'Your Agency',
+      new Date().toLocaleDateString(), 'CB-88431902'
+    )}</html>`;
   }
 
   function printCertificate(cert) {
@@ -250,13 +261,21 @@ export default function CompletionCertificate() {
                 key={key}
                 onClick={() => setForm({ ...form, template: key })}
                 style={{
-                  cursor: 'pointer', borderRadius: 8, padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 8,
+                  cursor: 'pointer', borderRadius: 8, padding: '10px 12px',
                   border: form.template === key ? `2px solid ${ACCENT}` : `0.5px solid ${BORDER}`,
                   background: form.template === key ? 'rgba(91,155,240,0.1)' : 'rgba(255,255,255,0.02)',
                 }}
               >
-                <div style={{ width: 18, height: 18, borderRadius: 4, background: tpl.swatch, flexShrink: 0 }} />
-                <span style={{ fontSize: 13, color: TEXT }}>{tpl.label}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                  <div style={{ width: 18, height: 18, borderRadius: 4, background: tpl.swatch, flexShrink: 0 }} />
+                  <span style={{ fontSize: 13, color: TEXT }}>{tpl.label}</span>
+                </div>
+                <div
+                  onClick={e => { e.stopPropagation(); setPreviewKey(key); }}
+                  style={{ fontSize: 11, color: ACCENT, textDecoration: 'underline', cursor: 'pointer' }}
+                >
+                  Preview →
+                </div>
               </div>
             ))}
           </div>
@@ -287,6 +306,31 @@ export default function CompletionCertificate() {
           <button onClick={() => printCertificate(cert)} style={{ padding: '10px 18px', background: GREEN, color: 'white', border: 'none', borderRadius: 8, fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap' }}>🖨️ Print Certificate</button>
         </div>
       ))}
+
+      {previewKey && (
+        <div
+          onClick={() => setPreviewKey(null)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(10,16,26,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}
+        >
+          <div onClick={e => e.stopPropagation()} style={{ background: CARD_BG, borderRadius: 12, padding: 16, maxWidth: 700, width: '100%', border: `0.5px solid ${BORDER}` }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <span style={{ fontSize: 14, fontWeight: 700, color: TEXT }}>{TEMPLATES[previewKey].label} — Preview</span>
+              <button onClick={() => setPreviewKey(null)} style={{ background: 'none', border: 'none', color: TEXT_MUTED, fontSize: 20, cursor: 'pointer', lineHeight: 1 }}>✕</button>
+            </div>
+            <iframe
+              title="Certificate preview"
+              srcDoc={sampleHtml(previewKey)}
+              style={{ width: '100%', height: 480, border: `0.5px solid ${BORDER}`, borderRadius: 8, background: 'white' }}
+            />
+            <button
+              onClick={() => { setForm({ ...form, template: previewKey }); setPreviewKey(null); }}
+              style={{ width: '100%', marginTop: 12, padding: 12, background: ACCENT, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 700 }}
+            >
+              Use This Design
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

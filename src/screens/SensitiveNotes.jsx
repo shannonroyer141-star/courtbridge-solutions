@@ -4,7 +4,7 @@ import { CARD_BG, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } fr
 
 const TYPES = {
   case_note: { label: 'Case Note', table: 'case_notes', ownerField: 'provider_id', color: '#5B9BF0' },
-  clinical_note: { label: 'Clinical Note', table: null, color: '#B388EB', comingSoon: true },
+  clinical_note: { label: 'Clinical Note', table: 'clinical_notes', ownerField: 'provider_id', color: '#B388EB' },
   legal_agreement: { label: 'Legal Agreement', table: 'legal_agreements', ownerField: 'user_id', color: '#E0B04C' },
 };
 

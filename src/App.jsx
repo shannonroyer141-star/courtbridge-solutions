@@ -36,6 +36,7 @@ import CompletionCertificate from './screens/CompletionCertificate';
 import SensitiveNotes from './screens/SensitiveNotes';
 import ClientIntake from './screens/ClientIntake';
 import SMSAlerts from './screens/SMSAlerts';
+import StaffCredentialing from './screens/StaffCredentialing';
 import { BLUE, DARK_BG, CARD_BG, ACCENT, ORANGE, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from './theme';
 
 const isEnrollRoute = window.location.pathname === '/enroll' &&
@@ -250,6 +251,7 @@ export default function App() {
       case 'sensitivenotes': return <SensitiveNotes session={session} />;
       case 'clientintake': return <ClientIntake session={session} />;
       case 'smsalerts': return <SMSAlerts session={session} />;
+      case 'staffcredentialing': return <StaffCredentialing session={session} />;
       default: return <ProviderDashboard session={session} onNavigate={navTo} />;
     }
   }
@@ -455,6 +457,7 @@ export default function App() {
             <div style={subItem('compliancechart')} onClick={() => navTo('compliancechart')}>Compliance Chart</div>
             <div style={subItem('settings')} onClick={() => navTo('settings')}>My Preferences</div>
             <div style={subItem('orgadmin')} onClick={() => navTo('orgadmin')}>Org Settings</div>
+            <div style={subItem('staffcredentialing')} onClick={() => navTo('staffcredentialing')}>Staff Credentialing</div>
             <div style={subItem('affirmations')} onClick={() => navTo('affirmations')}>Wellness</div>
           </>}
 

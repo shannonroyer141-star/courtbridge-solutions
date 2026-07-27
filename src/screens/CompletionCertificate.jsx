@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, GREEN, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
+function escapeHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
 export default function CompletionCertificate() {
   const [certificates, setCertificates] = useState([]);
   const [clients, setClients] = useState([]);
@@ -72,14 +76,14 @@ export default function CompletionCertificate() {
         <h1>CERTIFICATE OF COMPLETION</h1>
         <div class="subtitle">CourtBridge Solutions</div>
         <div class="presented">This certifies that</div>
-        <div class="name">${cert.clients?.name || ''}</div>
+        <div class="name">${escapeHtml(cert.clients?.name || '')}</div>
         <div class="program">has successfully completed the</div>
-        <div class="program"><strong>${cert.program_name}</strong></div>
+        <div class="program"><strong>${escapeHtml(cert.program_name)}</strong></div>
         ${cert.total_sessions ? `<div class="detail">Total Sessions Completed: ${cert.total_sessions}</div>` : ''}
         ${cert.total_checkins ? `<div class="detail">Total Check-Ins: ${cert.total_checkins}</div>` : ''}
         <div class="date">Completion Date: <strong>${new Date(cert.completion_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</strong></div>
         <div class="sig-section">
-          <div class="sig-line">${profile?.contact_name || 'Provider'}<br><span style="font-size:11px;color:#888">${profile?.organization_name || ''}</span></div>
+          <div class="sig-line">${escapeHtml(profile?.contact_name || 'Provider')}<br><span style="font-size:11px;color:#888">${escapeHtml(profile?.organization_name || '')}</span></div>
           <div class="sig-line">Date Issued<br><span style="font-size:11px;color:#888">${new Date(cert.issued_at).toLocaleDateString()}</span></div>
         </div>
         <div class="cert-num">Certificate Number: ${cert.certificate_number}</div>

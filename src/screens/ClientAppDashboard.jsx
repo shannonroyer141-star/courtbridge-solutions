@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 
+function escapeHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+}
+
 const DARK_BG = '#1E2A3A'
 const CARD_BG = '#253347'
 const SIDEBAR_BG = '#2D3748'
@@ -432,7 +436,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
   function openSignatureSlip(sig) {
     const win = window.open('', '_blank')
     win.document.write(`
-      <html><head><title>Signed Form - ${sig.form_title}</title>
+      <html><head><title>Signed Form - ${escapeHtml(sig.form_title)}</title>
       <style>
         body { font-family: Georgia, serif; padding: 50px; max-width: 650px; margin: 0 auto; color: #1a1a2e; }
         .header { border-bottom: 2px solid #1B3A6B; padding-bottom: 16px; margin-bottom: 24px; }
@@ -444,11 +448,11 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
       </head><body>
         <div class="header">
           <h1>CourtBridge Solutions — Signed Form</h1>
-          <div class="meta">${sig.form_title}</div>
+          <div class="meta">${escapeHtml(sig.form_title)}</div>
         </div>
-        <div class="content">${sig.form_content_snapshot}</div>
+        <div class="content">${escapeHtml(sig.form_content_snapshot)}</div>
         <div class="sig-block">
-          <div>Electronically signed by: <strong>${sig.signature_name}</strong></div>
+          <div>Electronically signed by: <strong>${escapeHtml(sig.signature_name)}</strong></div>
           <div>Signed on: ${new Date(sig.signed_at).toLocaleString()}</div>
         </div>
       </body></html>
@@ -482,7 +486,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
           <h1>CourtBridge Solutions — Progress Note</h1>
           <div class="date">${new Date(note.note_date + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
         </div>
-        <div class="content">${note.content}</div>
+        <div class="content">${escapeHtml(note.content)}</div>
         <div class="footer">Generated ${new Date().toLocaleString()}</div>
       </body></html>
     `)

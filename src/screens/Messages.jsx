@@ -43,6 +43,7 @@ export default function Messages({ clientId }) {
   const [activeThreadClientId, setActiveThreadClientId] = useState(clientId || null);
   const [replyText, setReplyText] = useState('');
   const [replySending, setReplySending] = useState(false);
+  const [replyError, setReplyError] = useState(null);
   const [width, setWidth] = useState(window.innerWidth);
 
   useEffect(() => {
@@ -124,10 +125,11 @@ export default function Messages({ clientId }) {
   async function sendReply(client) {
     if (!replyText.trim()) return;
     setReplySending(true);
+    setReplyError(null);
     try {
       if (client?.email) {
         const { data: { session } } = await supabase.auth.getSession();
-        await fetch(`https://howvgvrrxcpdiqjbnhzn.supabase.co/functions/v1/send-email`, {
+        const response = await fetch(`https://howvgvrrxcpdiqjbnhzn.supabase.co/functions/v1/send-email`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
           body: JSON.stringify({
@@ -139,8 +141,10 @@ export default function Messages({ clientId }) {
             message_type: 'reply',
           }),
         });
+        const result = await response.json();
+        if (!result.success) { setReplyError('Reply failed to send: ' + result.error); return; }
       } else {
-        await supabase.from('messages').insert({
+        const { error } = await supabase.from('messages').insert({
           client_id: client.id,
           subject: 'Message from your provider',
           body: replyText.trim(),
@@ -148,9 +152,12 @@ export default function Messages({ clientId }) {
           message_type: 'reply',
           delivered: true,
         });
+        if (error) { setReplyError('Reply failed to save: ' + error.message); return; }
       }
       setReplyText('');
       fetchMessages();
+    } catch (err) {
+      setReplyError('Reply failed to send: ' + err.message);
     } finally {
       setReplySending(false);
     }
@@ -309,6 +316,7 @@ export default function Messages({ clientId }) {
                     ))}
                   </div>
                   <div style={{ padding: '16px 20px', borderTop: `0.5px solid ${BORDER}` }}>
+                    {replyError && <div style={{ color: RED, fontSize: 12, marginBottom: 8 }}>{replyError}</div>}
                     <textarea value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="Type a reply..." rows={2}
                       style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', fontSize: 14, resize: 'vertical', fontFamily: NAV_FONT, background: 'rgba(255,255,255,0.04)', color: TEXT }} />
                     <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>

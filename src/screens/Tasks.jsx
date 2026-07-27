@@ -8,6 +8,7 @@ export default function Tasks() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ client_id: '', title: '', assigned_to: '', due_date: '', priority: 'Medium', notes: '' });
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
 
   useEffect(() => { fetchTasks(); fetchClients(); }, []);
 
@@ -29,8 +30,14 @@ export default function Tasks() {
   async function handleSave() {
     if (!form.title || !form.client_id) return;
     setSaving(true);
+    setSaveError(null);
     const { data: { user } } = await supabase.auth.getUser();
-    await supabase.from('tasks').insert([{ ...form, provider_id: user.id, completed: false }]);
+    const { error } = await supabase.from('tasks').insert([{ ...form, provider_id: user.id, completed: false }]);
+    if (error) {
+      setSaveError('Could not save task: ' + error.message);
+      setSaving(false);
+      return;
+    }
     setForm({ client_id: '', title: '', assigned_to: '', due_date: '', priority: 'Medium', notes: '' });
     setShowForm(false);
     setSaving(false);
@@ -58,6 +65,7 @@ export default function Tasks() {
           <select value={form.priority} onChange={e => setForm({...form, priority: e.target.value})} style={{ ...inputStyle, marginBottom: 15 }}>
             <option>High</option><option>Medium</option><option>Low</option>
           </select>
+          {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}
           <button onClick={handleSave} disabled={saving || !form.title || !form.client_id} style={{ padding: '12px 25px', background: GREEN, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 15 }}>{saving ? 'Saving...' : 'Save Task'}</button>
         </div>
       )}

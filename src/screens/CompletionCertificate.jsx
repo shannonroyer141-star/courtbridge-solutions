@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, GREEN, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, GREEN, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 export default function CompletionCertificate() {
   const [certificates, setCertificates] = useState([]);
   const [clients, setClients] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState({ client_id: '', program_name: '', completion_date: new Date().toISOString().split('T')[0], total_sessions: '', total_checkins: '' });
 
@@ -30,9 +31,15 @@ export default function CompletionCertificate() {
 
   async function handleSave() {
     setSaving(true);
+    setSaveError(null);
     const { data: { user } } = await supabase.auth.getUser();
     const certNumber = `CB-${Date.now().toString().slice(-8)}`;
-    await supabase.from('completion_certificates').insert([{ ...form, provider_id: user.id, certificate_number: certNumber, issued_at: new Date().toISOString() }]);
+    const { error } = await supabase.from('completion_certificates').insert([{ ...form, provider_id: user.id, certificate_number: certNumber, issued_at: new Date().toISOString() }]);
+    if (error) {
+      setSaveError('Could not issue certificate: ' + error.message);
+      setSaving(false);
+      return;
+    }
     setForm({ client_id: '', program_name: '', completion_date: new Date().toISOString().split('T')[0], total_sessions: '', total_checkins: '' });
     setShowForm(false);
     setSaving(false);
@@ -115,6 +122,7 @@ export default function CompletionCertificate() {
               <input type="number" placeholder="e.g. 180" value={form.total_checkins} onChange={e => setForm({...form, total_checkins: e.target.value})} style={inputStyle} />
             </div>
           </div>
+          {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}
           <button onClick={handleSave} disabled={saving || !form.client_id || !form.program_name} style={{ width: '100%', padding: 13, background: GREEN, color: 'white', border: 'none', borderRadius: 8, fontSize: 15, cursor: 'pointer', fontWeight: 'bold' }}>
             {saving ? 'Saving...' : '🎓 Issue Certificate'}
           </button>

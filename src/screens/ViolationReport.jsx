@@ -7,6 +7,7 @@ export default function ViolationReport() {
   const [clients, setClients] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
   const [form, setForm] = useState({ client_id: '', report_date: new Date().toISOString().split('T')[0], violation_type: '', description: '', missed_checkins: 0, last_checkin: '', drug_test_failures: 0, missed_po_visits: 0, missed_court_dates: 0, recommended_action: '', submitted_to: '', status: 'draft' });
 
   useEffect(() => { fetchReports(); fetchClients(); }, []);
@@ -23,8 +24,14 @@ export default function ViolationReport() {
 
   async function handleSave(status = 'draft') {
     setSaving(true);
+    setSaveError(null);
     const { data: { user } } = await supabase.auth.getUser();
-    await supabase.from('violation_reports').insert([{ ...form, provider_id: user.id, status }]);
+    const { error } = await supabase.from('violation_reports').insert([{ ...form, provider_id: user.id, status }]);
+    if (error) {
+      setSaveError('Could not save report: ' + error.message);
+      setSaving(false);
+      return;
+    }
     setForm({ client_id: '', report_date: new Date().toISOString().split('T')[0], violation_type: '', description: '', missed_checkins: 0, last_checkin: '', drug_test_failures: 0, missed_po_visits: 0, missed_court_dates: 0, recommended_action: '', submitted_to: '', status: 'draft' });
     setShowForm(false);
     setSaving(false);
@@ -106,6 +113,7 @@ export default function ViolationReport() {
           </div>
           <textarea placeholder="Recommended action (e.g. return to court, increase check-in frequency)" value={form.recommended_action} onChange={e => setForm({...form, recommended_action: e.target.value})} style={{ ...inputStyle, minHeight: 70 }} />
           <input placeholder="Submitted to (e.g. Officer Martinez, Sarasota County Court)" value={form.submitted_to} onChange={e => setForm({...form, submitted_to: e.target.value})} style={{ ...inputStyle, marginBottom: 16 }} />
+          {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <button onClick={() => handleSave('draft')} disabled={saving} style={{ flex: 1, minWidth: 120, padding: 12, background: 'rgba(255,255,255,0.04)', color: TEXT, border: `0.5px solid ${BORDER}`, borderRadius: 8, fontSize: 14, cursor: 'pointer' }}>Save as Draft</button>
             <button onClick={() => handleSave('submitted')} disabled={saving || !form.client_id || !form.violation_type || !form.description} style={{ flex: 2, minWidth: 160, padding: 12, background: RED, color: 'white', border: 'none', borderRadius: 8, fontSize: 14, cursor: 'pointer', fontWeight: 'bold' }}>{saving ? 'Saving...' : '⚠️ Save & Mark Submitted'}</button>

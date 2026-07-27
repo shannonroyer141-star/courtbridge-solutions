@@ -6,8 +6,17 @@ export default function CheckInHistory({ session }) {
   const [checkins, setCheckins] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [width, setWidth] = useState(window.innerWidth)
 
   useEffect(() => { fetchCheckins() }, [])
+
+  useEffect(() => {
+    function onResize() { setWidth(window.innerWidth) }
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  const isPhone = width < 640
 
   async function fetchCheckins() {
     setLoading(true)
@@ -47,7 +56,7 @@ export default function CheckInHistory({ session }) {
   }
 
   return (
-    <div style={{ fontFamily: NAV_FONT, maxWidth: 900, margin: '0 auto', padding: 24 }}>
+    <div style={{ fontFamily: NAV_FONT, maxWidth: 900, margin: '0 auto', padding: isPhone ? 14 : 24 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <div style={{ fontSize: 22, fontWeight: 700, color: TEXT }}>Check-In Log</div>
@@ -76,7 +85,28 @@ export default function CheckInHistory({ session }) {
         </div>
       )}
 
-      {!loading && filtered.length > 0 && (
+      {!loading && filtered.length > 0 && isPhone && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {filtered.map(c => (
+            <div key={c.id} style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 10, padding: 14 }}>
+              <div style={{ fontWeight: 600, color: TEXT, marginBottom: 4 }}>{c.client_name}</div>
+              <div style={{ color: TEXT_MUTED, fontSize: 13, marginBottom: 4 }}>{formatTime(c.checked_in_at)}</div>
+              <div style={{ marginBottom: 4 }}>
+                {c.latitude && c.longitude ? (
+                  <a href={`https://www.google.com/maps?q=${c.latitude},${c.longitude}`} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'none', fontSize: 13 }}>
+                    View on map
+                  </a>
+                ) : (
+                  <span style={{ color: TEXT_DIM, fontSize: 13 }}>No location</span>
+                )}
+              </div>
+              {c.notes && <div style={{ color: TEXT_MUTED, fontSize: 13 }}>{c.notes}</div>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!loading && filtered.length > 0 && !isPhone && (
         <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, overflow: 'hidden' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr 1.5fr 2fr', gap: 12, padding: '12px 20px', background: 'rgba(255,255,255,0.03)', borderBottom: `0.5px solid ${BORDER}`, fontSize: 12, fontWeight: 700, color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             <div>Client</div>

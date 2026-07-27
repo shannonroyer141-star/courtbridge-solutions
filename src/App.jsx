@@ -55,6 +55,7 @@ export default function App() {
   const [pendingInvites, setPendingInvites] = useState(0);
   const [isFounder, setIsFounder] = useState(false);
   const [activeClientId, setActiveClientId] = useState(null);
+  const [cameFromWidget, setCameFromWidget] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 768px)');
@@ -118,9 +119,10 @@ export default function App() {
     setExpandedMenus(prev => ({ ...prev, [menu]: !prev[menu] }));
   }
 
-  function navTo(screen, clientId = null) {
+  function navTo(screen, clientId = null, fromWidget = false) {
     setActiveScreen(screen);
     setActiveClientId(clientId);
+    setCameFromWidget(fromWidget);
     if (!isDesktop) setSidebarOpen(false);
   }
 
@@ -215,7 +217,7 @@ export default function App() {
 
   function renderMain() {
     switch (activeScreen) {
-      case 'dashboard': return <ProviderDashboard session={session} onNavigate={navTo} />;
+      case 'dashboard': return <ProviderDashboard session={session} onNavigate={(screen, clientId) => navTo(screen, clientId, true)} />;
       case 'clients': return <Clients session={session} onNavigate={navTo} />;
       case 'forms': return <Forms session={session} />;
       case 'checkin': return <CheckInHistory session={session} />;
@@ -494,7 +496,21 @@ export default function App() {
           </button>
           <div style={{ fontSize: 14, fontWeight: 600, color: TEXT, letterSpacing: '-0.2px' }}>CourtBridge Solutions</div>
         </div>
-        <div style={{ flex: 1, padding: 20, background: DARK_BG }}>{renderMain()}</div>
+        <div style={{ flex: 1, padding: 20, background: DARK_BG }}>
+          {cameFromWidget && activeScreen !== 'dashboard' && (
+            <div
+              onClick={() => navTo('dashboard')}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 16,
+                padding: '8px 14px', borderRadius: 8, background: 'rgba(255,255,255,0.06)',
+                color: TEXT_MUTED, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: NAV_FONT,
+              }}
+            >
+              <span style={{ fontSize: 15, lineHeight: 1 }}>←</span> Back to Dashboard
+            </div>
+          )}
+          {renderMain()}
+        </div>
       </div>
     </div>
   );

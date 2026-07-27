@@ -32,17 +32,19 @@ function Card({ children }) {
 }
 
 function CardHeader({ title, subtitle }) {
+  const { branding } = useDemo();
   return (
-    <div style={{ background: BLUE, padding: '32px 32px 24px', textAlign: 'center' }}>
+    <div style={{ background: branding.accentColor, padding: '32px 32px 24px', textAlign: 'center' }}>
       <div style={{ color: '#fff', fontSize: 22, fontWeight: 700 }}>{title}</div>
-      <div style={{ color: '#A8C4E0', fontSize: 13, marginTop: 4 }}>{subtitle}</div>
+      <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, marginTop: 4 }}>{subtitle}</div>
     </div>
   );
 }
 
 function Button({ children, onClick, style }) {
+  const { branding } = useDemo();
   return (
-    <button onClick={onClick} style={{ width: '100%', padding: 14, background: BLUE, color: '#fff', border: 'none', borderRadius: 8, fontSize: 15, fontWeight: 700, cursor: 'pointer', ...style }}>
+    <button onClick={onClick} style={{ width: '100%', padding: 14, background: branding.accentColor, color: '#fff', border: 'none', borderRadius: 8, fontSize: 15, fontWeight: 700, cursor: 'pointer', ...style }}>
       {children}
     </button>
   );
@@ -71,6 +73,68 @@ function ProviderSignup() {
           </Button>
           <div style={{ fontSize: 12, color: '#999', marginTop: 14, textAlign: 'center' }}>
             This is a sandbox demo. No real email is sent, no real account is created.
+          </div>
+        </div>
+      </Card>
+    </Shell>
+  );
+}
+
+const ACCENT_PALETTE = [
+  { name: 'Navy', value: '#1B3A6B' },
+  { name: 'Forest', value: '#1F5C42' },
+  { name: 'Teal', value: '#0F6674' },
+  { name: 'Burgundy', value: '#7A2048' },
+  { name: 'Slate Purple', value: '#4A3F7A' },
+  { name: 'Charcoal', value: '#2D3748' },
+  { name: 'Rust', value: '#B4530A' },
+  { name: 'Indigo', value: '#3730A3' },
+];
+
+function BrandingSetup() {
+  const { providerInfo, branding, setBranding } = useDemo();
+  const [agencyName, setAgencyName] = useState(branding.agencyName || providerInfo.name || 'Your Agency');
+  const [color, setColor] = useState(branding.accentColor);
+
+  return (
+    <Shell>
+      <Card>
+        <div style={{ background: color, padding: '32px 32px 24px', textAlign: 'center', transition: 'background 0.15s' }}>
+          <div style={{ color: '#fff', fontSize: 22, fontWeight: 700 }}>{agencyName || 'Your Agency'}</div>
+          <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, marginTop: 4 }}>Powered by CourtBridge Solutions</div>
+        </div>
+        <div style={{ padding: '28px 32px' }}>
+          <div style={{ fontSize: 13, color: '#666', lineHeight: 1.6, marginBottom: 20 }}>
+            This is what your clients and staff will see. Pick a color and see it applied live — this carries through the rest of the demo.
+          </div>
+          <label style={labelStyle}>Agency Name</label>
+          <input value={agencyName} onChange={e => setAgencyName(e.target.value)} placeholder="Your Agency Name" style={{ ...inputStyle, marginBottom: 20 }} />
+
+          <label style={labelStyle}>Accent Color</label>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 24 }}>
+            {ACCENT_PALETTE.map(swatch => (
+              <button
+                key={swatch.value}
+                onClick={() => setColor(swatch.value)}
+                title={swatch.name}
+                style={{
+                  height: 44, borderRadius: 8, background: swatch.value, cursor: 'pointer',
+                  border: color === swatch.value ? '3px solid #1E2A3A' : '3px solid transparent',
+                  outline: color === swatch.value ? '2px solid #fff' : 'none',
+                  outlineOffset: -6,
+                }}
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={() => setBranding(color, agencyName || 'Your Agency')}
+            style={{ width: '100%', padding: 14, background: color, color: '#fff', border: 'none', borderRadius: 8, fontSize: 15, fontWeight: 700, cursor: 'pointer', transition: 'background 0.15s' }}
+          >
+            Continue with {ACCENT_PALETTE.find(s => s.value === color)?.name || 'this color'} →
+          </button>
+          <div style={{ fontSize: 12, color: '#999', marginTop: 14, textAlign: 'center' }}>
+            Full branding (logo, more colors) is available on select plans. This sandbox shows a limited preview.
           </div>
         </div>
       </Card>
@@ -272,6 +336,7 @@ function CourtReportDemo() {
 function SandboxRouter() {
   const { phase } = useDemo();
   if (phase === 'provider-signup') return <ProviderSignup />;
+  if (phase === 'customize-branding') return <BrandingSetup />;
   if (phase === 'provider-dashboard' || phase === 'client-link-sent' || phase === 'provider-dashboard-updated') return <ProviderDashboardDemo />;
   if (phase === 'client-onboarding') return <ClientOnboardingDemo />;
   if (phase === 'client-dashboard') return <ClientDashboardDemo />;

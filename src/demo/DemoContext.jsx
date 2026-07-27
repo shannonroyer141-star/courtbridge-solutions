@@ -9,9 +9,16 @@ export function DemoProvider({ children }) {
   const [providerInfo, setProviderInfo] = useState({ name: '', email: '' });
   const [clientInfo, setClientInfo] = useState({ ...DEMO_CLIENT });
   const [checkins, setCheckins] = useState([]);
+  const [branding, setBrandingState] = useState({ accentColor: '#1B3A6B', agencyName: '' });
 
   function signUpProvider(name, email) {
     setProviderInfo({ name, email });
+    setBrandingState(prev => ({ ...prev, agencyName: name }));
+    setPhase('customize-branding');
+  }
+
+  function setBranding(accentColor, agencyName) {
+    setBrandingState({ accentColor, agencyName });
     setPhase('provider-dashboard');
   }
 
@@ -53,8 +60,10 @@ export function DemoProvider({ children }) {
     providerInfo,
     clientInfo,
     checkins,
+    branding,
     complianceSummary: DEMO_COMPLIANCE_SUMMARY,
     signUpProvider,
+    setBranding,
     sendClientLink,
     switchToClient,
     completeOnboarding,

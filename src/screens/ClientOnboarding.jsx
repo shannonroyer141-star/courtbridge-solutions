@@ -49,13 +49,18 @@ export default function ClientOnboarding() {
     const userId = authData.user?.id
     if (!userId) { setError('Account creation failed. Please try again.'); setSubmitting(false); return }
 
-    await supabase.from('profiles').insert({
+    const { error: profileError } = await supabase.from('profiles').insert({
       id: userId,
       role: 'client',
       full_name: invite.client_name || invite.client_email
     })
+    if (profileError) {
+      setError('Something went wrong finishing your account setup. Please contact your provider — your login was created but needs to be linked. (' + profileError.message + ')')
+      setSubmitting(false)
+      return
+    }
 
-    const { data: newClient } = await supabase.from('clients').insert({
+    const { data: newClient, error: clientError } = await supabase.from('clients').insert({
       name: invite.client_name,
       email: invite.client_email,
       phone: form.phone || null,
@@ -65,11 +70,16 @@ export default function ClientOnboarding() {
       sms_consent_signed_at: (form.phone && form.smsConsent) ? new Date().toISOString() : null,
       terms_signed_at: new Date().toISOString()
     }).select().single()
+    if (clientError || !newClient) {
+      setError('Something went wrong creating your client record. Please contact your provider before trying again. (' + (clientError?.message || 'unknown error') + ')')
+      setSubmitting(false)
+      return
+    }
 
     await supabase.from('invites').update({
       accepted: true,
       accepted_at: new Date().toISOString(),
-      client_id: newClient?.id || null
+      client_id: newClient.id
     }).eq('token', token)
 
     setSubmitting(false)

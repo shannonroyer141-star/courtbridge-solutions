@@ -3,9 +3,9 @@ import { supabase } from '../supabase';
 import { CARD_BG, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 const TYPES = {
-  case_note: { label: 'Case Note', table: 'case_notes', color: '#5B9BF0' },
+  case_note: { label: 'Case Note', table: 'case_notes', ownerField: 'provider_id', color: '#5B9BF0' },
   clinical_note: { label: 'Clinical Note', table: null, color: '#B388EB', comingSoon: true },
-  legal_agreement: { label: 'Legal Agreement', table: 'legal_agreements', color: '#E0B04C' },
+  legal_agreement: { label: 'Legal Agreement', table: 'legal_agreements', ownerField: 'user_id', color: '#E0B04C' },
 };
 
 export default function SensitiveNotes() {
@@ -36,11 +36,13 @@ export default function SensitiveNotes() {
     if (TYPES[type].comingSoon) return;
     if (!form.client_id || !form.content) { setStatus('Please select a client and enter content.'); return; }
     setSaving(true); setStatus('');
+    const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase.from(TYPES[type].table).insert([{
       client_id: form.client_id,
       title: form.title || null,
       content: form.content,
       entry_date: form.entry_date,
+      [TYPES[type].ownerField]: user.id,
     }]);
     if (error) {
       setStatus('Save failed — the table columns likely need adjusting once Supabase is reachable. ' + error.message);

@@ -49,7 +49,7 @@ export default function ClientOnboarding() {
     const userId = authData.user?.id
     if (!userId) { setError('Account creation failed. Please try again.'); setSubmitting(false); return }
 
-    const { error: profileError } = await supabase.from('profiles').insert({
+    const { error: profileError } = await supabase.from('profiles').upsert({
       id: userId,
       role: 'client',
       full_name: invite.client_name || invite.client_email

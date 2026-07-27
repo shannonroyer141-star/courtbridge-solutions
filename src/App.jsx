@@ -37,6 +37,9 @@ import SensitiveNotes from './screens/SensitiveNotes';
 import ClientIntake from './screens/ClientIntake';
 import SMSAlerts from './screens/SMSAlerts';
 import StaffCredentialing from './screens/StaffCredentialing';
+import ComplianceRequirements from './screens/ComplianceRequirements';
+import FundingSources from './screens/FundingSources';
+import AuditReadiness from './screens/AuditReadiness';
 import { BLUE, DARK_BG, CARD_BG, ACCENT, ORANGE, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from './theme';
 
 const isEnrollRoute = window.location.pathname === '/enroll' &&
@@ -252,6 +255,9 @@ export default function App() {
       case 'clientintake': return <ClientIntake session={session} />;
       case 'smsalerts': return <SMSAlerts session={session} />;
       case 'staffcredentialing': return <StaffCredentialing session={session} />;
+      case 'compliancerequirements': return <ComplianceRequirements session={session} />;
+      case 'fundingsources': return <FundingSources session={session} />;
+      case 'auditreadiness': return <AuditReadiness session={session} />;
       default: return <ProviderDashboard session={session} onNavigate={navTo} />;
     }
   }
@@ -454,7 +460,10 @@ export default function App() {
             <Ic d={expandedMenus.org ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
           </div>
           {expandedMenus.org && <>
+            <div style={subItem('auditreadiness')} onClick={() => navTo('auditreadiness')}>Audit Readiness</div>
+            <div style={subItem('compliancerequirements')} onClick={() => navTo('compliancerequirements')}>Compliance Requirements</div>
             <div style={subItem('compliancechart')} onClick={() => navTo('compliancechart')}>Compliance Chart</div>
+            <div style={subItem('fundingsources')} onClick={() => navTo('fundingsources')}>Funding Sources</div>
             <div style={subItem('settings')} onClick={() => navTo('settings')}>My Preferences</div>
             <div style={subItem('orgadmin')} onClick={() => navTo('orgadmin')}>Org Settings</div>
             <div style={subItem('staffcredentialing')} onClick={() => navTo('staffcredentialing')}>Staff Credentialing</div>

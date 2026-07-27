@@ -177,32 +177,32 @@ export default function App() {
           </div>
         </div>
       )}
-      <div style={{ flex: isDesktop ? '1 1 50%' : '1 1 100%', background: '#F5F6F8', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      <div style={{ flex: isDesktop ? '1 1 50%' : '1 1 100%', background: DARK_BG, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
         <div style={{ width: '100%', maxWidth: 380 }}>
           {!isDesktop && (
             <div style={{ textAlign: 'center', marginBottom: 28 }}>
-              <div style={{ color: BLUE, fontSize: 22, fontWeight: 800 }}>CourtBridge Solutions</div>
-              <div style={{ color: '#7A8FA6', fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 4 }}>Provider Platform</div>
+              <div style={{ color: TEXT, fontSize: 22, fontWeight: 800 }}>CourtBridge Solutions</div>
+              <div style={{ color: TEXT_MUTED, fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 4 }}>Provider Platform</div>
             </div>
           )}
-          <div style={{ fontSize: 24, fontWeight: 800, color: '#1A2D45', marginBottom: 6 }}>Welcome back</div>
-          <div style={{ fontSize: 14, color: '#7A8FA6', marginBottom: 28 }}>Sign in to your CourtBridge portal</div>
+          <div style={{ fontSize: 24, fontWeight: 800, color: TEXT, marginBottom: 6 }}>Welcome back</div>
+          <div style={{ fontSize: 14, color: TEXT_MUTED, marginBottom: 28 }}>Sign in to your CourtBridge portal</div>
           <form onSubmit={handleLogin}>
             <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#666', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Email</label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Email</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-                style={{ width: '100%', padding: '12px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 15, boxSizing: 'border-box', outline: 'none' }}
+                style={{ width: '100%', padding: '12px 14px', border: `0.5px solid ${BORDER}`, borderRadius: 8, fontSize: 15, boxSizing: 'border-box', outline: 'none', background: 'rgba(255,255,255,0.04)', color: TEXT }}
                 placeholder="your@email.com" />
             </div>
             <div style={{ marginBottom: 20 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#666', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Password</label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Password</label>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} required
-                style={{ width: '100%', padding: '12px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 15, boxSizing: 'border-box', outline: 'none' }}
+                style={{ width: '100%', padding: '12px 14px', border: `0.5px solid ${BORDER}`, borderRadius: 8, fontSize: 15, boxSizing: 'border-box', outline: 'none', background: 'rgba(255,255,255,0.04)', color: TEXT }}
                 placeholder="••••••••" />
             </div>
-            {loginError && <div style={{ color: '#cc0000', fontSize: 13, marginBottom: 16 }}>{loginError}</div>}
+            {loginError && <div style={{ color: '#F87171', fontSize: 13, marginBottom: 16 }}>{loginError}</div>}
             <button type="submit" disabled={loginLoading}
-              style={{ width: '100%', padding: 14, background: BLUE, color: '#fff', border: 'none', borderRadius: 8, fontSize: 15, fontWeight: 700, cursor: loginLoading ? 'not-allowed' : 'pointer', opacity: loginLoading ? 0.7 : 1 }}>
+              style={{ width: '100%', padding: 14, background: ACCENT, color: '#fff', border: 'none', borderRadius: 8, fontSize: 15, fontWeight: 700, cursor: loginLoading ? 'not-allowed' : 'pointer', opacity: loginLoading ? 0.7 : 1 }}>
               {loginLoading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>

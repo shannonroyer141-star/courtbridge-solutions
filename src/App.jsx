@@ -410,7 +410,7 @@ export default function App() {
           <div style={navItem('clientinvite')} onClick={() => navTo('clientinvite')}>
             <Ic d={ICONS.admin} /><span style={{ flex: 1 }}>Client Invites</span>
             {pendingInvites > 0 && (
-              <span style={{ background: ORANGE, color: '#fff', fontSize: 10, fontWeight: 700, borderRadius: 10, padding: '1px 7px' }}>{pendingInvites}</span>
+              <span style={{ background: '#fff', color: '#000', fontSize: 10, fontWeight: 700, borderRadius: 10, padding: '1px 7px' }}>{pendingInvites}</span>
             )}
           </div>
 

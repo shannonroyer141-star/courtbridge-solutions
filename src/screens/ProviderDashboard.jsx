@@ -340,8 +340,20 @@ export default function ProviderDashboard({ onNavigate }) {
     const { data: recentMessages } = await supabase.from('messages').select('*, clients(name)').in('client_id', clientIds).order('created_at', { ascending: false }).limit(200);
     const { data: upcomingCourtDates } = await supabase.from('court_dates').select('*, clients(name)').in('client_id', clientIds).gte('hearing_date', todayDateStr).lte('hearing_date', in7DaysStr).order('hearing_date');
     const { data: upcomingTasks } = await supabase.from('tasks').select('*').eq('provider_id', user.id).eq('completed', false).gte('due_date', todayStr).lte('due_date', in7DaysStr + 'T23:59:59').order('due_date');
+    const { data: lastCheckins } = await supabase.from('checkins').select('client_id, checked_in_at').in('client_id', clientIds).order('checked_in_at', { ascending: false });
 
-    const missed = clients?.filter(c => !todayCheckIns?.some(ci => ci.client_id === c.id)) || [];
+    const lastCheckinByClient = {};
+    for (const ci of lastCheckins || []) {
+      if (!lastCheckinByClient[ci.client_id]) lastCheckinByClient[ci.client_id] = ci.checked_in_at;
+    }
+    const missed = clients?.filter(c => {
+      const freqDays = c.check_in_frequency_days || 1;
+      const last = lastCheckinByClient[c.id];
+      if (!last) return true;
+      const dueBy = new Date(last);
+      dueBy.setDate(dueBy.getDate() + freqDays);
+      return dueBy < new Date();
+    }) || [];
     const rate = activeClients > 0 ? Math.round(((weekCheckIns?.length || 0) / (activeClients * 7)) * 100) : 0;
 
     setStats({ activeClients, checkedInToday: todayCheckIns?.length || 0, missedLast24: missed.length, alertsCount: alerts?.length || 0 });
@@ -408,7 +420,7 @@ export default function ProviderDashboard({ onNavigate }) {
           onClick={() => onNavigate && onNavigate('checkin')}
         />
         <StatCard
-          label="Missed (24 hrs)"
+          label="Missed Check-Ins"
           value={stats.missedLast24}
           sub={stats.missedLast24 === 0 ? 'All checked in' : 'Need follow-up'}
           valueColor={missedColor}

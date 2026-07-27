@@ -29,6 +29,8 @@ export default function Clients({ session, onNavigate }) {
   const [showEnrollModal, setShowEnrollModal] = useState(false)
   const [selectedClient, setSelectedClient] = useState(null)
   const [width, setWidth] = useState(window.innerWidth)
+  const [savingFreq, setSavingFreq] = useState(false)
+  const [freqError, setFreqError] = useState(null)
 
   useEffect(() => { fetchClients() }, [])
 
@@ -63,6 +65,20 @@ export default function Clients({ session, onNavigate }) {
         {status || 'active'}
       </span>
     )
+  }
+
+  async function updateFrequency(days) {
+    setSavingFreq(true)
+    setFreqError(null)
+    const { error } = await supabase.from('clients').update({ check_in_frequency_days: days }).eq('id', selectedClient.id)
+    if (error) {
+      setFreqError('Could not save: ' + error.message)
+      setSavingFreq(false)
+      return
+    }
+    setSelectedClient({ ...selectedClient, check_in_frequency_days: days })
+    setClients(clients.map(c => c.id === selectedClient.id ? { ...c, check_in_frequency_days: days } : c))
+    setSavingFreq(false)
   }
 
   function onboardingBadge(client) {
@@ -201,10 +217,30 @@ export default function Clients({ session, onNavigate }) {
               )}
               {selectedClient.checkin_schedule && (
                 <div style={{ marginTop: 12 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 3 }}>Check-In Schedule</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 3 }}>Check-In Schedule (from court order)</div>
                   <div style={{ fontSize: 14, color: TEXT, lineHeight: 1.6, background: 'rgba(255,255,255,0.04)', borderRadius: 8, padding: '10px 14px' }}>{selectedClient.checkin_schedule}</div>
                 </div>
               )}
+              <div style={{ marginTop: 16 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 3 }}>Required Check-In Frequency</div>
+                <div style={{ fontSize: 12, color: TEXT_MUTED, marginBottom: 8 }}>Drives Alerts and Compliance Chart for this client specifically.</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <select
+                    value={selectedClient.check_in_frequency_days || 1}
+                    onChange={e => updateFrequency(parseInt(e.target.value, 10))}
+                    disabled={savingFreq}
+                    style={{ padding: '8px 12px', borderRadius: 8, border: `0.5px solid ${BORDER}`, fontSize: 13, background: CARD_BG, color: TEXT, cursor: 'pointer', fontFamily: NAV_FONT }}
+                  >
+                    <option value={1}>Every day</option>
+                    <option value={2}>Every 2 days</option>
+                    <option value={3}>Every 3 days</option>
+                    <option value={7}>Once a week</option>
+                    <option value={14}>Every 2 weeks</option>
+                  </select>
+                  {savingFreq && <span style={{ fontSize: 12, color: TEXT_MUTED }}>Saving...</span>}
+                </div>
+                {freqError && <div style={{ color: RED, fontSize: 12, marginTop: 6 }}>{freqError}</div>}
+              </div>
               {!selectedClient.onboarding_complete && (
                 <div style={{ marginTop: 16, background: 'rgba(255,140,66,0.1)', border: `0.5px solid ${ORANGE}`, borderRadius: 8, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
                   <div style={{ fontSize: 13, color: ORANGE }}>⚠ This participant has not completed enrollment yet.</div>

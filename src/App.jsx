@@ -35,6 +35,7 @@ import DocumentUpload from './screens/DocumentUpload';
 import CompletionCertificate from './screens/CompletionCertificate';
 import SensitiveNotes from './screens/SensitiveNotes';
 import ClientIntake from './screens/ClientIntake';
+import SMSAlerts from './screens/SMSAlerts';
 import { BLUE, DARK_BG, CARD_BG, ACCENT, ORANGE, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from './theme';
 
 const isEnrollRoute = window.location.pathname === '/enroll' &&
@@ -248,6 +249,7 @@ export default function App() {
       case 'certificates': return <CompletionCertificate session={session} />;
       case 'sensitivenotes': return <SensitiveNotes session={session} />;
       case 'clientintake': return <ClientIntake session={session} />;
+      case 'smsalerts': return <SMSAlerts session={session} />;
       default: return <ProviderDashboard session={session} onNavigate={navTo} />;
     }
   }
@@ -418,6 +420,7 @@ export default function App() {
             <div style={subItem('checkin')} onClick={() => navTo('checkin')}>Check-Ins</div>
             <div style={subItem('clientintake')} onClick={() => navTo('clientintake')}>Client Intake</div>
             <div style={subItem('mapview')} onClick={() => navTo('mapview')}>Map View</div>
+            <div style={subItem('smsalerts')} onClick={() => navTo('smsalerts')}>SMS Alerts</div>
             <div style={subItem('tasks')} onClick={() => navTo('tasks')}>Tasks</div>
 
             <div style={subGroupRow('sensitive')} onClick={() => toggleMenu('sensitive')}>

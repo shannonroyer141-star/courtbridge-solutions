@@ -12,6 +12,7 @@ export default function Forms() {
   const [selected, setSelected] = useState(null);
   const [signatures, setSignatures] = useState([]);
   const [loadingSignatures, setLoadingSignatures] = useState(false);
+  const [saveError, setSaveError] = useState(null);
 
   useEffect(() => { fetchTemplates(); }, []);
 
@@ -23,13 +24,19 @@ export default function Forms() {
   async function addTemplate() {
     if (!form.title.trim() || !form.content.trim()) return;
     setSaving(true);
+    setSaveError(null);
     const { data: { user } } = await supabase.auth.getUser();
-    await supabase.from('form_templates').insert({
+    const { error } = await supabase.from('form_templates').insert({
       provider_id: user.id,
       title: form.title.trim(),
       form_type: form.form_type,
       content: form.content.trim(),
     });
+    if (error) {
+      setSaveError('Could not save: ' + error.message);
+      setSaving(false);
+      return;
+    }
     setForm({ title: '', form_type: 'Waiver', content: '' });
     setShowForm(false);
     setSaving(false);
@@ -69,6 +76,7 @@ export default function Forms() {
           <div style={{ background: 'rgba(255,140,66,0.12)', border: `0.5px solid ${ORANGE}`, borderRadius: 8, padding: '10px 14px', marginBottom: 14, fontSize: 12, color: ORANGE }}>
             ⚠ Treat any form text you write here as a draft — have it reviewed before relying on it as legally binding.
           </div>
+          {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}
           <button onClick={addTemplate} disabled={saving || !form.title.trim() || !form.content.trim()}
             style={{ width: '100%', padding: 13, background: GREEN, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 15, fontWeight: 'bold' }}>
             {saving ? 'Saving...' : 'Add to Form Library'}

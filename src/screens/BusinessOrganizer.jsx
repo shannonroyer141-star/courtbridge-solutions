@@ -48,6 +48,7 @@ function TasksTab() {
   const [tasks, setTasks] = useState([]);
   const [draft, setDraft] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => { fetchTasks(); }, []);
 
@@ -61,7 +62,9 @@ function TasksTab() {
   async function addTask(e) {
     e.preventDefault();
     if (!draft.trim()) return;
-    await supabase.from('founder_tasks').insert({ content: draft.trim() });
+    setError(null);
+    const { error } = await supabase.from('founder_tasks').insert({ content: draft.trim() });
+    if (error) { setError('Could not save: ' + error.message); return; }
     setDraft('');
     fetchTasks();
   }
@@ -88,6 +91,7 @@ function TasksTab() {
         <button type="submit" style={{ padding: '10px 18px', background: ACCENT, color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, cursor: 'pointer' }}>Add</button>
       </form>
 
+      {error && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{error}</div>}
       {open.length === 0 && done.length === 0 && <p style={{ color: TEXT_MUTED }}>No to-dos yet.</p>}
 
       {open.map(t => (
@@ -118,6 +122,7 @@ function NotesTab() {
   const [notes, setNotes] = useState([]);
   const [draft, setDraft] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => { fetchNotes(); }, []);
 
@@ -131,7 +136,9 @@ function NotesTab() {
   async function addNote(e) {
     e.preventDefault();
     if (!draft.trim()) return;
-    await supabase.from('founder_notes').insert({ content: draft.trim() });
+    setError(null);
+    const { error } = await supabase.from('founder_notes').insert({ content: draft.trim() });
+    if (error) { setError('Could not save: ' + error.message); return; }
     setDraft('');
     fetchNotes();
   }
@@ -155,6 +162,7 @@ function NotesTab() {
         <button type="submit" style={{ alignSelf: 'flex-start', padding: '10px 18px', background: ACCENT, color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, cursor: 'pointer' }}>Add Note</button>
       </form>
 
+      {error && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{error}</div>}
       {notes.length === 0 && <p style={{ color: TEXT_MUTED }}>No notes yet.</p>}
 
       {notes.map(n => (
@@ -170,6 +178,7 @@ function NotesTab() {
 function VendorsTab() {
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [form, setForm] = useState({ name: '', account_ref: '', plan_tier: '', url: '', notes: '' });
   const [width, setWidth] = useState(window.innerWidth);
 
@@ -193,7 +202,9 @@ function VendorsTab() {
   async function addVendor(e) {
     e.preventDefault();
     if (!form.name.trim()) return;
-    await supabase.from('founder_vendor_accounts').insert(form);
+    setError(null);
+    const { error } = await supabase.from('founder_vendor_accounts').insert(form);
+    if (error) { setError('Could not save: ' + error.message); return; }
     setForm({ name: '', account_ref: '', plan_tier: '', url: '', notes: '' });
     fetchVendors();
   }
@@ -220,6 +231,7 @@ function VendorsTab() {
         <button type="submit" style={{ gridColumn: isPhone ? 'auto' : '1 / -1', padding: '10px 18px', background: ACCENT, color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, cursor: 'pointer', justifySelf: 'start' }}>Add Vendor</button>
       </form>
 
+      {error && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{error}</div>}
       {vendors.length === 0 && <p style={{ color: TEXT_MUTED }}>No vendor accounts logged yet.</p>}
 
       {vendors.map(v => (

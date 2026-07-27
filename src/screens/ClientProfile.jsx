@@ -22,6 +22,7 @@ export default function ClientProfile({ clientId, onNavigate }) {
   const [returnForm, setReturnForm] = useState({ address: '', phone: '' });
   const [savingStatus, setSavingStatus] = useState(false);
   const [width, setWidth] = useState(window.innerWidth);
+  const [actionError, setActionError] = useState(null);
 
   useEffect(() => {
     if (clientId) fetchAll();
@@ -61,13 +62,19 @@ export default function ClientProfile({ clientId, onNavigate }) {
   async function addProgressNote() {
     if (!noteForm.content.trim()) return;
     setSavingNote(true);
-    await supabase.from('client_progress_notes').insert({
+    setActionError(null);
+    const { error } = await supabase.from('client_progress_notes').insert({
       client_id: clientId,
       note_date: noteForm.note_date,
       content: noteForm.content.trim(),
       visible_to_client: noteForm.visible_to_client,
       client_program_id: noteForm.client_program_id || null,
     });
+    if (error) {
+      setActionError('Could not save note: ' + error.message);
+      setSavingNote(false);
+      return;
+    }
     setNoteForm({ note_date: new Date().toISOString().split('T')[0], content: '', visible_to_client: true, client_program_id: '' });
     setShowAddNote(false);
     setSavingNote(false);
@@ -75,20 +82,28 @@ export default function ClientProfile({ clientId, onNavigate }) {
   }
 
   async function deleteProgressNote(id) {
-    await supabase.from('client_progress_notes').delete().eq('id', id);
+    setActionError(null);
+    const { error } = await supabase.from('client_progress_notes').delete().eq('id', id);
+    if (error) { setActionError('Could not delete note: ' + error.message); return; }
     fetchAll();
   }
 
   async function addOrder() {
     if (!orderForm.order_name.trim()) return;
     setSavingOrder(true);
-    await supabase.from('client_programs').insert({
+    setActionError(null);
+    const { error } = await supabase.from('client_programs').insert({
       client_id: clientId,
       order_name: orderForm.order_name.trim(),
       order_type: orderForm.order_type,
       start_date: orderForm.start_date,
       duration_weeks: orderForm.duration_weeks ? parseInt(orderForm.duration_weeks, 10) : null,
     });
+    if (error) {
+      setActionError('Could not save order: ' + error.message);
+      setSavingOrder(false);
+      return;
+    }
     setOrderForm({ order_name: '', order_type: 'primary', start_date: new Date().toISOString().split('T')[0], duration_weeks: '' });
     setShowAddOrder(false);
     setSavingOrder(false);
@@ -96,15 +111,18 @@ export default function ClientProfile({ clientId, onNavigate }) {
   }
 
   async function markComplete(program) {
+    setActionError(null);
     const completedAt = new Date().toISOString();
-    await supabase.from('client_programs').update({ status: 'completed', completed_at: completedAt }).eq('id', program.id);
+    const { error: updateError } = await supabase.from('client_programs').update({ status: 'completed', completed_at: completedAt }).eq('id', program.id);
+    if (updateError) { setActionError('Could not mark complete: ' + updateError.message); return; }
 
-    await supabase.from('client_milestones').insert({
+    const { error: milestoneError } = await supabase.from('client_milestones').insert({
       client_id: clientId,
       milestone_type: `program_completed_${program.id}`,
       title: `Completed: ${program.order_name}`,
       description: `Successfully completed ${program.order_name}.`,
     });
+    if (milestoneError) { setActionError('Marked complete, but the milestone badge failed to save: ' + milestoneError.message); }
 
     const { count: totalCheckins } = await supabase
       .from('checkins')
@@ -113,7 +131,7 @@ export default function ClientProfile({ clientId, onNavigate }) {
       .gte('checked_in_at', program.start_date);
 
     const { data: { user } } = await supabase.auth.getUser();
-    await supabase.from('completion_certificates').insert({
+    const { error: certError } = await supabase.from('completion_certificates').insert({
       client_id: clientId,
       provider_id: user.id,
       program_name: program.order_name,
@@ -122,18 +140,23 @@ export default function ClientProfile({ clientId, onNavigate }) {
       certificate_number: `CB-${Date.now().toString().slice(-8)}`,
       issued_at: completedAt,
     });
+    if (certError) { setActionError('Marked complete, but the certificate failed to generate: ' + certError.message); }
 
     fetchAll();
   }
 
   async function markTerminated(program) {
-    await supabase.from('client_programs').update({ status: 'terminated', completed_at: new Date().toISOString() }).eq('id', program.id);
+    setActionError(null);
+    const { error } = await supabase.from('client_programs').update({ status: 'terminated', completed_at: new Date().toISOString() }).eq('id', program.id);
+    if (error) { setActionError('Could not update status: ' + error.message); return; }
     fetchAll();
   }
 
   async function changeClientStatus(newStatus) {
     setSavingStatus(true);
-    await supabase.from('clients').update({ status: newStatus, status_changed_at: new Date().toISOString() }).eq('id', clientId);
+    setActionError(null);
+    const { error } = await supabase.from('clients').update({ status: newStatus, status_changed_at: new Date().toISOString() }).eq('id', clientId);
+    if (error) { setActionError('Could not update status: ' + error.message); }
     setSavingStatus(false);
     fetchAll();
   }
@@ -145,12 +168,14 @@ export default function ClientProfile({ clientId, onNavigate }) {
 
   async function confirmReactivation() {
     setSavingStatus(true);
-    await supabase.from('clients').update({
+    setActionError(null);
+    const { error } = await supabase.from('clients').update({
       status: 'active',
       status_changed_at: new Date().toISOString(),
       address: returnForm.address || null,
       phone: returnForm.phone || null,
     }).eq('id', clientId);
+    if (error) { setActionError('Could not reactivate: ' + error.message); setSavingStatus(false); return; }
     setSavingStatus(false);
     setShowReactivate(false);
     fetchAll();
@@ -178,6 +203,9 @@ export default function ClientProfile({ clientId, onNavigate }) {
     <div style={{ padding: isPhone ? 14 : 24, maxWidth: 800, fontFamily: NAV_FONT }}>
       {onNavigate && (
         <button onClick={() => onNavigate('clients')} style={{ background: 'none', border: 'none', color: TEXT_MUTED, fontSize: 13, cursor: 'pointer', padding: 0, marginBottom: 14 }}>← Back to Clients</button>
+      )}
+      {actionError && (
+        <div style={{ background: 'rgba(248,113,113,0.1)', border: `0.5px solid ${RED}`, borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 13, color: RED }}>{actionError}</div>
       )}
       <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
         <div style={{ width: 56, height: 56, borderRadius: '50%', background: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 22, fontWeight: 'bold', flexShrink: 0 }}>

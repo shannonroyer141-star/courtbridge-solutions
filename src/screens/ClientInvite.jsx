@@ -127,7 +127,7 @@ export default function ClientInvite() {
                 <p style={{ margin: '3px 0 0', fontSize: 12, color: TEXT_DIM }}>Sent {new Date(i.created_at).toLocaleDateString()} • Expires {new Date(i.expires_at).toLocaleDateString()}</p>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
-                <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 'bold', background: i.accepted ? 'rgba(76,175,125,0.15)' : 'rgba(255,140,66,0.15)', color: i.accepted ? GREEN : ORANGE }}>
+                <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 'bold', background: i.accepted ? 'rgba(76,175,125,0.15)' : '#fff', color: i.accepted ? GREEN : '#000' }}>
                   {i.accepted ? '✅ Signed Up' : '⏳ Pending'}
                 </span>
                 {!i.accepted && (

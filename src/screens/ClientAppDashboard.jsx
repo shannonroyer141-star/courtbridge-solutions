@@ -264,24 +264,34 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
       })
       if (error) throw error
 
+      let urgentAlertFailed = false
       if (composeUrgent) {
         if (providerProfile?.phone) {
-          const { data: { session: authSession } } = await supabase.auth.getSession()
-          fetch(`https://howvgvrrxcpdiqjbnhzn.supabase.co/functions/v1/send-sms`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authSession.access_token}` },
-            body: JSON.stringify({
-              to_phone: providerProfile.phone,
-              body: `URGENT message from ${client.name} in CourtBridge: ${composeText.trim()}`,
-              client_id: client.id,
-            }),
-          }).catch(() => {})
+          try {
+            const { data: { session: authSession } } = await supabase.auth.getSession()
+            const smsResponse = await fetch(`https://howvgvrrxcpdiqjbnhzn.supabase.co/functions/v1/send-sms`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authSession.access_token}` },
+              body: JSON.stringify({
+                to_phone: providerProfile.phone,
+                body: `URGENT message from ${client.name} in CourtBridge: ${composeText.trim()}`,
+                client_id: client.id,
+              }),
+            })
+            if (!smsResponse.ok) urgentAlertFailed = true
+          } catch (smsErr) {
+            urgentAlertFailed = true
+          }
+        } else {
+          urgentAlertFailed = true
         }
       }
 
       setComposeText('')
       setComposeUrgent(false)
-      setMessageStatus({ type: 'success', text: 'Message sent to your provider.' })
+      setMessageStatus(urgentAlertFailed
+        ? { type: 'error', text: 'Message sent, but the urgent SMS alert to your provider could not be sent. They may not see this right away.' }
+        : { type: 'success', text: 'Message sent to your provider.' })
       fetchMessages()
     } catch (err) {
       setMessageStatus({ type: 'error', text: 'Could not send message. Please try again.' })

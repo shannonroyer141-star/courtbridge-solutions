@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 export default function CourtDates() {
   const [hearings, setHearings] = useState([]);
@@ -40,7 +40,7 @@ export default function CourtDates() {
   const inputStyle = { padding: 12, marginBottom: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT };
 
   const daysUntil = (date) => Math.ceil((new Date(date) - new Date()) / (1000 * 60 * 60 * 24));
-  const urgencyColor = (date) => { const d = daysUntil(date); return d <= 3 ? RED : d <= 7 ? ORANGE : GREEN; };
+  const urgencyColor = (date) => { const d = daysUntil(date); return d <= 3 ? RED : d <= 7 ? WARNING : GREEN; };
   const upcoming = hearings.filter(h => h.status === 'upcoming');
   const past = hearings.filter(h => h.status === 'completed');
 
@@ -85,7 +85,7 @@ export default function CourtDates() {
                   <p style={{ margin: '3px 0 0', fontSize: 14, color: TEXT }}>{h.hearing_type}</p>
                   <p style={{ margin: '3px 0 0', fontSize: 13, color: TEXT_MUTED }}>{new Date(h.hearing_date).toLocaleDateString()} {h.hearing_time || ''}</p>
                   {h.court_name && <p style={{ margin: '3px 0 0', fontSize: 13, color: TEXT_MUTED }}>{h.court_name}</p>}
-                  {h.documents_required && <div style={{ marginTop: 8, background: 'rgba(255,140,66,0.12)', borderRadius: 6, padding: '8px 12px' }}><p style={{ margin: 0, fontSize: 12, color: ORANGE }}>Documents needed: {h.documents_required}</p></div>}
+                  {h.documents_required && <div style={{ marginTop: 8, background: 'rgba(61,111,168,0.12)', borderRadius: 6, padding: '8px 12px' }}><p style={{ margin: 0, fontSize: 12, color: WARNING }}>Documents needed: {h.documents_required}</p></div>}
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <p style={{ margin: 0, fontWeight: 'bold', color: urgencyColor(h.hearing_date), fontSize: 16 }}>{daysUntil(h.hearing_date)}d</p>

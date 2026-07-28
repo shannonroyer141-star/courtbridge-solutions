@@ -41,7 +41,7 @@ import ComplianceRequirements from './screens/ComplianceRequirements';
 import FundingSources from './screens/FundingSources';
 import AuditReadiness from './screens/AuditReadiness';
 import Assessments from './screens/Assessments';
-import { BLUE, DARK_BG, CARD_BG, ACCENT, ORANGE, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from './theme';
+import { BLUE, DARK_BG, CARD_BG, ACCENT, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from './theme';
 
 const isEnrollRoute = window.location.pathname === '/enroll' &&
   new URLSearchParams(window.location.search).has('token');

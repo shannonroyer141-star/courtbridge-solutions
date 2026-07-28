@@ -132,7 +132,7 @@ export default function SendEnrollmentLink({ providerId, onClose, onSuccess }) {
                 {reviewRow('Reporting Requirements', form.reporting_requirements)}
                 {reviewRow('Check-In Schedule', form.checkin_schedule)}
               </div>
-              <div style={{ background: 'rgba(255,140,66,0.12)', border: '0.5px solid #FF8C42', borderRadius: 8, padding: 12, fontSize: 12, color: '#FF8C42', marginBottom: 20, lineHeight: 1.6 }}>⚠ Make sure this matches their court order or referral document exactly.</div>
+              <div style={{ background: 'rgba(61,111,168,0.12)', border: '0.5px solid #3D6FA8', borderRadius: 8, padding: 12, fontSize: 12, color: '#3D6FA8', marginBottom: 20, lineHeight: 1.6 }}>⚠ Make sure this matches their court order or referral document exactly.</div>
               {error && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{error}</div>}
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginTop: 8 }}>
                 <button style={btn('transparent', ACCENT)} onClick={() => { setError(null); setStep(2) }}>← Back</button>

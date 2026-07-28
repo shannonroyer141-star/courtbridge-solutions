@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 const TYPES = {
   case_note: { label: 'Case Note', table: 'case_notes', ownerField: 'provider_id', color: '#5B9BF0' },
-  clinical_note: { label: 'Clinical Note', table: 'clinical_notes', ownerField: 'provider_id', color: '#B388EB' },
-  legal_agreement: { label: 'Legal Agreement', table: 'legal_agreements', ownerField: 'user_id', color: '#E0B04C' },
+  clinical_note: { label: 'Clinical Note', table: 'clinical_notes', ownerField: 'provider_id', color: '#1B3A6B' },
+  legal_agreement: { label: 'Legal Agreement', table: 'legal_agreements', ownerField: 'user_id', color: '#7DA6E0' },
 };
 
 export default function SensitiveNotes() {
@@ -57,7 +57,7 @@ export default function SensitiveNotes() {
 
   return (
     <div style={{ padding: 30, maxWidth: 800, fontFamily: NAV_FONT }}>
-      <div style={{ background: 'rgba(255,140,66,0.12)', border: `0.5px solid ${ORANGE}`, borderRadius: 8, padding: '10px 16px', marginBottom: 20, fontSize: 13, color: ORANGE }}>
+      <div style={{ background: 'rgba(61,111,168,0.12)', border: `0.5px solid ${WARNING}`, borderRadius: 8, padding: '10px 16px', marginBottom: 20, fontSize: 13, color: WARNING }}>
         🔒 Sensitive records — restricted, client-identifying information. Access should be limited to authorized staff.
       </div>
 

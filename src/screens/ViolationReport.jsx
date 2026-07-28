@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, ACCENT, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 function escapeHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -73,7 +73,7 @@ export default function ViolationReport() {
   }
 
   const statusColors = {
-    draft: { bg: 'rgba(255,140,66,0.15)', color: ORANGE },
+    draft: { bg: 'rgba(61,111,168,0.15)', color: WARNING },
     submitted: { bg: 'rgba(91,155,240,0.15)', color: ACCENT },
     reviewed: { bg: 'rgba(76,175,125,0.15)', color: GREEN },
   };

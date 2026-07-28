@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { DemoProvider, useDemo } from './DemoContext';
-import { DARK_BG, CARD_BG, SIDEBAR_BG, BLUE, ACCENT, GREEN, RED, ORANGE, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { DARK_BG, CARD_BG, SIDEBAR_BG, BLUE, ACCENT, GREEN, RED, WARNING, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 const FEEDBACK_EMAIL = 'info@courtbridgesolutions.com';
 
@@ -161,7 +161,7 @@ function ProviderDashboardDemo() {
                 <div style={{ color: TEXT_MUTED, marginTop: 4 }}>{checkins.length} check-ins logged · {complianceSummary.compliance_rate}% compliance</div>
               </div>
             ) : (
-              <div style={{ marginTop: 10, fontSize: 13, color: ORANGE, fontWeight: 700 }}>● Pending — Link Sent</div>
+              <div style={{ marginTop: 10, fontSize: 13, color: WARNING, fontWeight: 700 }}>● Pending — Link Sent</div>
             )}
           </div>
 

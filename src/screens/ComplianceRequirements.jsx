@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 const EMPTY_FORM = {
   requirement_type: '', title: '', issuing_body: '', issue_date: '',
@@ -83,7 +83,7 @@ export default function ComplianceRequirements() {
     const days = daysUntil(item.expiration_date);
     if (days === null) return { color: TEXT_MUTED, label: 'No expiration set' };
     if (days < 0) return { color: RED, label: 'Expired' };
-    if (days <= (item.renewal_reminder_days || 90)) return { color: ORANGE, label: `Renew soon — ${days}d left` };
+    if (days <= (item.renewal_reminder_days || 90)) return { color: WARNING, label: `Renew soon — ${days}d left` };
     return { color: GREEN, label: `Current — ${days}d left` };
   }
 

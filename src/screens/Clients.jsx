@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import SendEnrollmentLink from './SendEnrollmentLink'
-import { CARD_BG, ACCENT, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme'
+import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme'
 
 const STATUS_COLORS = {
   active: { bg: 'rgba(76,175,125,0.15)', text: GREEN },
@@ -85,7 +85,7 @@ export default function Clients({ session, onNavigate }) {
     if (client.onboarding_complete) {
       return <span style={{ background: 'rgba(76,175,125,0.15)', color: GREEN, fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20 }}>Enrolled</span>
     }
-    return <span style={{ background: 'rgba(255,140,66,0.15)', color: ORANGE, fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20 }}>Pending</span>
+    return <span style={{ background: 'rgba(61,111,168,0.15)', color: WARNING, fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 20 }}>Pending</span>
   }
 
   return (
@@ -242,10 +242,10 @@ export default function Clients({ session, onNavigate }) {
                 {freqError && <div style={{ color: RED, fontSize: 12, marginTop: 6 }}>{freqError}</div>}
               </div>
               {!selectedClient.onboarding_complete && (
-                <div style={{ marginTop: 16, background: 'rgba(255,140,66,0.1)', border: `0.5px solid ${ORANGE}`, borderRadius: 8, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
-                  <div style={{ fontSize: 13, color: ORANGE }}>⚠ This participant has not completed enrollment yet.</div>
+                <div style={{ marginTop: 16, background: 'rgba(61,111,168,0.1)', border: `0.5px solid ${WARNING}`, borderRadius: 8, padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+                  <div style={{ fontSize: 13, color: WARNING }}>⚠ This participant has not completed enrollment yet.</div>
                   <button onClick={() => setShowEnrollModal(true)}
-                    style={{ background: ORANGE, color: '#fff', border: 'none', borderRadius: 6, padding: '8px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                    style={{ background: WARNING, color: '#fff', border: 'none', borderRadius: 6, padding: '8px 14px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
                     Resend Enrollment Link
                   </button>
                 </div>

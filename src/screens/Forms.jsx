@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, ACCENT, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 const FORM_TYPES = ['Waiver', 'Release of Information', 'Media Consent', 'Photo/Video Consent', 'Other'];
 
@@ -73,7 +73,7 @@ export default function Forms() {
             {FORM_TYPES.map(t => <option key={t}>{t}</option>)}
           </select>
           <textarea placeholder="Full form text the client will read and sign..." value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} style={{ ...inputStyle, minHeight: 160 }} />
-          <div style={{ background: 'rgba(255,140,66,0.12)', border: `0.5px solid ${ORANGE}`, borderRadius: 8, padding: '10px 14px', marginBottom: 14, fontSize: 12, color: ORANGE }}>
+          <div style={{ background: 'rgba(61,111,168,0.12)', border: `0.5px solid ${WARNING}`, borderRadius: 8, padding: '10px 14px', marginBottom: 14, fontSize: 12, color: WARNING }}>
             ⚠ Treat any form text you write here as a draft — have it reviewed before relying on it as legally binding.
           </div>
           {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, ACCENT, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 export default function ClientProfile({ clientId, onNavigate }) {
   const [client, setClient] = useState(null);
@@ -184,7 +184,7 @@ export default function ClientProfile({ clientId, onNavigate }) {
   function getStatusColor(status) {
     if (status === 'active') return GREEN;
     if (status === 'at_risk') return RED;
-    return ORANGE;
+    return WARNING;
   }
 
   const cardStyle = { background: CARD_BG, borderRadius: 12, padding: isPhone ? '16px' : '20px', marginBottom: 16, border: `0.5px solid ${BORDER}` };
@@ -244,7 +244,7 @@ export default function ClientProfile({ clientId, onNavigate }) {
           </>
         ) : (
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button onClick={() => changeClientStatus('inactive')} disabled={savingStatus} style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.04)', color: ORANGE, border: `0.5px solid ${BORDER}`, borderRadius: 6, fontSize: 13, cursor: 'pointer' }}>Mark Inactive</button>
+            <button onClick={() => changeClientStatus('inactive')} disabled={savingStatus} style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.04)', color: WARNING, border: `0.5px solid ${BORDER}`, borderRadius: 6, fontSize: 13, cursor: 'pointer' }}>Mark Inactive</button>
             <button onClick={() => changeClientStatus('terminated')} disabled={savingStatus} style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.04)', color: RED, border: `0.5px solid ${BORDER}`, borderRadius: 6, fontSize: 13, cursor: 'pointer' }}>Terminate</button>
           </div>
         )}
@@ -451,7 +451,7 @@ export default function ClientProfile({ clientId, onNavigate }) {
                 {durationMin !== null ? (
                   <span style={{ color: GREEN, fontWeight: 600, fontSize: 13 }}>✓ {Math.floor(durationMin / 60)}h {durationMin % 60}m</span>
                 ) : (
-                  <span style={{ color: ORANGE, fontWeight: 600, fontSize: 13 }}>Checked in, no check-out</span>
+                  <span style={{ color: WARNING, fontWeight: 600, fontSize: 13 }}>Checked in, no check-out</span>
                 )}
               </div>
             )
@@ -466,7 +466,7 @@ export default function ClientProfile({ clientId, onNavigate }) {
             <div key={cd.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: `0.5px solid ${BORDER}`, flexWrap: 'wrap', gap: 6 }}>
               <span style={{ color: TEXT }}>{new Date(cd.hearing_date).toLocaleDateString()}</span>
               <span style={{ color: TEXT_MUTED, fontSize: 13 }}>{cd.court_name || 'Court'}</span>
-              <span style={{ background: 'rgba(255,140,66,0.15)', color: ORANGE, padding: '2px 8px', borderRadius: 8, fontSize: 12 }}>{cd.hearing_type || 'Hearing'}</span>
+              <span style={{ background: 'rgba(61,111,168,0.15)', color: WARNING, padding: '2px 8px', borderRadius: 8, fontSize: 12 }}>{cd.hearing_type || 'Hearing'}</span>
             </div>
           ))
         )}

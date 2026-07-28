@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, ACCENT, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 const EMPTY_FORM = {
   full_name: '', role_title: '', employment_status: 'active', hire_date: '',
@@ -94,7 +94,7 @@ export default function StaffCredentialing() {
   function expiryBadge(label, dateStr) {
     if (!dateStr) return null;
     const days = daysUntil(dateStr);
-    const color = days < 0 ? RED : days <= 30 ? ORANGE : GREEN;
+    const color = days < 0 ? RED : days <= 30 ? WARNING : GREEN;
     const text = days < 0 ? `${label} expired` : days <= 30 ? `${label} expires in ${days}d` : `${label} current`;
     return (
       <span style={{ background: `${color}22`, color, fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 20 }}>{text}</span>

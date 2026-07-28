@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, ACCENT, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from '../theme';
 
 export default function POVisits() {
   const [visits, setVisits] = useState([]);
@@ -41,7 +41,7 @@ export default function POVisits() {
     completed: { bg: 'rgba(76,175,125,0.15)', color: GREEN, label: '✅ Completed' },
     missed: { bg: 'rgba(248,113,113,0.15)', color: RED, label: '🚫 Missed' },
     upcoming: { bg: 'rgba(91,155,240,0.15)', color: ACCENT, label: '📅 Upcoming' },
-    rescheduled: { bg: 'rgba(255,140,66,0.15)', color: ORANGE, label: '🔄 Rescheduled' },
+    rescheduled: { bg: 'rgba(61,111,168,0.15)', color: WARNING, label: '🔄 Rescheduled' },
     excused: { bg: 'rgba(91,155,240,0.15)', color: ACCENT, label: '📋 Excused' },
   };
 

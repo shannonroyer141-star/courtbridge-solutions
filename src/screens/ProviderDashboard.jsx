@@ -6,7 +6,7 @@ import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { supabase } from '../supabase';
-import { DARK_BG, CARD_BG, ACCENT, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { DARK_BG, CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -392,8 +392,8 @@ export default function ProviderDashboard({ onNavigate }) {
   );
 
   const missedColor = stats.missedLast24 > 0 ? RED : GREEN;
-  const alertColor = stats.alertsCount > 0 ? ORANGE : GREEN;
-  const progressColor = complianceRate >= 80 ? GREEN : complianceRate >= 60 ? ORANGE : RED;
+  const alertColor = stats.alertsCount > 0 ? WARNING : GREEN;
+  const progressColor = complianceRate >= 80 ? GREEN : complianceRate >= 60 ? WARNING : RED;
 
   return (
     <div style={{ ...S.page, padding: isPhone ? '20px 16px' : S.page.padding }}>
@@ -462,7 +462,7 @@ export default function ProviderDashboard({ onNavigate }) {
 
         <div style={S.card}>
           <div style={S.cardHeader}>
-            <div style={{ ...S.cardDot, background: urgentMessages.length > 0 ? '#C0392B' : '#1A7A47' }} />
+            <div style={{ ...S.cardDot, background: urgentMessages.length > 0 ? RED : GREEN }} />
             <h3 style={S.cardTitle}>Urgent Messages</h3>
           </div>
           <div style={S.cardBody}>
@@ -515,7 +515,7 @@ export default function ProviderDashboard({ onNavigate }) {
       <div style={S.twoCol}>
         <div style={S.card}>
           <div style={S.cardHeader}>
-            <div style={{ ...S.cardDot, background: stats.missedLast24 > 0 ? '#C0392B' : '#1A7A47' }} />
+            <div style={{ ...S.cardDot, background: stats.missedLast24 > 0 ? RED : GREEN }} />
             <h3 style={S.cardTitle}>Needs Attention</h3>
           </div>
           <div style={S.cardBody}>

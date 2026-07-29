@@ -40,7 +40,8 @@ import StaffCredentialing from './screens/StaffCredentialing';
 import ComplianceRequirements from './screens/ComplianceRequirements';
 import FundingSources from './screens/FundingSources';
 import AuditReadiness from './screens/AuditReadiness';
-import { BLUE, DARK_BG, CARD_BG, ACCENT, ORANGE, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from './theme';
+import Assessments from './screens/Assessments';
+import { BLUE, DARK_BG, CARD_BG, ACCENT, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from './theme';
 
 const isEnrollRoute = window.location.pathname === '/enroll' &&
   new URLSearchParams(window.location.search).has('token');
@@ -258,6 +259,7 @@ export default function App() {
       case 'compliancerequirements': return <ComplianceRequirements session={session} />;
       case 'fundingsources': return <FundingSources session={session} />;
       case 'auditreadiness': return <AuditReadiness session={session} />;
+      case 'assessments': return <Assessments />;
       default: return <ProviderDashboard session={session} onNavigate={navTo} />;
     }
   }
@@ -428,6 +430,7 @@ export default function App() {
             <div style={subItem('checkin')} onClick={() => navTo('checkin')}>Check-Ins</div>
             <div style={subItem('clientintake')} onClick={() => navTo('clientintake')}>Client Intake</div>
             <div style={subItem('mapview')} onClick={() => navTo('mapview')}>Map View</div>
+            <div style={subItem('programs')} onClick={() => navTo('programs')}>Programs</div>
             <div style={subItem('smsalerts')} onClick={() => navTo('smsalerts')}>SMS Alerts</div>
             <div style={subItem('tasks')} onClick={() => navTo('tasks')}>Tasks</div>
 
@@ -439,6 +442,7 @@ export default function App() {
             </div>
             {expandedMenus.sensitive && <>
               <div style={subSubItem('sensitivenotes')} onClick={() => navTo('sensitivenotes')}>Case &amp; Clinical Notes</div>
+              <div style={subSubItem('assessments')} onClick={() => navTo('assessments')}>Assessments</div>
               <div style={subSubItem('contactlog')} onClick={() => navTo('contactlog')}>Contact Log</div>
               <div style={subSubItem('courtdates')} onClick={() => navTo('courtdates')}>Court Dates</div>
               <div style={subSubItem('cpstracking')} onClick={() => navTo('cpstracking')}>CPS Tracking</div>
@@ -485,7 +489,6 @@ export default function App() {
                 <div style={subItem('businessorganizer')} onClick={() => navTo('businessorganizer')}>Business Organizer</div>
                 <div style={subItem('forms')} onClick={() => navTo('forms')}>Forms &amp; Signatures</div>
                 <div style={subItem('provideronboarding')} onClick={() => navTo('provideronboarding')}>Provider Onboarding</div>
-                <div style={subItem('programs')} onClick={() => navTo('programs')}>Programs</div>
               </>}
             </>
           )}

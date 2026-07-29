@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, ACCENT, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 // calendar_events.event_type has a DB check constraint requiring these exact
 // lowercase values -- 'court_date' is excluded from the manual form since
@@ -17,12 +17,12 @@ const EVENT_TYPE_LABELS = Object.fromEntries(EVENT_TYPE_OPTIONS.map(o => [o.valu
 
 const TYPE_COLORS = {
   'Court Date': RED,
-  'Task': ORANGE,
+  'Task': WARNING,
   'Check-In Due': ACCENT,
   'Appointment': GREEN,
-  'Reporting Due': ORANGE,
+  'Reporting Due': WARNING,
   'Program Review': ACCENT,
-  'Other': '#A78BFA',
+  'Other': '#7DA6E0',
 };
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];

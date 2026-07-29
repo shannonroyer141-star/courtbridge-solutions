@@ -1,22 +1,20 @@
 import { useState } from 'react';
 import { DemoProvider, useDemo } from './DemoContext';
+import { DARK_BG, CARD_BG, SIDEBAR_BG, BLUE, ACCENT, GREEN, RED, WARNING, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
-const BLUE = '#1B3A6B';
-const DARK = '#1E2A3A';
-const DARKER = '#2D3748';
 const FEEDBACK_EMAIL = 'info@courtbridgesolutions.com';
 
 function Badge({ children }) {
   return (
-    <div style={{ position: 'fixed', top: 12, left: '50%', transform: 'translateX(-50%)', background: '#F59E0B', color: '#1E2A3A', fontSize: 12, fontWeight: 700, padding: '6px 14px', borderRadius: 20, zIndex: 100, boxShadow: '0 2px 8px rgba(0,0,0,0.2)' }}>
+    <div style={{ position: 'fixed', top: 12, left: '50%', transform: 'translateX(-50%)', background: ACCENT, color: '#fff', fontSize: 12, fontWeight: 700, padding: '6px 14px', borderRadius: 20, zIndex: 100, boxShadow: '0 2px 8px rgba(0,0,0,0.35)' }}>
       {children}
     </div>
   );
 }
 
-function Shell({ children, dark }) {
+function Shell({ children }) {
   return (
-    <div style={{ minHeight: '100vh', background: dark ? DARK : '#F5F6F8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Arial, sans-serif', padding: 16 }}>
+    <div style={{ minHeight: '100vh', background: DARK_BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: NAV_FONT, padding: 16 }}>
       <Badge>CourtBridge Sandbox — Demo Only, No Real Data</Badge>
       {children}
     </div>
@@ -25,7 +23,7 @@ function Shell({ children, dark }) {
 
 function Card({ children }) {
   return (
-    <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', width: '100%', maxWidth: 440, boxShadow: '0 4px 24px rgba(0,0,0,0.10)' }}>
+    <div style={{ background: CARD_BG, borderRadius: 16, overflow: 'hidden', width: '100%', maxWidth: 440, boxShadow: '0 4px 24px rgba(0,0,0,0.35)', border: `0.5px solid ${BORDER}` }}>
       {children}
     </div>
   );
@@ -71,7 +69,7 @@ function ProviderSignup() {
           <Button onClick={() => signUpProvider(name || 'Demo Provider', email || 'demo@example.com')}>
             Get Started — Send Me a Link
           </Button>
-          <div style={{ fontSize: 12, color: '#999', marginTop: 14, textAlign: 'center' }}>
+          <div style={{ fontSize: 12, color: TEXT_DIM, marginTop: 14, textAlign: 'center' }}>
             This is a sandbox demo. No real email is sent, no real account is created.
           </div>
         </div>
@@ -104,7 +102,7 @@ function BrandingSetup() {
           <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, marginTop: 4 }}>Powered by CourtBridge Solutions</div>
         </div>
         <div style={{ padding: '28px 32px' }}>
-          <div style={{ fontSize: 13, color: '#666', lineHeight: 1.6, marginBottom: 20 }}>
+          <div style={{ fontSize: 13, color: TEXT_MUTED, lineHeight: 1.6, marginBottom: 20 }}>
             This is what your clients and staff will see. Pick a color and see it applied live — this carries through the rest of the demo.
           </div>
           <label style={labelStyle}>Agency Name</label>
@@ -133,7 +131,7 @@ function BrandingSetup() {
           >
             Continue with {ACCENT_PALETTE.find(s => s.value === color)?.name || 'this color'} →
           </button>
-          <div style={{ fontSize: 12, color: '#999', marginTop: 14, textAlign: 'center' }}>
+          <div style={{ fontSize: 12, color: TEXT_DIM, marginTop: 14, textAlign: 'center' }}>
             Full branding (logo, more colors) is available on select plans. This sandbox shows a limited preview.
           </div>
         </div>
@@ -151,19 +149,19 @@ function ProviderDashboardDemo() {
       <Card>
         <CardHeader title={`Welcome, ${providerInfo.name}`} subtitle="Provider Dashboard (Sandbox Demo)" />
         <div style={{ padding: '28px 32px' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#666', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
             Your Clients
           </div>
-          <div style={{ border: '1px solid #eee', borderRadius: 10, padding: 16, marginBottom: 20 }}>
-            <div style={{ fontWeight: 700, fontSize: 15 }}>{clientInfo.name}</div>
-            <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{clientInfo.population_type.replace('_', ' ')}</div>
+          <div style={{ border: `0.5px solid ${BORDER}`, borderRadius: 10, padding: 16, marginBottom: 20 }}>
+            <div style={{ fontWeight: 700, fontSize: 15, color: TEXT }}>{clientInfo.name}</div>
+            <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 2 }}>{clientInfo.population_type.replace('_', ' ')}</div>
             {isUpdated ? (
               <div style={{ marginTop: 10, fontSize: 13 }}>
-                <div style={{ color: '#16A34A', fontWeight: 700 }}>● Active — Reporting</div>
-                <div style={{ color: '#555', marginTop: 4 }}>{checkins.length} check-ins logged · {complianceSummary.compliance_rate}% compliance</div>
+                <div style={{ color: GREEN, fontWeight: 700 }}>● Active — Reporting</div>
+                <div style={{ color: TEXT_MUTED, marginTop: 4 }}>{checkins.length} check-ins logged · {complianceSummary.compliance_rate}% compliance</div>
               </div>
             ) : (
-              <div style={{ marginTop: 10, fontSize: 13, color: '#D97706', fontWeight: 700 }}>● Pending — Link Sent</div>
+              <div style={{ marginTop: 10, fontSize: 13, color: WARNING, fontWeight: 700 }}>● Pending — Link Sent</div>
             )}
           </div>
 
@@ -173,10 +171,10 @@ function ProviderDashboardDemo() {
 
           {phase === 'client-link-sent' && (
             <div>
-              <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 8, padding: 14, fontSize: 13, color: '#1E40AF', marginBottom: 16 }}>
+              <div style={{ background: 'rgba(91,155,240,0.12)', border: `0.5px solid ${ACCENT}`, borderRadius: 8, padding: 14, fontSize: 13, color: ACCENT, marginBottom: 16 }}>
                 ✓ Link sent to {clientInfo.name}. In real use, they'd get this by text or email.
               </div>
-              <Button onClick={switchToClient} style={{ background: '#374151' }}>
+              <Button onClick={switchToClient} style={{ background: SIDEBAR_BG }}>
                 Switch to Client View →
               </Button>
             </div>
@@ -196,13 +194,13 @@ function ClientOnboardingDemo() {
   const [step, setStep] = useState(1);
 
   return (
-    <Shell dark>
+    <Shell>
       <Card>
         <CardHeader title={`Welcome, ${clientInfo.name}`} subtitle={`Step ${step} of 3 — Enrollment`} />
         <div style={{ padding: '28px 32px' }}>
           {step === 1 && (
             <>
-              <div style={{ fontSize: 14, color: '#444', marginBottom: 20, lineHeight: 1.6 }}>
+              <div style={{ fontSize: 14, color: TEXT_MUTED, marginBottom: 20, lineHeight: 1.6 }}>
                 You've been enrolled in a compliance program through your provider. This app will track your check-ins with GPS verification.
               </div>
               <Button onClick={() => setStep(2)}>Continue</Button>
@@ -210,7 +208,7 @@ function ClientOnboardingDemo() {
           )}
           {step === 2 && (
             <>
-              <div style={{ fontSize: 14, color: '#444', marginBottom: 20, lineHeight: 1.6 }}>
+              <div style={{ fontSize: 14, color: TEXT_MUTED, marginBottom: 20, lineHeight: 1.6 }}>
                 We need permission to use your location only at the moment you check in — never tracked in the background.
               </div>
               <Button onClick={() => setStep(3)}>Allow &amp; Continue</Button>
@@ -218,7 +216,7 @@ function ClientOnboardingDemo() {
           )}
           {step === 3 && (
             <>
-              <div style={{ fontSize: 14, color: '#444', marginBottom: 20, lineHeight: 1.6 }}>
+              <div style={{ fontSize: 14, color: TEXT_MUTED, marginBottom: 20, lineHeight: 1.6 }}>
                 By continuing, you agree to check in as scheduled. Your provider will see your compliance record.
               </div>
               <Button onClick={completeOnboarding}>I Agree — Complete Enrollment</Button>
@@ -235,16 +233,16 @@ function ClientDashboardDemo() {
   const doneToday = checkins.some(c => c.day_offset === 0);
 
   return (
-    <Shell dark>
+    <Shell>
       <Card>
-        <div style={{ background: DARKER, padding: '28px 32px', textAlign: 'center' }}>
-          <div style={{ color: '#fff', fontSize: 20, fontWeight: 700 }}>Good morning, {clientInfo.name.split(' ')[0]}</div>
-          <div style={{ color: '#9CA3AF', fontSize: 13, marginTop: 4 }}>Day {checkins.length} of your program</div>
+        <div style={{ background: SIDEBAR_BG, padding: '28px 32px', textAlign: 'center' }}>
+          <div style={{ color: TEXT, fontSize: 20, fontWeight: 700 }}>Good morning, {clientInfo.name.split(' ')[0]}</div>
+          <div style={{ color: TEXT_MUTED, fontSize: 13, marginTop: 4 }}>Day {checkins.length} of your program</div>
         </div>
-        <div style={{ padding: '28px 32px', background: DARK }}>
+        <div style={{ padding: '28px 32px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
             {checkins.map((c, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#CBD5E0', padding: '6px 0', borderBottom: '1px solid #374151' }}>
+              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: TEXT, padding: '6px 0', borderBottom: `0.5px solid ${BORDER}` }}>
                 <span>{c.status === 'completed' ? '✓ Checked in' : '✗ Missed'}</span>
                 <span>{c.time || '—'}</span>
               </div>
@@ -252,15 +250,15 @@ function ClientDashboardDemo() {
           </div>
 
           {!doneToday ? (
-            <Button onClick={doCheckIn} style={{ background: '#16A34A', padding: 18, fontSize: 16 }}>
+            <Button onClick={doCheckIn} style={{ background: GREEN, padding: 18, fontSize: 16 }}>
               📍 Check In Now (GPS)
             </Button>
           ) : (
             <>
-              <div style={{ background: '#14532D', color: '#86EFAC', borderRadius: 8, padding: 14, fontSize: 13, textAlign: 'center', marginBottom: 16 }}>
+              <div style={{ background: 'rgba(76,175,125,0.15)', color: GREEN, borderRadius: 8, padding: 14, fontSize: 13, textAlign: 'center', marginBottom: 16 }}>
                 ✓ You're checked in for today
               </div>
-              <Button onClick={switchToProvider} style={{ background: '#374151' }}>
+              <Button onClick={switchToProvider} style={{ background: SIDEBAR_BG }}>
                 Switch back to Provider View →
               </Button>
             </>
@@ -292,39 +290,39 @@ function CourtReportDemo() {
         <div style={{ padding: '28px 32px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20, gap: 16 }}>
             <div>
-              <div style={{ fontSize: 12, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Client</div>
-              <div style={{ fontSize: 17, fontWeight: 700 }}>{clientInfo.name}</div>
+              <div style={{ fontSize: 12, color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Client</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: TEXT }}>{clientInfo.name}</div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 12, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Provider</div>
-              <div style={{ fontSize: 14, fontWeight: 700 }}>{providerInfo.name || 'Demo Recovery Partners'}</div>
+              <div style={{ fontSize: 12, color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Provider</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: TEXT }}>{providerInfo.name || 'Demo Recovery Partners'}</div>
             </div>
           </div>
 
-          <div style={{ fontSize: 12, color: '#888', marginBottom: 20, paddingBottom: 16, borderBottom: '1px solid #eee' }}>
+          <div style={{ fontSize: 12, color: TEXT_MUTED, marginBottom: 20, paddingBottom: 16, borderBottom: `0.5px solid ${BORDER}` }}>
             Reporting Period: {periodLabel}
           </div>
 
           <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
-            <div style={{ flex: 1, background: '#F0FDF4', borderRadius: 8, padding: 14, textAlign: 'center' }}>
-              <div style={{ fontSize: 24, fontWeight: 700, color: '#16A34A' }}>{completed}</div>
-              <div style={{ fontSize: 11, color: '#666' }}>Completed</div>
+            <div style={{ flex: 1, background: 'rgba(76,175,125,0.12)', borderRadius: 8, padding: 14, textAlign: 'center' }}>
+              <div style={{ fontSize: 24, fontWeight: 700, color: GREEN }}>{completed}</div>
+              <div style={{ fontSize: 11, color: TEXT_MUTED }}>Completed</div>
             </div>
-            <div style={{ flex: 1, background: '#FEF2F2', borderRadius: 8, padding: 14, textAlign: 'center' }}>
-              <div style={{ fontSize: 24, fontWeight: 700, color: '#DC2626' }}>{checkins.length - completed}</div>
-              <div style={{ fontSize: 11, color: '#666' }}>Missed</div>
+            <div style={{ flex: 1, background: 'rgba(248,113,113,0.12)', borderRadius: 8, padding: 14, textAlign: 'center' }}>
+              <div style={{ fontSize: 24, fontWeight: 700, color: RED }}>{checkins.length - completed}</div>
+              <div style={{ fontSize: 11, color: TEXT_MUTED }}>Missed</div>
             </div>
-            <div style={{ flex: 1, background: '#EFF6FF', borderRadius: 8, padding: 14, textAlign: 'center' }}>
-              <div style={{ fontSize: 24, fontWeight: 700, color: '#1E40AF' }}>{complianceSummary.compliance_rate}%</div>
-              <div style={{ fontSize: 11, color: '#666' }}>Compliance</div>
+            <div style={{ flex: 1, background: 'rgba(91,155,240,0.12)', borderRadius: 8, padding: 14, textAlign: 'center' }}>
+              <div style={{ fontSize: 24, fontWeight: 700, color: ACCENT }}>{complianceSummary.compliance_rate}%</div>
+              <div style={{ fontSize: 11, color: TEXT_MUTED }}>Compliance</div>
             </div>
           </div>
 
-          <Button onClick={handleDownload} style={{ background: '#374151', marginBottom: 16 }}>
+          <Button onClick={handleDownload} style={{ background: SIDEBAR_BG, marginBottom: 16 }}>
             ⬇ Download PDF Report
           </Button>
 
-          <div style={{ fontSize: 12, color: '#999', textAlign: 'center', lineHeight: 1.6 }}>
+          <div style={{ fontSize: 12, color: TEXT_DIM, textAlign: 'center', lineHeight: 1.6 }}>
             This is the infrastructure that's been missing — verified, connected, accountable.
           </div>
         </div>
@@ -430,8 +428,8 @@ function FeedbackWidget() {
   );
 }
 
-const labelStyle = { display: 'block', fontSize: 12, fontWeight: 700, color: '#666', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 };
-const inputStyle = { width: '100%', padding: '12px 14px', border: '1px solid #ddd', borderRadius: 8, fontSize: 15, boxSizing: 'border-box', outline: 'none' };
+const labelStyle = { display: 'block', fontSize: 12, fontWeight: 700, color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 };
+const inputStyle = { width: '100%', padding: '12px 14px', border: `0.5px solid ${BORDER}`, borderRadius: 8, fontSize: 15, boxSizing: 'border-box', outline: 'none', background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT };
 
 export default function SandboxApp() {
   return (

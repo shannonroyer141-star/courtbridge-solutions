@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
-import { CARD_BG, ACCENT, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from '../theme'
+import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from '../theme'
 
 export default function Alerts({ session }) {
   const [alerts, setAlerts] = useState([])
@@ -77,7 +77,7 @@ export default function Alerts({ session }) {
 
       {!loading && alerts.length > 0 && (
         <div>
-          <div style={{ background: 'rgba(255,140,66,0.12)', border: `0.5px solid ${ORANGE}`, borderRadius: 10, padding: '12px 16px', marginBottom: 20, fontSize: 14, color: ORANGE }}>
+          <div style={{ background: 'rgba(61,111,168,0.12)', border: `0.5px solid ${WARNING}`, borderRadius: 10, padding: '12px 16px', marginBottom: 20, fontSize: 14, color: WARNING }}>
             ⚠ {alerts.length} participant{alerts.length !== 1 ? 's have' : ' has'} missed a scheduled check-in
           </div>
           {alerts.map(({ client, lastCheckin, daysMissed }) => (

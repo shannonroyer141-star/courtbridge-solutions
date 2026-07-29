@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, GREEN, WARNING, RED, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from '../theme';
 
 export default function Tasks() {
   const [tasks, setTasks] = useState([]);
@@ -44,7 +44,7 @@ export default function Tasks() {
     fetchTasks();
   }
 
-  const priorityColors = { High: RED, Medium: ORANGE, Low: GREEN };
+  const priorityColors = { High: RED, Medium: WARNING, Low: GREEN };
   const inputStyle = { width: '100%', padding: 12, marginBottom: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT };
 
   return (

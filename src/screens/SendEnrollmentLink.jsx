@@ -1,21 +1,6 @@
 import { useState } from 'react'
-import { supabase } from '../supabase'
 import { CARD_BG, ACCENT, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme'
-
-const PROGRAM_TYPES = [
-  'Drug Court', 'DUI / Alcohol Court', 'Mental Health Court',
-  'Veterans Treatment Court', 'Batterers Intervention Program (BIP)',
-  'Anger Management', 'Recovery Court', 'Family Treatment Court', 'Probation', 'Other'
-]
-
-const ENROLLMENT_TYPES = [
-  { value: 'court_ordered', label: 'Court-Ordered — I have a court order' },
-  { value: 'probation_referred', label: 'Probation Referred — referred by probation officer' },
-  { value: 'voluntary', label: 'Voluntary — participant chose this program' },
-  { value: 'no_document', label: 'No Document Yet — paperwork pending' }
-]
-
-const PHASES = ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4']
+import { PROGRAM_TYPES, ENROLLMENT_TYPES, PHASES, emptyEnrollmentForm, validateParticipantInfo, validateProgramRequirements, smsTextFor, createEnrollmentInvite } from '../enrollment'
 
 export default function SendEnrollmentLink({ providerId, onClose, onSuccess }) {
   const [step, setStep] = useState(1)
@@ -24,55 +9,27 @@ export default function SendEnrollmentLink({ providerId, onClose, onSuccess }) {
   const [linkCopied, setLinkCopied] = useState(false)
   const [generatedLink, setGeneratedLink] = useState(null)
 
-  const [form, setForm] = useState({
-    client_name: '', client_email: '', phone: '', date_of_birth: '',
-    program_type: '', enrollment_type: 'court_ordered', case_number: '',
-    program_phase: 'Phase 1', reporting_requirements: '', checkin_schedule: '', message: ''
-  })
+  const [form, setForm] = useState(emptyEnrollmentForm())
 
   function update(field, value) { setForm(prev => ({ ...prev, [field]: value })); setError(null) }
 
-  function validateStep1() {
-    if (!form.client_name.trim()) return 'Full name is required.'
-    if (!form.client_email.trim() || !form.client_email.includes('@')) return 'A valid email is required.'
-    if (!form.phone.trim()) return 'Phone number is required.'
-    if (!form.date_of_birth) return 'Date of birth is required.'
-    return null
-  }
-
-  function validateStep2() {
-    if (!form.program_type) return 'Program type is required.'
-    if (!form.reporting_requirements.trim()) return 'Program reporting requirements are required.'
-    if (!form.checkin_schedule.trim()) return 'Check-in schedule is required.'
-    return null
-  }
-
   async function handleSend() {
     setLoading(true); setError(null)
-    try {
-      const { data, error: inviteError } = await supabase.from('invites').insert({
-        provider_id: providerId,
-        client_name: form.client_name, client_email: form.client_email,
-        phone: form.phone, date_of_birth: form.date_of_birth,
-        program_type: form.program_type, enrollment_type: form.enrollment_type,
-        case_number: form.case_number || null, program_phase: form.program_phase,
-        reporting_requirements: form.reporting_requirements,
-        checkin_schedule: form.checkin_schedule, message: form.message || null,
-        accepted: false, expires_at: new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString()
-      }).select().single()
-      if (inviteError) throw inviteError
-      setGeneratedLink(`${window.location.origin}/enroll?token=${data.token}`)
+    const { link, error: inviteError } = await createEnrollmentInvite(providerId, form)
+    if (inviteError) {
+      setError('Failed to generate enrollment link. Please try again. ' + inviteError.message)
+    } else {
+      setGeneratedLink(link)
       setStep(4)
       if (onSuccess) onSuccess()
-    } catch (err) {
-      setError('Failed to generate enrollment link. Please try again. ' + err.message)
-    } finally { setLoading(false) }
+    }
+    setLoading(false)
   }
 
   function copyLink() { navigator.clipboard.writeText(generatedLink); setLinkCopied(true); setTimeout(() => setLinkCopied(false), 2500) }
 
   function copySmsText() {
-    navigator.clipboard.writeText(`You have been enrolled in ${form.program_type} through CourtBridge Solutions. Click the link below to complete your enrollment within 48 hours. This is required. ${generatedLink}`)
+    navigator.clipboard.writeText(smsTextFor(form, generatedLink))
     setLinkCopied(true); setTimeout(() => setLinkCopied(false), 2500)
   }
 
@@ -119,7 +76,7 @@ export default function SendEnrollmentLink({ providerId, onClose, onSuccess }) {
               {error && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{error}</div>}
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
                 {onClose && <button style={btn('transparent', ACCENT)} onClick={onClose}>Cancel</button>}
-                <button style={btn()} onClick={() => { const err = validateStep1(); if (err) { setError(err); return } setError(null); setStep(2) }}>Continue →</button>
+                <button style={btn()} onClick={() => { const err = validateParticipantInfo(form); if (err) { setError(err); return } setError(null); setStep(2) }}>Continue →</button>
               </div>
             </>
           )}
@@ -151,7 +108,7 @@ export default function SendEnrollmentLink({ providerId, onClose, onSuccess }) {
               {error && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{error}</div>}
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginTop: 8 }}>
                 <button style={btn('transparent', ACCENT)} onClick={() => { setError(null); setStep(1) }}>← Back</button>
-                <button style={btn()} onClick={() => { const err = validateStep2(); if (err) { setError(err); return } setError(null); setStep(3) }}>Review →</button>
+                <button style={btn()} onClick={() => { const err = validateProgramRequirements(form); if (err) { setError(err); return } setError(null); setStep(3) }}>Review →</button>
               </div>
             </>
           )}
@@ -175,7 +132,7 @@ export default function SendEnrollmentLink({ providerId, onClose, onSuccess }) {
                 {reviewRow('Reporting Requirements', form.reporting_requirements)}
                 {reviewRow('Check-In Schedule', form.checkin_schedule)}
               </div>
-              <div style={{ background: 'rgba(255,140,66,0.12)', border: '0.5px solid #FF8C42', borderRadius: 8, padding: 12, fontSize: 12, color: '#FF8C42', marginBottom: 20, lineHeight: 1.6 }}>⚠ Make sure this matches their court order or referral document exactly.</div>
+              <div style={{ background: 'rgba(61,111,168,0.12)', border: '0.5px solid #3D6FA8', borderRadius: 8, padding: 12, fontSize: 12, color: '#3D6FA8', marginBottom: 20, lineHeight: 1.6 }}>⚠ Make sure this matches their court order or referral document exactly.</div>
               {error && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{error}</div>}
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginTop: 8 }}>
                 <button style={btn('transparent', ACCENT)} onClick={() => { setError(null); setStep(2) }}>← Back</button>

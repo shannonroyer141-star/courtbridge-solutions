@@ -111,7 +111,7 @@ export default function CheckIn({ session, onBack }) {
           {gpsLoading && <div style={{ color: '#94A3B8', fontSize: 14 }}>⟳ Acquiring location...</div>}
           {!gpsLoading && location && (
             <div>
-              <div style={{ color: '#4ADE80', fontSize: 14, fontWeight: 600 }}>✓ Location captured</div>
+              <div style={{ color: '#4CAF7D', fontSize: 14, fontWeight: 600 }}>✓ Location captured</div>
               <div style={{ color: '#64748B', fontSize: 12, marginTop: 4 }}>
                 {location.lat.toFixed(5)}, {location.lng.toFixed(5)} · ±{location.accuracy}m
               </div>
@@ -137,7 +137,7 @@ export default function CheckIn({ session, onBack }) {
             <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} placeholder="Anything to add..." style={{ ...s.input, resize: 'vertical' }} />
           </div>
           <button type="submit" disabled={submitting || gpsLoading}
-            style={{ width: '100%', padding: 16, background: gpsLoading ? '#334155' : '#3B82F6', color: '#fff', border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 700, cursor: submitting || gpsLoading ? 'not-allowed' : 'pointer' }}>
+            style={{ width: '100%', padding: 16, background: gpsLoading ? '#334155' : '#5B9BF0', color: '#fff', border: 'none', borderRadius: 12, fontSize: 16, fontWeight: 700, cursor: submitting || gpsLoading ? 'not-allowed' : 'pointer' }}>
             {submitting ? 'Submitting...' : gpsLoading ? 'Waiting for GPS...' : 'Submit Check-In'}
           </button>
         </form>

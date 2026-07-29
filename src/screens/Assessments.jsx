@@ -5,7 +5,7 @@ const ASSESSMENTS = [
   {
     court: 'Drug Court',
     icon: '💊',
-    color: '#4CAF7D',
+    color: '#0F2A52',
     tools: [
       { name: 'ASI', full: 'Addiction Severity Index', note: 'Gold standard, used nationwide' },
       { name: 'GAIN', full: 'Global Appraisal of Individual Needs', note: 'Very common in drug courts' },
@@ -16,7 +16,7 @@ const ASSESSMENTS = [
   {
     court: 'DUI / Alcohol Court',
     icon: '🚗',
-    color: '#FF8C42',
+    color: '#1B3A6B',
     tools: [
       { name: 'MAST', full: 'Michigan Alcohol Screening Test', note: 'Standard pre-clinical interview tool' },
       { name: 'DAST', full: 'Drug Abuse Screening Test', note: 'Standard pre-clinical interview tool' },
@@ -27,7 +27,7 @@ const ASSESSMENTS = [
   {
     court: 'Mental Health Court',
     icon: '🧠',
-    color: '#B388EB',
+    color: '#2C5282',
     tools: [
       { name: 'PHQ-9', full: 'Patient Health Questionnaire', note: 'Depression screening' },
       { name: 'GAD-7', full: 'Generalized Anxiety Disorder Scale', note: 'Anxiety screening' },
@@ -49,7 +49,7 @@ const ASSESSMENTS = [
   {
     court: 'Domestic Violence / BIP',
     icon: '🛡️',
-    color: '#F87171',
+    color: '#3D6FA8',
     tools: [
       { name: 'DV Assessment', full: 'Domestic Violence Structured Clinical Interview', note: 'Biological, psychological, social factors' },
       { name: 'DVSI', full: 'Domestic Violence Screening Instrument', note: '' },
@@ -60,7 +60,7 @@ const ASSESSMENTS = [
   {
     court: 'Family Treatment Court',
     icon: '👨‍👩‍👧',
-    color: '#E0965A',
+    color: '#7DA6E0',
     tools: [
       { name: 'Parenting Assessment', full: 'Parenting Capacity and Child Safety Evaluation', note: '' },
       { name: 'CAFAS', full: 'Child and Adolescent Functional Assessment Scale', note: '' },
@@ -70,7 +70,7 @@ const ASSESSMENTS = [
   {
     court: 'Anger Management Court',
     icon: '⚡',
-    color: '#E0B04C',
+    color: '#9FB2CE',
     tools: [
       { name: 'STAXI', full: 'State-Trait Anger Expression Inventory', note: '' },
       { name: 'NAS', full: 'Novaco Anger Scale', note: '' },

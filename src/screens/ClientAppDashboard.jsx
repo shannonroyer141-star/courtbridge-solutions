@@ -11,7 +11,7 @@ const SIDEBAR_BG = '#2D3748'
 const BLUE = '#1B3A6B'
 const ACCENT = '#5B9BF0'
 const GREEN = '#4CAF7D'
-const ORANGE = '#FF8C42'
+const WARNING = '#3D6FA8'
 const TEXT = '#ffffff'
 const TEXT_MUTED = 'rgba(255,255,255,0.45)'
 const TEXT_DIM = 'rgba(255,255,255,0.35)'
@@ -264,24 +264,34 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
       })
       if (error) throw error
 
+      let urgentAlertFailed = false
       if (composeUrgent) {
         if (providerProfile?.phone) {
-          const { data: { session: authSession } } = await supabase.auth.getSession()
-          fetch(`https://howvgvrrxcpdiqjbnhzn.supabase.co/functions/v1/send-sms`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authSession.access_token}` },
-            body: JSON.stringify({
-              to_phone: providerProfile.phone,
-              body: `URGENT message from ${client.name} in CourtBridge: ${composeText.trim()}`,
-              client_id: client.id,
-            }),
-          }).catch(() => {})
+          try {
+            const { data: { session: authSession } } = await supabase.auth.getSession()
+            const smsResponse = await fetch(`https://howvgvrrxcpdiqjbnhzn.supabase.co/functions/v1/send-sms`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authSession.access_token}` },
+              body: JSON.stringify({
+                to_phone: providerProfile.phone,
+                body: `URGENT message from ${client.name} in CourtBridge: ${composeText.trim()}`,
+                client_id: client.id,
+              }),
+            })
+            if (!smsResponse.ok) urgentAlertFailed = true
+          } catch (smsErr) {
+            urgentAlertFailed = true
+          }
+        } else {
+          urgentAlertFailed = true
         }
       }
 
       setComposeText('')
       setComposeUrgent(false)
-      setMessageStatus({ type: 'success', text: 'Message sent to your provider.' })
+      setMessageStatus(urgentAlertFailed
+        ? { type: 'error', text: 'Message sent, but the urgent SMS alert to your provider could not be sent. They may not see this right away.' }
+        : { type: 'success', text: 'Message sent to your provider.' })
       fetchMessages()
     } catch (err) {
       setMessageStatus({ type: 'error', text: 'Could not send message. Please try again.' })
@@ -999,11 +1009,11 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                   alignSelf: m.sender_role === 'client' ? 'flex-end' : 'flex-start',
                   maxWidth: '75%',
                   background: m.sender_role === 'client' ? BLUE : CARD_BG,
-                  border: m.is_urgent ? `1px solid ${ORANGE}` : `0.5px solid ${BORDER}`,
+                  border: m.is_urgent ? `1px solid ${WARNING}` : `0.5px solid ${BORDER}`,
                   borderRadius: 10,
                   padding: '10px 14px',
                 }}>
-                  {m.is_urgent && <div style={{ fontSize: 10, fontWeight: 700, color: ORANGE, textTransform: 'uppercase', marginBottom: 4 }}>Urgent</div>}
+                  {m.is_urgent && <div style={{ fontSize: 10, fontWeight: 700, color: WARNING, textTransform: 'uppercase', marginBottom: 4 }}>Urgent</div>}
                   <div style={{ fontSize: 13, color: TEXT, whiteSpace: 'pre-wrap' }}>{m.body}</div>
                   <div style={{ fontSize: 10, color: TEXT_DIM, marginTop: 6 }}>{new Date(m.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</div>
                 </div>
@@ -1018,7 +1028,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                 style={{ width: '100%', boxSizing: 'border-box', background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 8, padding: '10px 12px', fontSize: 13, color: TEXT, resize: 'vertical', fontFamily: 'inherit' }}
               />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: composeUrgent ? ORANGE : TEXT_MUTED, cursor: 'pointer' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: composeUrgent ? WARNING : TEXT_MUTED, cursor: 'pointer' }}>
                   <input type="checkbox" checked={composeUrgent} onChange={e => setComposeUrgent(e.target.checked)} />
                   Mark urgent — notifies your provider immediately
                 </label>
@@ -1038,11 +1048,11 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
 
         {activeTab === 'dashboard' && <>
         {pendingFormsCount > 0 && (
-          <div onClick={() => setActiveTab('forms')} style={{ margin: '16px 22px 0', background: 'rgba(255,140,66,0.1)', border: `0.5px solid rgba(255,140,66,0.3)`, borderRadius: 10, padding: '12px 16px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div onClick={() => setActiveTab('forms')} style={{ margin: '16px 22px 0', background: 'rgba(61,111,168,0.1)', border: `0.5px solid rgba(61,111,168,0.3)`, borderRadius: 10, padding: '12px 16px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ fontSize: 13, color: TEXT }}>
-              <strong style={{ color: ORANGE }}>Needs your attention:</strong> {pendingFormsCount} form{pendingFormsCount > 1 ? 's' : ''} waiting for your signature
+              <strong style={{ color: WARNING }}>Needs your attention:</strong> {pendingFormsCount} form{pendingFormsCount > 1 ? 's' : ''} waiting for your signature
             </div>
-            <div style={{ fontSize: 12, color: ORANGE, fontWeight: 600 }}>Review →</div>
+            <div style={{ fontSize: 12, color: WARNING, fontWeight: 600 }}>Review →</div>
           </div>
         )}
         {/* Hero check-in */}
@@ -1060,7 +1070,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                 : 'Keep up the great work. Consistency is your proof.'}
             </div>
             {checkInMsg && (
-              <div style={{ marginTop: 8, fontSize: 12, color: checkInMsg.type === 'success' ? GREEN : ORANGE }}>
+              <div style={{ marginTop: 8, fontSize: 12, color: checkInMsg.type === 'success' ? GREEN : WARNING }}>
                 {checkInMsg.text}
               </div>
             )}
@@ -1083,8 +1093,8 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                   onClick={handleCheckOut}
                   style={{
                     marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 6,
-                    background: checkedOutToday ? 'rgba(76,175,125,0.2)' : 'rgba(255,140,66,0.2)',
-                    border: `0.5px solid ${checkedOutToday ? 'rgba(76,175,125,0.4)' : 'rgba(255,140,66,0.4)'}`,
+                    background: checkedOutToday ? 'rgba(76,175,125,0.2)' : 'rgba(61,111,168,0.2)',
+                    border: `0.5px solid ${checkedOutToday ? 'rgba(76,175,125,0.4)' : 'rgba(61,111,168,0.4)'}`,
                     color: TEXT, fontSize: 12, padding: '7px 14px', borderRadius: 8,
                     cursor: checkedOutToday || checkingOut ? 'default' : 'pointer',
                     opacity: checkingOut ? 0.7 : 1,
@@ -1095,7 +1105,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
               )}
             </div>
             {checkOutMsg && (
-              <div style={{ marginTop: 8, fontSize: 12, color: checkOutMsg.type === 'success' ? GREEN : ORANGE }}>
+              <div style={{ marginTop: 8, fontSize: 12, color: checkOutMsg.type === 'success' ? GREEN : WARNING }}>
                 {checkOutMsg.text}
               </div>
             )}
@@ -1106,7 +1116,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
         <div style={{ display: 'flex', gap: 10, padding: '14px 22px 0' }}>
           <StatCard label="Compliance rate" value={`${complianceRate}%`} sub="All time" valueColor={GREEN} />
           <StatCard label="Check-ins this month" value={checkIns.length} sub={checkedInToday ? 'Including today' : 'Not yet today'} valueColor={ACCENT} />
-          <StatCard label="Next appointment" value={nextApptLabel || '—'} sub={nextApptSub} valueColor={nextApptDate ? ORANGE : TEXT_MUTED} />
+          <StatCard label="Next appointment" value={nextApptLabel || '—'} sub={nextApptSub} valueColor={nextApptDate ? WARNING : TEXT_MUTED} />
         </div>
 
         {/* Affirmation */}
@@ -1117,10 +1127,10 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
 
         {/* Safety word — CATCH only */}
         {isCatch && (
-          <div style={{ margin: '10px 22px 0', background: 'rgba(255,140,66,0.08)', borderRadius: 8, padding: '13px 14px', border: `0.5px solid rgba(255,140,66,0.25)` }}>
-            <div style={{ fontSize: 10, color: ORANGE, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>Safety word</div>
+          <div style={{ margin: '10px 22px 0', background: 'rgba(61,111,168,0.08)', borderRadius: 8, padding: '13px 14px', border: `0.5px solid rgba(61,111,168,0.25)` }}>
+            <div style={{ fontSize: 10, color: WARNING, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>Safety word</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
-              If you are not safe, type <strong style={{ color: ORANGE }}>SUNRISE</strong> in your check-in notes. Your advocate will be notified privately.
+              If you are not safe, type <strong style={{ color: WARNING }}>SUNRISE</strong> in your check-in notes. Your advocate will be notified privately.
             </div>
           </div>
         )}
@@ -1138,11 +1148,11 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                   key={cd.id}
                   icon="⚖️"
                   iconBg="rgba(200,80,0,0.12)"
-                  iconColor={ORANGE}
+                  iconColor={WARNING}
                   title={cd.hearing_type || 'Court appearance'}
                   meta={`${new Date(cd.hearing_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · ${cd.court_name || 'Location TBD'}`}
                   badgeText={i === 0 ? nextApptLabel : new Date(cd.hearing_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  badgeColor={ORANGE}
+                  badgeColor={WARNING}
                   badgeBg="rgba(200,80,0,0.2)"
                   last={i === courtDates.slice(0, 3).length - 1 && tasks.length === 0}
                 />

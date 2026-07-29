@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, ACCENT, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from '../theme';
 
 export default function CPSTracking() {
   const [cases, setCases] = useState([]);
@@ -44,7 +44,7 @@ export default function CPSTracking() {
 
   const statusColors = {
     active: { bg: 'rgba(248,113,113,0.15)', color: RED, label: '🔴 Active' },
-    monitoring: { bg: 'rgba(255,140,66,0.15)', color: ORANGE, label: '🟡 Monitoring' },
+    monitoring: { bg: 'rgba(61,111,168,0.15)', color: WARNING, label: '🟡 Monitoring' },
     closed: { bg: 'rgba(76,175,125,0.15)', color: GREEN, label: '✅ Closed' },
     reunified: { bg: 'rgba(91,155,240,0.15)', color: ACCENT, label: '💙 Reunified' },
   };
@@ -108,12 +108,12 @@ export default function CPSTracking() {
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {c.reunification_goal && <span style={{ background: 'rgba(91,155,240,0.15)', color: ACCENT, padding: '3px 10px', borderRadius: 20, fontSize: 11 }}>Reunification Goal</span>}
-              {c.safety_plan && <span style={{ background: 'rgba(255,140,66,0.15)', color: ORANGE, padding: '3px 10px', borderRadius: 20, fontSize: 11 }}>Safety Plan</span>}
+              {c.safety_plan && <span style={{ background: 'rgba(61,111,168,0.15)', color: WARNING, padding: '3px 10px', borderRadius: 20, fontSize: 11 }}>Safety Plan</span>}
               {c.out_of_home && <span style={{ background: 'rgba(248,113,113,0.15)', color: RED, padding: '3px 10px', borderRadius: 20, fontSize: 11 }}>Out of Home</span>}
             </div>
             {(c.status === 'active' || c.status === 'monitoring') && (
               <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
-                <button onClick={() => updateStatus(c.id, 'monitoring')} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.04)', color: ORANGE, border: `0.5px solid ${ORANGE}`, borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>Monitoring</button>
+                <button onClick={() => updateStatus(c.id, 'monitoring')} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.04)', color: WARNING, border: `0.5px solid ${WARNING}`, borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>Monitoring</button>
                 <button onClick={() => updateStatus(c.id, 'reunified')} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.04)', color: ACCENT, border: `0.5px solid ${ACCENT}`, borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>Reunified</button>
                 <button onClick={() => updateStatus(c.id, 'closed')} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.04)', color: GREEN, border: `0.5px solid ${GREEN}`, borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>Close Case</button>
               </div>

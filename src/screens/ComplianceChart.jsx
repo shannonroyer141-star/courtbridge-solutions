@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 const S = {
   page: { padding: '32px 36px', fontFamily: NAV_FONT },
@@ -20,7 +20,7 @@ const S = {
 
 function rateColor(rate) {
   if (rate >= 80) return GREEN;
-  if (rate >= 60) return ORANGE;
+  if (rate >= 60) return WARNING;
   return RED;
 }
 

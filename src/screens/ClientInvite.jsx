@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, ACCENT, GREEN, ORANGE, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, ACCENT, GREEN, WARNING, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 export default function ClientInvite() {
   const [invites, setInvites] = useState([]);
@@ -89,7 +89,7 @@ export default function ClientInvite() {
       </div>
       <p style={{ color: TEXT_MUTED, marginBottom: 24, fontSize: 14 }}>Send a branded welcome email with a signup link. The client is automatically connected to your account when they sign up.</p>
 
-      {status && <div style={{ background: status.includes('✅') ? 'rgba(76,175,125,0.12)' : 'rgba(255,140,66,0.12)', border: `0.5px solid ${status.includes('✅') ? GREEN : ORANGE}`, borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 13, color: status.includes('✅') ? GREEN : ORANGE }}>{status}</div>}
+      {status && <div style={{ background: status.includes('✅') ? 'rgba(76,175,125,0.12)' : 'rgba(61,111,168,0.12)', border: `0.5px solid ${status.includes('✅') ? GREEN : WARNING}`, borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 13, color: status.includes('✅') ? GREEN : WARNING }}>{status}</div>}
 
       {showForm && (
         <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 25, marginBottom: 20 }}>

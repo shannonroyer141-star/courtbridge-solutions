@@ -104,6 +104,10 @@ export default function OrgAdmin({ session }) {
   const [loading, setLoading] = useState(true)
   const [openCategory, setOpenCategory] = useState(null)
   const [width, setWidth] = useState(window.innerWidth)
+  const [editingItContact, setEditingItContact] = useState(false)
+  const [itContactName, setItContactName] = useState('')
+  const [itContactEmail, setItContactEmail] = useState('')
+  const [savingItContact, setSavingItContact] = useState(false)
 
   useEffect(() => { fetchProfile() }, [])
 
@@ -119,7 +123,22 @@ export default function OrgAdmin({ session }) {
     setLoading(true)
     const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
     setProfile(data)
+    setItContactName(data?.it_contact_name || '')
+    setItContactEmail(data?.it_contact_email || '')
     setLoading(false)
+  }
+
+  async function saveItContact() {
+    setSavingItContact(true)
+    const { error } = await supabase.from('profiles').update({
+      it_contact_name: itContactName,
+      it_contact_email: itContactEmail,
+    }).eq('id', session.user.id)
+    if (!error) {
+      setProfile(p => ({ ...p, it_contact_name: itContactName, it_contact_email: itContactEmail }))
+      setEditingItContact(false)
+    }
+    setSavingItContact(false)
   }
 
   const field = (label, value) => (
@@ -172,11 +191,37 @@ export default function OrgAdmin({ session }) {
 
       {/* IT CONTACT */}
       <div style={{ background: 'rgba(91,155,240,0.1)', border: `0.5px solid ${ACCENT}`, borderRadius: 12, padding: '18px 24px', marginBottom: 32 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 8 }}>IT / Technical Support Contact</div>
-        <div style={{ fontSize: 14, color: TEXT, lineHeight: 1.6 }}>
-          <strong>[IT Contact Name/Email — to be filled in]</strong><br/>
-          Responsible for: hosting and deployment issues, database/data integrity problems, email and messaging delivery failures, GPS/check-in system bugs, website outages, and any issue not resolved by the steps below. Contact for anything client-facing that is broken and cannot be fixed by refreshing, resending, or waiting.
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.04em' }}>IT / Technical Support Contact</div>
+          {!editingItContact && (
+            <button onClick={() => setEditingItContact(true)} style={{ background: 'none', border: 'none', color: ACCENT, fontSize: 12, cursor: 'pointer', fontFamily: NAV_FONT }}>Edit</button>
+          )}
         </div>
+        {editingItContact ? (
+          <div>
+            <input value={itContactName} onChange={e => setItContactName(e.target.value)} placeholder="IT contact name"
+              style={{ width: '100%', padding: 10, marginBottom: 8, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT, fontSize: 14 }} />
+            <input type="email" value={itContactEmail} onChange={e => setItContactEmail(e.target.value)} placeholder="IT contact email"
+              style={{ width: '100%', padding: 10, marginBottom: 10, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT, fontSize: 14 }} />
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={saveItContact} disabled={savingItContact}
+                style={{ padding: '8px 16px', background: ACCENT, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, cursor: savingItContact ? 'not-allowed' : 'pointer' }}>
+                {savingItContact ? 'Saving...' : 'Save'}
+              </button>
+              <button onClick={() => { setEditingItContact(false); setItContactName(profile?.it_contact_name || ''); setItContactEmail(profile?.it_contact_email || '') }}
+                style={{ padding: '8px 16px', background: 'none', color: TEXT_MUTED, border: `0.5px solid ${BORDER}`, borderRadius: 8, fontSize: 13, cursor: 'pointer' }}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div style={{ fontSize: 14, color: TEXT, lineHeight: 1.6 }}>
+            <strong>{profile?.it_contact_name || profile?.it_contact_email
+              ? `${profile?.it_contact_name || ''}${profile?.it_contact_name && profile?.it_contact_email ? ' — ' : ''}${profile?.it_contact_email || ''}`
+              : <span style={{ color: TEXT_DIM, fontWeight: 400 }}>No IT contact set — click Edit to add one.</span>}</strong><br/>
+            Responsible for: hosting and deployment issues, database/data integrity problems, email and messaging delivery failures, GPS/check-in system bugs, website outages, and any issue not resolved by the steps below. Contact for anything client-facing that is broken and cannot be fixed by refreshing, resending, or waiting.
+          </div>
+        )}
       </div>
 
       {/* TROUBLESHOOTING SOP */}

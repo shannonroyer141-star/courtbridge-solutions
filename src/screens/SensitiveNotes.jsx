@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 const TYPES = {
   case_note: { label: 'Case Note', table: 'case_notes', ownerField: 'provider_id', color: '#5B9BF0' },
-  clinical_note: { label: 'Clinical Note', table: 'clinical_notes', ownerField: 'provider_id', color: '#B388EB' },
-  legal_agreement: { label: 'Legal Agreement', table: 'legal_agreements', ownerField: 'user_id', color: '#E0B04C' },
+  clinical_note: { label: 'Clinical Note', table: 'clinical_notes', ownerField: 'provider_id', color: '#1B3A6B' },
+  legal_agreement: { label: 'Legal Agreement', table: 'legal_agreements', ownerField: 'user_id', color: '#7DA6E0' },
 };
 
 export default function SensitiveNotes() {
@@ -26,14 +26,12 @@ export default function SensitiveNotes() {
   }
 
   async function fetchEntries() {
-    if (TYPES[type].comingSoon) { setEntries([]); return; }
     const { data, error } = await supabase.from(TYPES[type].table).select('*, clients(name)').order('created_at', { ascending: false });
     if (error) { setStatus('Could not load — this table may need its columns confirmed. ' + error.message); setEntries([]); return; }
     setEntries(data || []);
   }
 
   async function handleSave() {
-    if (TYPES[type].comingSoon) return;
     if (!form.client_id || !form.content) { setStatus('Please select a client and enter content.'); return; }
     setSaving(true); setStatus('');
     const { data: { user } } = await supabase.auth.getUser();
@@ -59,31 +57,23 @@ export default function SensitiveNotes() {
 
   return (
     <div style={{ padding: 30, maxWidth: 800, fontFamily: NAV_FONT }}>
-      <div style={{ background: 'rgba(255,140,66,0.12)', border: `0.5px solid ${ORANGE}`, borderRadius: 8, padding: '10px 16px', marginBottom: 20, fontSize: 13, color: ORANGE }}>
+      <div style={{ background: 'rgba(61,111,168,0.12)', border: `0.5px solid ${WARNING}`, borderRadius: 8, padding: '10px 16px', marginBottom: 20, fontSize: 13, color: WARNING }}>
         🔒 Sensitive records — restricted, client-identifying information. Access should be limited to authorized staff.
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 10 }}>
         <h1 style={{ color: TEXT, margin: 0 }}>Case &amp; Clinical Notes</h1>
-        {!TYPES[type].comingSoon && (
-          <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px', background: color, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer' }}>+ New Entry</button>
-        )}
+        <button onClick={() => setShowForm(!showForm)} style={{ padding: '10px 20px', background: color, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer' }}>+ New Entry</button>
       </div>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
         {Object.entries(TYPES).map(([key, t]) => (
           <button key={key} onClick={() => setType(key)}
-            style={{ padding: '8px 16px', background: type === key ? t.color : 'rgba(255,255,255,0.04)', color: type === key ? 'white' : t.color, border: `0.5px solid ${t.color}`, borderRadius: 20, cursor: 'pointer', fontSize: 13, opacity: t.comingSoon ? 0.6 : 1 }}>
-            {t.label}{t.comingSoon ? ' (Coming Soon)' : ''}
+            style={{ padding: '8px 16px', background: type === key ? t.color : 'rgba(255,255,255,0.04)', color: type === key ? 'white' : t.color, border: `0.5px solid ${t.color}`, borderRadius: 20, cursor: 'pointer', fontSize: 13 }}>
+            {t.label}
           </button>
         ))}
       </div>
-
-      {TYPES[type].comingSoon && (
-        <div style={{ textAlign: 'center', padding: 40, color: TEXT_MUTED }}>
-          <p>Clinical Notes isn't built yet — check back soon.</p>
-        </div>
-      )}
 
       {status && <div style={{ background: 'rgba(248,113,113,0.1)', border: `0.5px solid ${RED}`, borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 13, color: RED }}>{status}</div>}
 

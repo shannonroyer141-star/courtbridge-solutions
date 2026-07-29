@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, ACCENT, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 export default function SMSAlerts() {
   const [logs, setLogs] = useState([]);
@@ -70,7 +70,7 @@ export default function SMSAlerts() {
       <h1 style={{ color: TEXT, marginBottom: 8 }}>SMS Alerts</h1>
       <p style={{ color: TEXT_MUTED, marginBottom: 16, fontSize: 14 }}>Send text message alerts to clients. Requires Twilio credentials in Supabase secrets.</p>
 
-      <div style={{ background: 'rgba(255,140,66,0.12)', border: `0.5px solid ${ORANGE}`, borderRadius: 8, padding: 14, marginBottom: 24, fontSize: 13, color: ORANGE }}>
+      <div style={{ background: 'rgba(61,111,168,0.12)', border: `0.5px solid ${WARNING}`, borderRadius: 8, padding: 14, marginBottom: 24, fontSize: 13, color: WARNING }}>
         🔧 To activate SMS: Sign up free at <strong>twilio.com</strong> → get Account SID, Auth Token, and a phone number → add them to Supabase Edge Function secrets as <strong>TWILIO_ACCOUNT_SID</strong>, <strong>TWILIO_AUTH_TOKEN</strong>, and <strong>TWILIO_PHONE_NUMBER</strong>.
       </div>
 
@@ -93,7 +93,7 @@ export default function SMSAlerts() {
         </div>
         <textarea placeholder="Message text... Use [NAME] to insert client's first name." value={form.message} onChange={e => setForm({...form, message: e.target.value})} style={{ ...inputStyle, minHeight: 100, marginBottom: 8 }} />
         <p style={{ fontSize: 12, color: TEXT_DIM, marginBottom: 12 }}>{form.message.length} characters {form.message.length > 160 ? '— will send as 2 messages' : ''}</p>
-        {status && <div style={{ background: status.includes('✅') ? 'rgba(76,175,125,0.12)' : 'rgba(255,140,66,0.12)', border: `0.5px solid ${status.includes('✅') ? GREEN : ORANGE}`, borderRadius: 8, padding: 12, marginBottom: 12, fontSize: 13, color: status.includes('✅') ? GREEN : ORANGE }}>{status}</div>}
+        {status && <div style={{ background: status.includes('✅') ? 'rgba(76,175,125,0.12)' : 'rgba(61,111,168,0.12)', border: `0.5px solid ${status.includes('✅') ? GREEN : WARNING}`, borderRadius: 8, padding: 12, marginBottom: 12, fontSize: 13, color: status.includes('✅') ? GREEN : WARNING }}>{status}</div>}
         <button onClick={sendSMS} disabled={sending || !form.client_id || !form.message} style={{ width: '100%', padding: 13, background: form.client_id && form.message ? ACCENT : 'rgba(255,255,255,0.08)', color: form.client_id && form.message ? 'white' : TEXT_DIM, border: 'none', borderRadius: 8, fontSize: 15, cursor: 'pointer', fontWeight: 'bold' }}>
           {sending ? 'Sending...' : '📱 Send SMS'}
         </button>
@@ -107,7 +107,7 @@ export default function SMSAlerts() {
               <p style={{ margin: 0, fontWeight: 'bold', color: TEXT, fontSize: 13 }}>{l.clients?.name}</p>
               <p style={{ margin: '2px 0 0', fontSize: 12, color: TEXT_DIM }}>{l.phone_number} • {new Date(l.sent_at).toLocaleString()}</p>
             </div>
-            <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 'bold', background: l.status === 'delivered' ? 'rgba(76,175,125,0.15)' : 'rgba(255,140,66,0.15)', color: l.status === 'delivered' ? GREEN : ORANGE }}>
+            <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 'bold', background: l.status === 'delivered' ? 'rgba(76,175,125,0.15)' : 'rgba(61,111,168,0.15)', color: l.status === 'delivered' ? GREEN : WARNING }}>
               {l.status === 'delivered' ? '✅ Delivered' : l.status === 'pending_configuration' ? '⏳ Pending Setup' : '📤 Sent'}
             </span>
           </div>

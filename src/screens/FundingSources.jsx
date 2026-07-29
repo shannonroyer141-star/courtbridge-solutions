@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, ACCENT, GREEN, ORANGE, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 const EMPTY_FORM = {
   funder_name: '', grant_name: '', funding_type: '', amount: '',
@@ -89,7 +89,7 @@ export default function FundingSources() {
     const days = daysUntil(item.next_report_due);
     if (days === null) return { color: TEXT_MUTED, label: 'No report scheduled' };
     if (days < 0) return { color: RED, label: `Report overdue — ${Math.abs(days)}d` };
-    if (days <= 14) return { color: ORANGE, label: `Report due in ${days}d` };
+    if (days <= 14) return { color: WARNING, label: `Report due in ${days}d` };
     return { color: GREEN, label: `Report due in ${days}d` };
   }
 

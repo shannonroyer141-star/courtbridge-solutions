@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, GREEN, RED, ORANGE, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, GREEN, RED, WARNING, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from '../theme';
 
 export default function DrugTests() {
   const [tests, setTests] = useState([]);
@@ -68,7 +68,7 @@ export default function DrugTests() {
             <p style={{ margin: 0, fontWeight: 'bold', color: TEXT }}>{t.clients?.name || 'Unknown'}</p>
             <p style={{ margin: '3px 0 0', fontSize: 13, color: TEXT_MUTED }}>{t.test_date ? new Date(t.test_date).toLocaleDateString() : ''}</p>
           </div>
-          <span style={{ padding: '6px 14px', borderRadius: 20, fontSize: 13, fontWeight: 'bold', background: t.result === 'Negative' ? 'rgba(76,175,125,0.15)' : t.result === 'Positive' ? 'rgba(248,113,113,0.15)' : 'rgba(255,140,66,0.15)', color: t.result === 'Negative' ? GREEN : t.result === 'Positive' ? RED : ORANGE }}>{t.result}</span>
+          <span style={{ padding: '6px 14px', borderRadius: 20, fontSize: 13, fontWeight: 'bold', background: t.result === 'Negative' ? 'rgba(76,175,125,0.15)' : t.result === 'Positive' ? 'rgba(248,113,113,0.15)' : 'rgba(61,111,168,0.15)', color: t.result === 'Negative' ? GREEN : t.result === 'Positive' ? RED : WARNING }}>{t.result}</span>
         </div>
       ))}
     </div>

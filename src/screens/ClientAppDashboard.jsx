@@ -698,10 +698,10 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
 
         {activeTab === 'documents' && (
           <div style={{ margin: '16px 22px', paddingBottom: isMobile ? 80 : 20 }}>
-            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>My Documents</div>
+            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>{t('dashboard', 'documents').title}</div>
             <InnerCard>
               {documents.length === 0 ? (
-                <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>No documents shared with you yet.</div>
+                <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>{t('dashboard', 'documents').empty}</div>
               ) : (
                 documents.map((d, i) => (
                   <div key={d.id} onClick={() => viewDocument(d)} style={{
@@ -714,7 +714,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                         {d.document_type} · {new Date(d.uploaded_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </div>
                     </div>
-                    <div style={{ fontSize: 11, color: ACCENT, fontWeight: 600 }}>View →</div>
+                    <div style={{ fontSize: 11, color: ACCENT, fontWeight: 600 }}>{t('dashboard', 'documents').view}</div>
                   </div>
                 ))
               )}
@@ -724,33 +724,34 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
 
         {activeTab === 'forms' && (() => {
           const signedIds = new Set(mySignatures.map(s => s.form_template_id))
-          const pendingTemplates = formTemplates.filter(t => !signedIds.has(t.id))
+          const pendingTemplates = formTemplates.filter(ft => !signedIds.has(ft.id))
+          const fT = t('dashboard', 'forms')
           return (
             <div style={{ margin: '16px 22px', paddingBottom: isMobile ? 80 : 20 }}>
-              <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>Needs Your Signature</div>
+              <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>{fT.needsSignature}</div>
               <InnerCard style={{ marginBottom: 16 }}>
                 {pendingTemplates.length === 0 ? (
-                  <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>Nothing waiting on you right now.</div>
+                  <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>{fT.emptyPending}</div>
                 ) : (
-                  pendingTemplates.map((t, i) => (
-                    <div key={t.id} style={{ padding: '10px 0', borderBottom: i === pendingTemplates.length - 1 ? 'none' : `0.5px solid rgba(255,255,255,0.05)` }}>
+                  pendingTemplates.map((ft, i) => (
+                    <div key={ft.id} style={{ padding: '10px 0', borderBottom: i === pendingTemplates.length - 1 ? 'none' : `0.5px solid rgba(255,255,255,0.05)` }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
-                          <div style={{ fontSize: 13, color: TEXT }}>{t.title}</div>
-                          <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 2 }}>{t.form_type}</div>
+                          <div style={{ fontSize: 13, color: TEXT }}>{ft.title}</div>
+                          <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 2 }}>{ft.form_type}</div>
                         </div>
-                        <div onClick={() => { setSigningTemplate(signingTemplate?.id === t.id ? null : t); setSignatureName('') }}
+                        <div onClick={() => { setSigningTemplate(signingTemplate?.id === ft.id ? null : ft); setSignatureName('') }}
                           style={{ fontSize: 11, color: ACCENT, fontWeight: 600, cursor: 'pointer' }}>
-                          {signingTemplate?.id === t.id ? 'Cancel' : 'Read & Sign →'}
+                          {signingTemplate?.id === ft.id ? fT.cancel : fT.readAndSign}
                         </div>
                       </div>
-                      {signingTemplate?.id === t.id && (
+                      {signingTemplate?.id === ft.id && (
                         <div style={{ marginTop: 10, background: 'rgba(0,0,0,0.15)', borderRadius: 8, padding: 12 }}>
                           <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', lineHeight: 1.6, maxHeight: 160, overflowY: 'auto', whiteSpace: 'pre-wrap', marginBottom: 10 }}>
-                            {t.content}
+                            {ft.content}
                           </div>
                           <input
-                            placeholder="Type your full name to sign"
+                            placeholder={fT.signaturePlaceholder}
                             value={signatureName}
                             onChange={e => setSignatureName(e.target.value)}
                             style={{ width: '100%', boxSizing: 'border-box', background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 8, padding: '10px 12px', fontSize: 13, color: TEXT, marginBottom: 8 }}
@@ -763,7 +764,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                               cursor: signatureName.trim() ? 'pointer' : 'default', opacity: signing ? 0.7 : 1,
                             }}
                           >
-                            {signing ? 'Signing...' : 'Sign & Submit'}
+                            {signing ? fT.signing : fT.signAndSubmit}
                           </div>
                         </div>
                       )}
@@ -772,10 +773,10 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                 )}
               </InnerCard>
 
-              <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>Signed Forms</div>
+              <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>{fT.signedForms}</div>
               <InnerCard>
                 {mySignatures.length === 0 ? (
-                  <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>Nothing signed yet.</div>
+                  <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>{fT.emptySigned}</div>
                 ) : (
                   mySignatures.map((s, i) => (
                     <div key={s.id} onClick={() => openSignatureSlip(s)} style={{
@@ -784,9 +785,9 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                     }}>
                       <div>
                         <div style={{ fontSize: 13, color: TEXT }}>{s.form_title}</div>
-                        <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 2 }}>Signed {new Date(s.signed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                        <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 2 }}>{fT.signedOn(new Date(s.signed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }))}</div>
                       </div>
-                      <div style={{ fontSize: 11, color: ACCENT, fontWeight: 600 }}>View / Save PDF →</div>
+                      <div style={{ fontSize: 11, color: ACCENT, fontWeight: 600 }}>{fT.viewSavePdf}</div>
                     </div>
                   ))
                 )}
@@ -795,64 +796,69 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
           )
         })()}
 
-        {activeTab === 'settings' && (
+        {activeTab === 'settings' && (() => {
+          const pT = t('dashboard', 'progress')
+          return (
           <div style={{ margin: '16px 22px', paddingBottom: isMobile ? 80 : 20 }}>
             <div style={{ background: BLUE, borderRadius: 12, padding: '18px 20px', border: `0.5px solid rgba(91,155,240,0.2)`, marginBottom: 16 }}>
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                {primaryProgram ? primaryProgram.order_name : 'Your program'}
+                {primaryProgram ? primaryProgram.order_name : pT.yourProgram}
               </div>
               <div style={{ fontSize: 24, fontWeight: 600, color: TEXT, marginTop: 4 }}>
-                Week {primaryProgram?.duration_weeks ? Math.min(primaryWeeksIn + 1, primaryProgram.duration_weeks) : weekNumber}
-                {primaryProgram?.duration_weeks ? ` of ${primaryProgram.duration_weeks}` : ''}
+                {pT.weekLabel(primaryProgram?.duration_weeks ? Math.min(primaryWeeksIn + 1, primaryProgram.duration_weeks) : weekNumber)}
+                {primaryProgram?.duration_weeks ? pT.ofWeeks(primaryProgram.duration_weeks) : ''}
               </div>
               {primaryPct !== null && (
                 <div style={{ marginTop: 12 }}>
                   <div style={{ height: 8, borderRadius: 4, background: 'rgba(255,255,255,0.15)', overflow: 'hidden' }}>
                     <div style={{ height: '100%', width: `${primaryPct}%`, background: ACCENT, borderRadius: 4 }} />
                   </div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', marginTop: 6 }}>{primaryPct}% of the way through</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', marginTop: 6 }}>{pT.percentThrough(primaryPct)}</div>
                 </div>
               )}
             </div>
 
             <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>
-              {nextCourtDate ? `Before Your Next Visit (${nextApptLabel})` : 'Your Tasks'}
+              {nextCourtDate ? pT.beforeNextVisit(nextApptLabel) : pT.yourTasks}
             </div>
             <InnerCard>
               {tasksBeforeVisit.length === 0 ? (
                 <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>
-                  {nextCourtDate ? 'Nothing due before your next visit — you\'re all caught up.' : 'No tasks assigned right now.'}
+                  {nextCourtDate ? pT.nothingDueBeforeVisit : pT.noTasksAssigned}
                 </div>
               ) : (
-                tasksBeforeVisit.map((t, i) => (
+                tasksBeforeVisit.map((tk, i) => (
                   <ListRow
-                    key={t.id}
+                    key={tk.id}
                     icon="✓" iconBg="rgba(91,155,240,0.15)" iconColor={ACCENT}
-                    title={t.title}
-                    meta={t.due_date ? `Due ${new Date(t.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : null}
+                    title={tk.title}
+                    meta={tk.due_date ? t('dashboard', 'home').dueLabel(new Date(tk.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })) : null}
                     last={i === tasksBeforeVisit.length - 1}
                   />
                 ))
               )}
             </InnerCard>
 
-            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: '16px 0 10px' }}>🔒 Your Privacy & Security</div>
+            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: '16px 0 10px' }}>{pT.privacyTitle}</div>
             <InnerCard>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>
-                Your records are private — only you and your provider can see them, no one else. We do not sell or share your information with third parties. Location is only captured the moment you tap "Check In" or "Check Out" — two brief moments, not continuous tracking.
+                {pT.privacyBody}
                 <br /><br />
-                Questions or problems? Please contact <strong style={{ color: TEXT }}>your provider</strong> directly rather than CourtBridge Solutions.
+                {pT.privacyContact} <strong style={{ color: TEXT }}>{pT.privacyContactBold}</strong> {pT.privacyContactEnd}
               </div>
             </InnerCard>
           </div>
-        )}
+          )
+        })()}
 
-        {activeTab === 'journey' && (
+        {activeTab === 'journey' && (() => {
+          const jT = t('dashboard', 'journey')
+          return (
           <div style={{ margin: '16px 22px', paddingBottom: isMobile ? 80 : 20 }}>
-            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>My Programs</div>
+            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>{jT.myPrograms}</div>
             <InnerCard style={{ marginBottom: 16 }}>
               {clientPrograms.length === 0 && (
-                <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>Your provider hasn't added a program to track here yet.</div>
+                <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>{jT.noProgramsYet}</div>
               )}
               {clientPrograms.map((p, i) => {
                 const weeksIn = Math.floor((Date.now() - new Date(p.start_date)) / (7 * 86400000))
@@ -868,7 +874,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                         background: isDone ? 'rgba(76,175,125,0.15)' : p.status === 'terminated' ? 'rgba(248,113,113,0.15)' : 'rgba(91,155,240,0.15)',
                         color: isDone ? GREEN : p.status === 'terminated' ? '#F87171' : ACCENT,
                       }}>
-                        {isDone ? '🎉 Completed' : p.status === 'terminated' ? 'Ended' : 'In progress'}
+                        {isDone ? jT.completedBadge : p.status === 'terminated' ? jT.endedBadge : jT.inProgressBadge}
                       </div>
                     </div>
                     {pct !== null && !isDone && (
@@ -876,21 +882,21 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                         <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
                           <div style={{ height: '100%', width: `${pct}%`, background: ACCENT, borderRadius: 3 }} />
                         </div>
-                        <div style={{ fontSize: 10, color: TEXT_DIM, marginTop: 4 }}>Week {Math.max(weeksIn, 0)} of {p.duration_weeks}</div>
+                        <div style={{ fontSize: 10, color: TEXT_DIM, marginTop: 4 }}>{jT.weekOf(Math.max(weeksIn, 0), p.duration_weeks)}</div>
                       </div>
                     )}
                     {isDone && p.completed_at && (
-                      <div style={{ fontSize: 10, color: TEXT_DIM, marginTop: 4 }}>Completed {new Date(p.completed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                      <div style={{ fontSize: 10, color: TEXT_DIM, marginTop: 4 }}>{jT.completedOn(new Date(p.completed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }))}</div>
                     )}
                     {notesForProgram.length > 0 && (
                       <div style={{ marginTop: 10, paddingTop: 10, borderTop: `0.5px solid rgba(255,255,255,0.08)` }}>
-                        <div style={{ fontSize: 9, fontWeight: 700, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: 6 }}>Progress Notes</div>
+                        <div style={{ fontSize: 9, fontWeight: 700, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: 6 }}>{jT.progressNotesLabel}</div>
                         {notesForProgram.map((n, ni) => (
                           <div key={n.id} onClick={() => openNotePdf(n)} style={{ cursor: 'pointer' }}>
                             <ListRow
                               icon="📝" iconBg="rgba(91,155,240,0.15)" iconColor={ACCENT}
                               title={formatNoteDate(n.note_date)}
-                              badgeText="View →" badgeColor={ACCENT} badgeBg="rgba(91,155,240,0.1)"
+                              badgeText={jT.viewArrow} badgeColor={ACCENT} badgeBg="rgba(91,155,240,0.1)"
                               last={ni === notesForProgram.length - 1}
                             />
                           </div>
@@ -902,10 +908,10 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
               })}
             </InnerCard>
 
-            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>My Achievements</div>
+            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>{jT.myAchievements}</div>
             <InnerCard>
               {milestones.length === 0 ? (
-                <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>Keep checking in — your first achievement badge is on the way.</div>
+                <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>{jT.noBadgesYet}</div>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10 }}>
                   {milestones.map(m => (
@@ -921,14 +927,14 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
 
             {progressNotes.some(n => !n.client_program_id) && (
               <>
-                <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: '16px 0 10px' }}>General Notes</div>
+                <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: '16px 0 10px' }}>{jT.generalNotes}</div>
                 <InnerCard>
                   {progressNotes.filter(n => !n.client_program_id).map((n, i, arr) => (
                     <div key={n.id} onClick={() => openNotePdf(n)} style={{ cursor: 'pointer' }}>
                       <ListRow
                         icon="📝" iconBg="rgba(91,155,240,0.15)" iconColor={ACCENT}
                         title={formatNoteDate(n.note_date)}
-                        badgeText="View →" badgeColor={ACCENT} badgeBg="rgba(91,155,240,0.1)"
+                        badgeText={jT.viewArrow} badgeColor={ACCENT} badgeBg="rgba(91,155,240,0.1)"
                         last={i === arr.length - 1}
                       />
                     </div>
@@ -937,14 +943,17 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
               </>
             )}
           </div>
-        )}
+          )
+        })()}
 
-        {activeTab === 'messages' && (
+        {activeTab === 'messages' && (() => {
+          const mT = t('dashboard', 'messages')
+          return (
           <div style={{ margin: '16px 22px', flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
             <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 10, paddingBottom: 12 }}>
-              {messagesLoading && <div style={{ fontSize: 13, color: TEXT_MUTED }}>Loading messages...</div>}
+              {messagesLoading && <div style={{ fontSize: 13, color: TEXT_MUTED }}>{mT.loading}</div>}
               {!messagesLoading && threadMessages.length === 0 && (
-                <div style={{ fontSize: 13, color: TEXT_DIM, padding: '20px 0' }}>No messages yet. Send your provider a message below.</div>
+                <div style={{ fontSize: 13, color: TEXT_DIM, padding: '20px 0' }}>{mT.empty}</div>
               )}
               {threadMessages.map(m => (
                 <div key={m.id} style={{
@@ -955,7 +964,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                   borderRadius: 10,
                   padding: '10px 14px',
                 }}>
-                  {m.is_urgent && <div style={{ fontSize: 10, fontWeight: 700, color: WARNING, textTransform: 'uppercase', marginBottom: 4 }}>Urgent</div>}
+                  {m.is_urgent && <div style={{ fontSize: 10, fontWeight: 700, color: WARNING, textTransform: 'uppercase', marginBottom: 4 }}>{mT.urgentLabel}</div>}
                   <div style={{ fontSize: 13, color: TEXT, whiteSpace: 'pre-wrap' }}>{m.body}</div>
                   <div style={{ fontSize: 10, color: TEXT_DIM, marginTop: 6 }}>{new Date(m.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</div>
                 </div>
@@ -965,20 +974,20 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
               <textarea
                 value={composeText}
                 onChange={e => setComposeText(e.target.value)}
-                placeholder="Message your provider..."
+                placeholder={mT.composePlaceholder}
                 rows={2}
                 style={{ width: '100%', boxSizing: 'border-box', background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 8, padding: '10px 12px', fontSize: 13, color: TEXT, resize: 'vertical', fontFamily: 'inherit' }}
               />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: composeUrgent ? WARNING : TEXT_MUTED, cursor: 'pointer' }}>
                   <input type="checkbox" checked={composeUrgent} onChange={e => setComposeUrgent(e.target.checked)} />
-                  Mark urgent — notifies your provider immediately
+                  {mT.markUrgent}
                 </label>
                 <div
                   onClick={!sendingMessage && composeText.trim() ? sendClientMessage : undefined}
                   style={{ background: composeText.trim() ? BLUE : 'rgba(255,255,255,0.1)', color: TEXT, fontSize: 12, fontWeight: 600, padding: '8px 16px', borderRadius: 8, cursor: composeText.trim() ? 'pointer' : 'default', opacity: sendingMessage ? 0.7 : 1 }}
                 >
-                  {sendingMessage ? 'Sending...' : 'Send'}
+                  {sendingMessage ? mT.sending : mT.send}
                 </div>
               </div>
               {messageStatus && (
@@ -986,7 +995,8 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
               )}
             </div>
           </div>
-        )}
+          )
+        })()}
 
         {activeTab === 'dashboard' && <>
         {pendingFormsCount > 0 && (

@@ -6,6 +6,28 @@ function escapeHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
 }
 
+const OFFLINE_QUEUE_KEY = 'courtbridge_pending_checkins_v1'
+
+function readOfflineQueue() {
+  try { return JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]') }
+  catch { return [] }
+}
+
+function writeOfflineQueue(queue) {
+  try { localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue)) }
+  catch { /* storage unavailable — nothing more we can do client-side */ }
+}
+
+function isNetworkError(err) {
+  if (!navigator.onLine) return true
+  const msg = String(err?.message || '').toLowerCase()
+  return err instanceof TypeError || msg.includes('fetch') || msg.includes('network')
+}
+
+function isToday(isoString) {
+  return new Date(isoString).toDateString() === new Date().toDateString()
+}
+
 const DARK_BG = '#1E2A3A'
 const CARD_BG = '#253347'
 const SIDEBAR_BG = '#2D3748'
@@ -121,6 +143,8 @@ function ListRow({ icon, iconBg, iconColor, title, meta, badgeText, badgeColor, 
 export default function ClientAppDashboard({ session, clientName = 'there', onNavigate, onLogout }) {
   const [client, setClient] = useState(null)
   const [checkIns, setCheckIns] = useState([])
+  const [pendingCheckins, setPendingCheckins] = useState(() => readOfflineQueue())
+  const [syncingQueue, setSyncingQueue] = useState(false)
   const [clientPrograms, setClientPrograms] = useState([])
   const [milestones, setMilestones] = useState([])
   const [progressNotes, setProgressNotes] = useState([])
@@ -170,6 +194,41 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
   useEffect(() => {
     if (activeTab === 'messages' && client?.id) fetchMessages()
   }, [activeTab, client?.id])
+
+  useEffect(() => {
+    if (client?.id) syncPendingCheckins()
+    window.addEventListener('online', syncPendingCheckins)
+    return () => window.removeEventListener('online', syncPendingCheckins)
+  }, [client?.id])
+
+  async function syncPendingCheckins() {
+    const queue = readOfflineQueue()
+    if (queue.length === 0 || !client?.id) return
+    setSyncingQueue(true)
+    const stillPending = []
+    let anySynced = false
+    for (const item of queue) {
+      if (item.client_id !== client.id) { stillPending.push(item); continue }
+      try {
+        const { error } = await supabase.from('checkins').insert({
+          client_id: item.client_id,
+          checked_in_at: item.checked_in_at,
+          latitude: item.latitude,
+          longitude: item.longitude,
+          gps_accuracy_meters: item.gps_accuracy_meters,
+          notes: null,
+        })
+        if (error) throw error
+        anySynced = true
+      } catch {
+        stillPending.push(item)
+      }
+    }
+    writeOfflineQueue(stillPending)
+    setPendingCheckins(stillPending)
+    setSyncingQueue(false)
+    if (anySynced) fetchClientData()
+  }
 
   async function fetchMessages() {
     setMessagesLoading(true)
@@ -455,26 +514,29 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
     if (!client?.id) { setCheckInMsg({ type: 'error', text: t('dashboard', 'common').errClientNotFound }); return }
     setCheckingIn(true)
     setCheckInMsg(null)
+    let payload = null
     try {
       const now = new Date().toISOString()
       const pos = await new Promise((resolve, reject) =>
         navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 })
       )
       const { latitude, longitude } = pos.coords
-      const { error } = await supabase.from('checkins').insert({
-        client_id: client.id,
-        checked_in_at: now,
-        latitude,
-        longitude,
-        gps_accuracy_meters: Math.round(pos.coords.accuracy),
-        notes: null,
-      })
+      payload = { client_id: client.id, checked_in_at: now, latitude, longitude, gps_accuracy_meters: Math.round(pos.coords.accuracy) }
+
+      if (!navigator.onLine) throw new Error('offline')
+
+      const { error } = await supabase.from('checkins').insert({ ...payload, notes: null })
       if (error) throw error
       setCheckInMsg({ type: 'success', text: t('dashboard', 'common').checkInSuccess })
       fetchClientData()
     } catch (err) {
       const c = t('dashboard', 'common')
-      if (err.code === 1) setCheckInMsg({ type: 'error', text: c.errLocationDenied })
+      if (payload && isNetworkError(err)) {
+        const queue = [...readOfflineQueue(), { ...payload, queuedAt: new Date().toISOString() }]
+        writeOfflineQueue(queue)
+        setPendingCheckins(queue)
+        setCheckInMsg({ type: 'success', text: c.checkInQueuedOffline })
+      } else if (err.code === 1) setCheckInMsg({ type: 'error', text: c.errLocationDenied })
       else if (err.code === 2) setCheckInMsg({ type: 'error', text: c.errLocationFailed })
       else if (err.code === 3) setCheckInMsg({ type: 'error', text: c.errLocationTimeout })
       else setCheckInMsg({ type: 'error', text: c.errGeneric })
@@ -542,9 +604,12 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
   }
 
   const affirmation = pop.affirmations[affirmationIndex % pop.affirmations.length]
-  const checkedInToday = checkIns.some(c => new Date(c.checked_in_at).toDateString() === new Date().toDateString())
-  const todaysCheckin = checkIns.find(c => new Date(c.checked_in_at).toDateString() === new Date().toDateString())
+  const syncedTodaysCheckin = checkIns.find(c => new Date(c.checked_in_at).toDateString() === new Date().toDateString())
+  const pendingTodaysCheckin = pendingCheckins.find(p => p.client_id === client?.id && isToday(p.checked_in_at))
+  const checkedInToday = !!syncedTodaysCheckin || !!pendingTodaysCheckin
+  const todaysCheckin = syncedTodaysCheckin
   const checkedOutToday = !!todaysCheckin?.checked_out_at
+  const hasUnsyncedCheckins = pendingCheckins.some(p => p.client_id === client?.id)
   const sessionMinutes = (todaysCheckin?.checked_in_at && todaysCheckin?.checked_out_at)
     ? Math.round((new Date(todaysCheckin.checked_out_at) - new Date(todaysCheckin.checked_in_at)) / 60000)
     : null
@@ -1060,7 +1125,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
               >
                 {checkingIn ? t('dashboard', 'home').gettingLocation : checkedInToday ? t('dashboard', 'home').checkedInTodayLabel : `${pop.checkInLabel} 📍`}
               </div>
-              {checkedInToday && (
+              {syncedTodaysCheckin && (
                 <div
                   onClick={handleCheckOut}
                   style={{
@@ -1079,6 +1144,11 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
             {checkOutMsg && (
               <div style={{ marginTop: 8, fontSize: 12, color: checkOutMsg.type === 'success' ? GREEN : WARNING }}>
                 {checkOutMsg.text}
+              </div>
+            )}
+            {hasUnsyncedCheckins && (
+              <div style={{ marginTop: 8, fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>
+                {syncingQueue ? t('dashboard', 'home').syncingNow : t('dashboard', 'home').waitingToSync}
               </div>
             )}
           </div>

@@ -7,7 +7,7 @@ Welcome to CourtBridge. Quick orientation to what's where:
 
 DASHBOARD — your daily snapshot: active clients, checked-in-today count, missed check-ins, open alerts. Also includes a small map of last-known check-in locations, an Urgent Messages card (clients whose most recent message is an unanswered urgent one), and a "Coming Up" list of court dates/tasks due in the next 7 days.
 
-CLIENTS — full participant list, enroll new clients (Client Intake), and open a client's full profile for detail and history. Click "View Full Profile & Journey" on any client to reach:
+CLIENTS — full participant list, enroll new clients (Client Intake), and open a client's full profile for detail and history. The client app supports English, Spanish, and Haitian Creole -- a client picks their language during enrollment and can change it anytime from their own My Progress tab; nothing for you to configure. (Added 2026-07-30, machine-translated first pass -- flag anything a client says reads oddly.) Click "View Full Profile & Journey" on any client to reach:
   - JOURNEY — track each client's actual court orders (a client can have several running at once, e.g. a primary program plus an accompanying CPS requirement), each with a start date and progress bar. "Mark Complete" is a manual action (the court/PO decides, not the software) that awards an achievement badge and auto-generates a Completion Certificate with a real check-in count.
   - PROGRESS NOTES — short, plain-language session recaps you write for the client to read (separate from Case/Clinical Notes — never put clinical/diagnostic content here). Each note has a "Share with client" toggle; unshared notes are enforced private at the database level, not just hidden in the UI.
   - SIGNED FORMS — any forms that client has electronically signed (see Forms & Signatures below).
@@ -17,7 +17,7 @@ MESSAGES — two-way messaging with each client. Clients can mark a message "urg
 
 FORMS & SIGNATURES (under Clients) — build a reusable library of forms once (Waiver, Release of Information, Media Consent, etc.). Clients sign electronically from their own app; each signature is a permanent record with the exact form text they agreed to (editing a template later doesn't change what was already signed).
 
-COMPLIANCE group — Alerts (missed check-ins), Check-Ins (full log), Map View (GPS locations of recent check-ins), Reports (printable court report), Compliance Chart (30-day rates).
+COMPLIANCE group — Alerts (missed check-ins), Check-Ins (full log), Map View (GPS locations of recent check-ins), Reports (printable court report), Compliance Chart (30-day rates). Check-ins made with no signal sync automatically once the client is back online -- see SOP section 2 before treating a late-appearing check-in as missed.
 
 SENSITIVE RECORDS group — Drug Tests, PO Visits, CPS Tracking, Violations, Documents, and Case/Clinical/Legal Notes. Kept separate because this is the most restricted, client-identifying information in the system. Documents now works end-to-end (upload, secure signed-URL viewing) — clients can also see files you've shared with them under their own "My Documents" tab.
 

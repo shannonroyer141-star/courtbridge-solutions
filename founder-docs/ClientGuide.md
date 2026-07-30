@@ -10,6 +10,8 @@ Once you check in or send a message, it is timestamped and saved — it cannot b
 ## Checking in
 Tap **Check In Now** on your home screen. Your location and the time are captured automatically — there is nothing to fill out. This only happens the moment you tap the button; the app does not track your location in the background. Your streak counter updates right away. If you've missed a check-in, you'll see a gentle "let's get back on track" message instead of nothing — no shame, just a nudge.
 
+No signal or no internet where you are? Check in anyway — it saves right on your phone and sends itself in automatically the moment you're back online. Your streak and record are safe either way.
+
 ## Your Dashboard (Home)
 Shows your check-in streak, a daily affirmation, your compliance rate, and whatever is coming up next — a task or court date — front and center. If a form needs your signature, a "Needs your attention" banner appears here too, linking straight to it.
 

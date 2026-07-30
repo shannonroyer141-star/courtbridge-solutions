@@ -12,6 +12,7 @@ DRAFT, review before relying on this
    - Check Alerts daily. A client shows up there once they miss their required check-in window.
    - First missed check-in: contact the client directly (Messages or phone), log it in Contact Log.
    - Repeated misses: consider a Violation Report (Sensitive Records > Violations).
+   - Note: as of 2026-07-30, check-ins made with no phone signal/internet are saved on the client's device and sync automatically once they're back online -- the timestamp still reflects when they actually checked in, but it may not appear in your log until later. Don't treat a late-appearing check-in as a miss without asking the client first.
 
 3. URGENT CLIENT MESSAGES
    - When a client marks a message "urgent," the provider's phone (set in Settings) gets a text automatically.

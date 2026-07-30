@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
+import { LANGUAGES, getTranslator } from '../i18n'
 
 function escapeHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
@@ -17,75 +18,7 @@ const TEXT_MUTED = 'rgba(255,255,255,0.45)'
 const TEXT_DIM = 'rgba(255,255,255,0.35)'
 const BORDER = 'rgba(255,255,255,0.06)'
 
-const POPULATION_CONFIG = {
-  catch_court: {
-    label: 'CATCH Court',
-    checkInLabel: 'I Am Safe Today',
-    safeWord: 'SUNRISE',
-    affirmations: [
-      'You are stronger than anything that has tried to break you.',
-      'Your story is not over. The best chapters are still being written.',
-      'You deserve safety, peace, and a life that is fully your own.',
-      'Every day you show up is an act of courage.',
-      'You are not defined by what happened to you.',
-    ],
-  },
-  drug_court: {
-    label: 'Drug Court',
-    checkInLabel: 'Check In Now',
-    affirmations: [
-      'One day at a time. Today is enough.',
-      'Recovery is not a straight line — keep going anyway.',
-      'The strength it took to get here will carry you forward.',
-      'You are proof that change is possible.',
-      'Every meeting attended is a brick in the foundation of your new life.',
-    ],
-  },
-  bip: {
-    label: 'Accountability Program',
-    checkInLabel: 'Check In Now',
-    affirmations: [
-      'Accountability is not punishment — it is the path to who you want to be.',
-      'Change takes courage. You are showing up.',
-      'The person you are becoming is worth the work.',
-      'Taking responsibility is the first step to freedom.',
-      'Every session completed is evidence of your commitment.',
-    ],
-  },
-  probation: {
-    label: 'Supervision Program',
-    checkInLabel: 'Check In Now',
-    affirmations: [
-      'You are building a record that speaks for itself.',
-      'Consistency today creates opportunity tomorrow.',
-      'Every requirement met is a step toward full freedom.',
-      'You have more going for you than against you.',
-      'Stay the course. It is worth it.',
-    ],
-  },
-  mental_health: {
-    label: 'Wellness Program',
-    checkInLabel: 'Check In Now',
-    affirmations: [
-      'Healing is not linear — and that is okay.',
-      'Asking for help is one of the bravest things a person can do.',
-      'You are worthy of care, rest, and peace.',
-      'Small steps forward still count as progress.',
-      'Your mental health matters as much as anything else in your life.',
-    ],
-  },
-  other: {
-    label: 'Community Program',
-    checkInLabel: 'Check In Now',
-    affirmations: [
-      'You are part of something bigger than this moment.',
-      'Every commitment you keep builds trust — with others and yourself.',
-      'You showed up today. That matters.',
-      'Progress is happening even when it feels slow.',
-      'You are writing a new story.',
-    ],
-  },
-}
+const POPULATION_TYPES = ['catch_court', 'drug_court', 'bip', 'probation', 'mental_health', 'other']
 
 function StreakRing({ streak }) {
   const max = 30
@@ -108,19 +41,15 @@ function StreakRing({ streak }) {
   )
 }
 
-const NAV_ITEMS = [
-  { id: 'dashboard',  icon: '⊞', label: 'Home' },
-  { id: 'checkin',    icon: '📍', label: 'Check In' },
-  { id: 'journey',    icon: '🏅', label: 'My Journey' },
-  { id: 'documents',  icon: '📄', label: 'My Documents' },
-  { id: 'forms',      icon: '✍️', label: 'Forms to Sign' },
-  { id: 'messages',   icon: '💬', label: 'Messages' },
-  { id: 'courtdates', icon: '📅', label: 'Court Dates' },
-  { id: 'settings',   icon: '📊', label: 'My Progress' },
-]
+const NAV_ICONS = {
+  dashboard: '⊞', checkin: '📍', journey: '🏅', documents: '📄',
+  forms: '✍️', messages: '💬', courtdates: '📅', settings: '📊',
+}
+const NAV_KEY_MAP = { dashboard: 'home', checkin: 'checkin', journey: 'journey', documents: 'documents', forms: 'forms', messages: 'messages', courtdates: 'courtdates', settings: 'progress' }
 
-// Items not pinned to the mobile bottom bar (Home/Check In/Messages/More cover those)
-const MORE_MENU_ITEMS = NAV_ITEMS.filter(item => !['dashboard', 'checkin', 'messages'].includes(item.id))
+function buildNavItems(t) {
+  return Object.keys(NAV_ICONS).map(id => ({ id, icon: NAV_ICONS[id], label: t('dashboard', 'nav')[NAV_KEY_MAP[id]] }))
+}
 
 function NavItem({ icon, label, active, showLabels, hovered, onHover, onLeave, onClick }) {
   return (
@@ -222,6 +151,16 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
   const [showMoreMenu, setShowMoreMenu] = useState(false)
   const [showLabels, setShowLabels] = useState(false)
   const [hoveredNavItem, setHoveredNavItem] = useState(null)
+  const [lang, setLang] = useState('en')
+
+  const t = getTranslator(lang)
+  const navItems = buildNavItems(t)
+  const moreMenuItems = navItems.filter(item => !['dashboard', 'checkin', 'messages'].includes(item.id))
+
+  async function changeLanguage(code) {
+    setLang(code)
+    if (client?.id) await supabase.from('clients').update({ preferred_language: code }).eq('id', client.id)
+  }
 
   useEffect(() => {
     fetchClientData()
@@ -290,11 +229,11 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
       setComposeText('')
       setComposeUrgent(false)
       setMessageStatus(urgentAlertFailed
-        ? { type: 'error', text: 'Message sent, but the urgent SMS alert to your provider could not be sent. They may not see this right away.' }
-        : { type: 'success', text: 'Message sent to your provider.' })
+        ? { type: 'error', text: t('dashboard', 'common').errUrgentSmsFailed }
+        : { type: 'success', text: t('dashboard', 'common').messageSent })
       fetchMessages()
     } catch (err) {
-      setMessageStatus({ type: 'error', text: 'Could not send message. Please try again.' })
+      setMessageStatus({ type: 'error', text: t('dashboard', 'common').errMessageSend })
     } finally {
       setSendingMessage(false)
     }
@@ -324,6 +263,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
     if (clientData) {
       setClient(clientData)
       setIsFirstTime(!clientData.onboarding_complete)
+      if (clientData.preferred_language) setLang(clientData.preferred_language)
     } else {
       setIsFirstTime(true)
       setLoading(false)
@@ -512,7 +452,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
 
   async function handleCheckIn() {
     if (checkedInToday) return
-    if (!client?.id) { setCheckInMsg({ type: 'error', text: 'Client record not found. Please contact your provider.' }); return }
+    if (!client?.id) { setCheckInMsg({ type: 'error', text: t('dashboard', 'common').errClientNotFound }); return }
     setCheckingIn(true)
     setCheckInMsg(null)
     try {
@@ -530,13 +470,14 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
         notes: null,
       })
       if (error) throw error
-      setCheckInMsg({ type: 'success', text: 'Check-in complete! Location recorded.' })
+      setCheckInMsg({ type: 'success', text: t('dashboard', 'common').checkInSuccess })
       fetchClientData()
     } catch (err) {
-      if (err.code === 1) setCheckInMsg({ type: 'error', text: 'Location access denied. Please enable GPS.' })
-      else if (err.code === 2) setCheckInMsg({ type: 'error', text: 'Could not get your location. Please try again.' })
-      else if (err.code === 3) setCheckInMsg({ type: 'error', text: 'Location request timed out. Please try again.' })
-      else setCheckInMsg({ type: 'error', text: 'Something went wrong. Please try again.' })
+      const c = t('dashboard', 'common')
+      if (err.code === 1) setCheckInMsg({ type: 'error', text: c.errLocationDenied })
+      else if (err.code === 2) setCheckInMsg({ type: 'error', text: c.errLocationFailed })
+      else if (err.code === 3) setCheckInMsg({ type: 'error', text: c.errLocationTimeout })
+      else setCheckInMsg({ type: 'error', text: c.errGeneric })
     } finally {
       setCheckingIn(false)
     }
@@ -559,22 +500,22 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
         checkout_gps_accuracy_meters: Math.round(pos.coords.accuracy),
       }).eq('id', todaysCheckin.id).select()
       if (error) throw error
-      if (!data || data.length === 0) throw new Error('Check-out could not be saved. Please contact your provider.')
-      setCheckOutMsg({ type: 'success', text: 'Check-out complete! Session recorded.' })
+      if (!data || data.length === 0) throw new Error(t('dashboard', 'common').errCheckOutSave)
+      setCheckOutMsg({ type: 'success', text: t('dashboard', 'common').checkOutSuccess })
       fetchClientData()
     } catch (err) {
-      if (err.code === 1) setCheckOutMsg({ type: 'error', text: 'Location access denied. Please enable GPS.' })
-      else if (err.code === 2) setCheckOutMsg({ type: 'error', text: 'Could not get your location. Please try again.' })
-      else if (err.code === 3) setCheckOutMsg({ type: 'error', text: 'Location request timed out. Please try again.' })
-      else setCheckOutMsg({ type: 'error', text: err.message || 'Something went wrong. Please try again.' })
+      const c = t('dashboard', 'common')
+      if (err.code === 1) setCheckOutMsg({ type: 'error', text: c.errLocationDenied })
+      else if (err.code === 2) setCheckOutMsg({ type: 'error', text: c.errLocationFailed })
+      else if (err.code === 3) setCheckOutMsg({ type: 'error', text: c.errLocationTimeout })
+      else setCheckOutMsg({ type: 'error', text: err.message || c.errGeneric })
     } finally {
       setCheckingOut(false)
     }
   }
 
-  const pop = (client?.population_type && POPULATION_CONFIG[client.population_type])
-    ? POPULATION_CONFIG[client.population_type]
-    : POPULATION_CONFIG.other
+  const popKey = (client?.population_type && POPULATION_TYPES.includes(client.population_type)) ? client.population_type : 'other'
+  const pop = t('dashboard', 'population')[popKey]
 
   const isCatch = client?.population_type === 'catch_court'
 
@@ -584,9 +525,10 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
 
   function getGreeting() {
     const h = new Date().getHours()
-    if (h < 12) return 'Good morning'
-    if (h < 17) return 'Good afternoon'
-    return 'Good evening'
+    const c = t('dashboard', 'common')
+    if (h < 12) return c.goodMorning
+    if (h < 17) return c.goodAfternoon
+    return c.goodEvening
   }
 
   function toggleSidebar() {
@@ -647,21 +589,21 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
 
   if (loading) return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: DARK_BG }}>
-      <div style={{ color: TEXT_MUTED, fontSize: 14 }}>Loading your dashboard...</div>
+      <div style={{ color: TEXT_MUTED, fontSize: 14 }}>{t('dashboard', 'common').loadingDashboard}</div>
     </div>
   )
 
-  if (isFirstTime) return <FirstTimeWelcome name={firstName} onDone={() => setIsFirstTime(false)} />
+  if (isFirstTime) return <FirstTimeWelcome name={firstName} lang={lang} onDone={() => setIsFirstTime(false)} />
 
   if (client && (client.status === 'terminated' || client.status === 'inactive')) return (
     <div style={{ minHeight: '100vh', background: DARK_BG, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
       <div style={{ textAlign: 'center', maxWidth: 380 }}>
         <div style={{ fontSize: 40, marginBottom: 16 }}>📋</div>
-        <div style={{ fontSize: 19, fontWeight: 600, color: TEXT, marginBottom: 10 }}>Your program status has changed</div>
+        <div style={{ fontSize: 19, fontWeight: 600, color: TEXT, marginBottom: 10 }}>{t('dashboard', 'common').statusChangedTitle}</div>
         <div style={{ fontSize: 14, color: TEXT_MUTED, lineHeight: 1.6, marginBottom: 20 }}>
-          Your account is currently marked {client.status}. Please contact your provider directly to find out what's needed to continue or return to the program.
+          {t('dashboard', 'common').statusChangedBody(t('dashboard', 'statusLabel')[client.status] || client.status)}
         </div>
-        <div onClick={onLogout} style={{ display: 'inline-block', background: 'rgba(255,255,255,0.1)', color: TEXT, fontSize: 13, padding: '10px 20px', borderRadius: 8, cursor: 'pointer' }}>Log Out</div>
+        <div onClick={onLogout} style={{ display: 'inline-block', background: 'rgba(255,255,255,0.1)', color: TEXT, fontSize: 13, padding: '10px 20px', borderRadius: 8, cursor: 'pointer' }}>{t('dashboard', 'common').logOut}</div>
       </div>
     </div>
   )
@@ -699,7 +641,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
 
           {/* Nav items */}
           <div style={{ flex: 1, paddingTop: 6 }}>
-            {NAV_ITEMS.map(item => (
+            {navItems.map(item => (
               <NavItem
                 key={item.id}
                 icon={item.icon}
@@ -736,7 +678,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
             {showLabels && (
               <div style={{ overflow: 'hidden' }}>
                 <div style={{ fontSize: 12, color: TEXT, whiteSpace: 'nowrap' }}>{firstName}</div>
-                <div onClick={onLogout} style={{ fontSize: 11, color: TEXT_MUTED, cursor: 'pointer', marginTop: 2 }}>Sign out</div>
+                <div onClick={onLogout} style={{ fontSize: 11, color: TEXT_MUTED, cursor: 'pointer', marginTop: 2 }}>{t('dashboard', 'nav').signOut}</div>
               </div>
             )}
           </div>
@@ -1208,7 +1150,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
             borderTop: `0.5px solid rgba(255,255,255,0.08)`, borderRadius: '14px 14px 0 0',
             zIndex: 111, padding: '8px 0 4px', maxHeight: '60vh', overflowY: 'auto',
           }}>
-            {MORE_MENU_ITEMS.map(({ id, icon, label }) => (
+            {moreMenuItems.map(({ id, icon, label }) => (
               <div key={id} onClick={() => { setActiveTab(id); setShowMoreMenu(false) }} style={{
                 display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px', cursor: 'pointer',
                 color: activeTab === id ? TEXT : 'rgba(255,255,255,0.7)',
@@ -1230,10 +1172,10 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
           display: 'flex', alignItems: 'stretch', zIndex: 100,
         }}>
           {[
-            { id: 'dashboard', icon: '⊞', label: 'Home' },
-            { id: 'checkin',   icon: '📍', label: 'Check In' },
-            { id: 'messages',  icon: '💬', label: 'Messages' },
-            { id: 'more',      icon: '☰', label: 'More' },
+            { id: 'dashboard', icon: '⊞', label: t('dashboard', 'nav').home },
+            { id: 'checkin',   icon: '📍', label: t('dashboard', 'nav').checkin },
+            { id: 'messages',  icon: '💬', label: t('dashboard', 'nav').messages },
+            { id: 'more',      icon: '☰', label: t('dashboard', 'nav').more },
           ].map(({ id, icon, label }) => {
             const active = id === 'more' ? showMoreMenu : (activeTab === id && !showMoreMenu)
             const handleTap = () => {
@@ -1259,36 +1201,21 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
   )
 }
 
-function FirstTimeWelcome({ name, onDone }) {
+function FirstTimeWelcome({ name, lang, onDone }) {
   const [step, setStep] = useState(0)
-  const steps = [
-    {
-      title: `Welcome to CourtBridge Solutions, ${name}`,
-      body: `This is your personal portal for staying on track with your program — check-ins, court dates, tasks, and more in one place.`,
-      cta: 'Get Started'
-    },
-    {
-      title: 'Daily Check-Ins',
-      body: `Your program requires regular check-ins. Use the Check In Now button on your dashboard — your location is captured and recorded automatically.`,
-      cta: 'Next'
-    },
-    {
-      title: 'Your Schedule',
-      body: `Important dates, upcoming appointments, and tasks assigned by your provider will appear right on your dashboard so nothing slips through the cracks.`,
-      cta: 'Next'
-    },
-    {
-      title: 'Your record speaks for itself',
-      body: `Every check-in you complete is timestamped, GPS-verified, and saved. When it matters most — in court, with your officer, with your provider — your compliance is already documented.`,
-      cta: 'Go to My Dashboard'
-    },
-  ]
+  const t = getTranslator(lang)
+  const w = t('dashboard', 'welcome')
+  const steps = w.steps.map(s => ({
+    title: typeof s.title === 'function' ? s.title(name) : s.title,
+    body: s.body,
+    cta: s.cta,
+  }))
   const current = steps[step]
   const isLast = step === steps.length - 1
   return (
     <div style={{ minHeight: '100vh', background: DARK_BG, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 24px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
       <div style={{ fontSize: 15, fontWeight: 500, color: TEXT, marginBottom: 4 }}>CourtBridge Solutions</div>
-      <div style={{ fontSize: 12, color: TEXT_MUTED, marginBottom: 40 }}>My portal</div>
+      <div style={{ fontSize: 12, color: TEXT_MUTED, marginBottom: 40 }}>{w.portalSubtitle}</div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 32 }}>
         {steps.map((_, i) => (
           <div key={i} style={{ width: i === step ? 24 : 8, height: 8, borderRadius: 4, background: i === step ? ACCENT : 'rgba(255,255,255,0.2)', transition: 'all 0.3s ease' }} />
@@ -1304,11 +1231,11 @@ function FirstTimeWelcome({ name, onDone }) {
         {step > 0 && (
           <button onClick={() => setStep(s => s - 1)}
             style={{ marginTop: 12, background: 'none', border: 'none', color: TEXT_MUTED, fontSize: 13, cursor: 'pointer' }}>
-            Back
+            {w.back}
           </button>
         )}
       </div>
-      <div style={{ color: 'rgba(255,255,255,0.25)', fontSize: 11, marginTop: 28 }}>CourtBridge Solutions · Turning participation into proof</div>
+      <div style={{ color: 'rgba(255,255,255,0.25)', fontSize: 11, marginTop: 28 }}>{w.tagline}</div>
     </div>
   )
 }

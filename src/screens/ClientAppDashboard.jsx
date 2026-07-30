@@ -992,9 +992,9 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
         {pendingFormsCount > 0 && (
           <div onClick={() => setActiveTab('forms')} style={{ margin: '16px 22px 0', background: 'rgba(61,111,168,0.1)', border: `0.5px solid rgba(61,111,168,0.3)`, borderRadius: 10, padding: '12px 16px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ fontSize: 13, color: TEXT }}>
-              <strong style={{ color: WARNING }}>Needs your attention:</strong> {pendingFormsCount} form{pendingFormsCount > 1 ? 's' : ''} waiting for your signature
+              <strong style={{ color: WARNING }}>{t('dashboard', 'home').attentionLabel}</strong> {t('dashboard', 'home').pendingFormsBody(pendingFormsCount)}
             </div>
-            <div style={{ fontSize: 12, color: WARNING, fontWeight: 600 }}>Review →</div>
+            <div style={{ fontSize: 12, color: WARNING, fontWeight: 600 }}>{t('dashboard', 'home').reviewArrow}</div>
           </div>
         )}
         {/* Hero check-in */}
@@ -1002,14 +1002,14 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
           <StreakRing streak={streak} />
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 15, fontWeight: 500, color: TEXT }}>
-              {checkedInToday ? `You checked in today — ${streak} day streak!` : missedRecentCheckin ? "Let's get back on track" : `You are on a ${streak}-day check-in streak`}
+              {checkedInToday ? t('dashboard', 'home').checkedInStreak(streak) : missedRecentCheckin ? t('dashboard', 'home').backOnTrack : t('dashboard', 'home').onStreak(streak)}
             </div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', marginTop: 4, lineHeight: 1.5 }}>
               {missedRecentCheckin
-                ? "Life happens — it's been a bit since your last check-in. Check in now to get back on track."
+                ? t('dashboard', 'home').missedRecentBody
                 : nextApptDate
-                ? `Your next appointment is ${nextApptLabel} — ${nextApptSub}.`
-                : 'Keep up the great work. Consistency is your proof.'}
+                ? t('dashboard', 'home').nextApptBody(nextApptLabel, nextApptSub)
+                : t('dashboard', 'home').keepUpBody}
             </div>
             {checkInMsg && (
               <div style={{ marginTop: 8, fontSize: 12, color: checkInMsg.type === 'success' ? GREEN : WARNING }}>
@@ -1028,7 +1028,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                   opacity: checkingIn ? 0.7 : 1,
                 }}
               >
-                {checkingIn ? 'Getting your location...' : checkedInToday ? '✓ Checked in today' : `${pop.checkInLabel} 📍`}
+                {checkingIn ? t('dashboard', 'home').gettingLocation : checkedInToday ? t('dashboard', 'home').checkedInTodayLabel : `${pop.checkInLabel} 📍`}
               </div>
               {checkedInToday && (
                 <div
@@ -1042,7 +1042,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                     opacity: checkingOut ? 0.7 : 1,
                   }}
                 >
-                  {checkingOut ? 'Getting your location...' : checkedOutToday ? `✓ Checked out — ${Math.floor(sessionMinutes / 60)}h ${sessionMinutes % 60}m` : 'Check Out 📍'}
+                  {checkingOut ? t('dashboard', 'home').gettingLocation : checkedOutToday ? t('dashboard', 'home').checkedOutLabel(Math.floor(sessionMinutes / 60), sessionMinutes % 60) : `${t('dashboard', 'home').checkOutButton} 📍`}
                 </div>
               )}
             </div>
@@ -1056,23 +1056,23 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
 
         {/* Stats */}
         <div style={{ display: 'flex', gap: 10, padding: '14px 22px 0' }}>
-          <StatCard label="Compliance rate" value={`${complianceRate}%`} sub="All time" valueColor={GREEN} />
-          <StatCard label="Check-ins this month" value={checkIns.length} sub={checkedInToday ? 'Including today' : 'Not yet today'} valueColor={ACCENT} />
-          <StatCard label="Next appointment" value={nextApptLabel || '—'} sub={nextApptSub} valueColor={nextApptDate ? WARNING : TEXT_MUTED} />
+          <StatCard label={t('dashboard', 'home').statCompliance} value={`${complianceRate}%`} sub={t('dashboard', 'home').statAllTime} valueColor={GREEN} />
+          <StatCard label={t('dashboard', 'home').statCheckinsMonth} value={checkIns.length} sub={checkedInToday ? t('dashboard', 'home').statIncludingToday : t('dashboard', 'home').statNotYetToday} valueColor={ACCENT} />
+          <StatCard label={t('dashboard', 'home').statNextAppt} value={nextApptLabel || '—'} sub={nextApptSub} valueColor={nextApptDate ? WARNING : TEXT_MUTED} />
         </div>
 
         {/* Affirmation */}
         <div style={{ margin: '14px 22px 0', background: CARD_BG, borderRadius: 8, padding: '13px 14px', border: `0.5px solid rgba(91,155,240,0.15)` }}>
-          <div style={{ fontSize: 10, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>✦ Today's affirmation</div>
+          <div style={{ fontSize: 10, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>{t('dashboard', 'home').affirmationLabel}</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5, fontStyle: 'italic' }}>"{affirmation}"</div>
         </div>
 
         {/* Safety note — CATCH only */}
         {isCatch && (
           <div style={{ margin: '10px 22px 0', background: 'rgba(61,111,168,0.08)', borderRadius: 8, padding: '13px 14px', border: `0.5px solid rgba(61,111,168,0.25)` }}>
-            <div style={{ fontSize: 10, color: WARNING, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>If you're not safe</div>
+            <div style={{ fontSize: 10, color: WARNING, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>{t('dashboard', 'home').safetyNoteTitle}</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
-              Go to Messages and check <strong style={{ color: WARNING }}>"Mark urgent"</strong> before sending — your provider is notified immediately, including by text.
+              {t('dashboard', 'home').safetyNoteBody}
             </div>
           </div>
         )}
@@ -1080,10 +1080,10 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
         {/* Two columns */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, padding: `14px 22px ${isMobile ? 80 : 20}px` }}>
           <div>
-            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>Important dates & tasks</div>
+            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>{t('dashboard', 'home').importantDatesTasks}</div>
             <InnerCard>
               {courtDates.length === 0 && tasks.length === 0 && (
-                <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>Nothing upcoming right now</div>
+                <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>{t('dashboard', 'home').nothingUpcoming}</div>
               )}
               {courtDates.slice(0, 3).map((cd, i) => (
                 <ListRow
@@ -1091,23 +1091,23 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                   icon="⚖️"
                   iconBg="rgba(200,80,0,0.12)"
                   iconColor={WARNING}
-                  title={cd.hearing_type || 'Court appearance'}
-                  meta={`${new Date(cd.hearing_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · ${cd.court_name || 'Location TBD'}`}
+                  title={cd.hearing_type || t('dashboard', 'home').courtAppearance}
+                  meta={`${new Date(cd.hearing_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · ${cd.court_name || t('dashboard', 'home').locationTBD}`}
                   badgeText={i === 0 ? nextApptLabel : new Date(cd.hearing_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   badgeColor={WARNING}
                   badgeBg="rgba(200,80,0,0.2)"
                   last={i === courtDates.slice(0, 3).length - 1 && tasks.length === 0}
                 />
               ))}
-              {tasks.slice(0, 3).map((t, i) => (
+              {tasks.slice(0, 3).map((t2, i) => (
                 <ListRow
-                  key={t.id}
+                  key={t2.id}
                   icon="📋"
                   iconBg="rgba(91,155,240,0.12)"
                   iconColor={ACCENT}
-                  title={t.title}
-                  meta={t.due_date ? `Due ${new Date(t.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : 'Assigned by your provider'}
-                  badgeText="Task"
+                  title={t2.title}
+                  meta={t2.due_date ? t('dashboard', 'home').dueLabel(new Date(t2.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })) : t('dashboard', 'home').assignedByProvider}
+                  badgeText={t('dashboard', 'home').taskBadge}
                   badgeColor={ACCENT}
                   badgeBg="rgba(91,155,240,0.15)"
                   last={i === tasks.slice(0, 3).length - 1}
@@ -1117,7 +1117,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
           </div>
 
           <div>
-            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>Recent check-ins</div>
+            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>{t('dashboard', 'home').recentCheckins}</div>
             <InnerCard>
               {checkIns.length > 0 ? checkIns.slice(0, 3).map((ci, i) => (
                 <ListRow
@@ -1126,14 +1126,14 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                   iconBg="rgba(76,175,125,0.12)"
                   iconColor={GREEN}
                   title={new Date(ci.checked_in_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' · ' + new Date(ci.checked_in_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
-                  meta={ci.location_name || (ci.latitude ? 'GPS verified' : 'Location recorded')}
-                  badgeText={isCatch ? 'Safe' : 'On time'}
+                  meta={ci.location_name || (ci.latitude ? t('dashboard', 'home').gpsVerified : t('dashboard', 'home').locationRecorded)}
+                  badgeText={isCatch ? t('dashboard', 'home').safeBadge : t('dashboard', 'home').onTimeBadge}
                   badgeColor={GREEN}
                   badgeBg="rgba(76,175,125,0.15)"
                   last={i === checkIns.slice(0, 3).length - 1}
                 />
               )) : (
-                <div style={{ fontSize: 12, color: TEXT_DIM, padding: '8px 0' }}>No check-ins yet — complete your first one today</div>
+                <div style={{ fontSize: 12, color: TEXT_DIM, padding: '8px 0' }}>{t('dashboard', 'home').noCheckinsYet}</div>
               )}
             </InnerCard>
           </div>

@@ -847,6 +847,26 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                 {pT.privacyContact} <strong style={{ color: TEXT }}>{pT.privacyContactBold}</strong> {pT.privacyContactEnd}
               </div>
             </InnerCard>
+
+            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: '16px 0 10px' }}>{t('onboarding', 'languagePickerLabel')}</div>
+            <InnerCard>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                {Object.entries(LANGUAGES).map(([code, langLabel]) => (
+                  <div
+                    key={code}
+                    onClick={() => changeLanguage(code)}
+                    style={{
+                      padding: '7px 14px', borderRadius: 20, fontSize: 12, cursor: 'pointer',
+                      border: lang === code ? `1px solid ${ACCENT}` : `0.5px solid ${BORDER}`,
+                      background: lang === code ? 'rgba(91,155,240,0.15)' : 'transparent',
+                      color: lang === code ? ACCENT : TEXT_MUTED, fontWeight: lang === code ? 700 : 400,
+                    }}
+                  >
+                    {langLabel}
+                  </div>
+                ))}
+              </div>
+            </InnerCard>
           </div>
           )
         })()}

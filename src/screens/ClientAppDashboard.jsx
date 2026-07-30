@@ -1125,12 +1125,12 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5, fontStyle: 'italic' }}>"{affirmation}"</div>
         </div>
 
-        {/* Safety word — CATCH only */}
+        {/* Safety note — CATCH only */}
         {isCatch && (
           <div style={{ margin: '10px 22px 0', background: 'rgba(61,111,168,0.08)', borderRadius: 8, padding: '13px 14px', border: `0.5px solid rgba(61,111,168,0.25)` }}>
-            <div style={{ fontSize: 10, color: WARNING, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>Safety word</div>
+            <div style={{ fontSize: 10, color: WARNING, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>If you're not safe</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
-              If you are not safe, type <strong style={{ color: WARNING }}>SUNRISE</strong> in your check-in notes. Your advocate will be notified privately.
+              Go to Messages and check <strong style={{ color: WARNING }}>"Mark urgent"</strong> before sending — your provider is notified immediately, including by text.
             </div>
           </div>
         )}

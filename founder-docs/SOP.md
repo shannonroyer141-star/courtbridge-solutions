@@ -34,6 +34,10 @@ Internal reference for onboarding provider organizations and running day-to-day 
 
 This is the platform's core safety feature and deserves the tightest process of anything in this doc.
 
+**How it actually works:** There's no separate "panic button" — it's a checkbox on the client's Messages screen labeled *"Mark urgent — notifies your provider immediately."* When a client checks it and sends a message, three things happen: (1) the message is flagged and shows with a red border in the thread, (2) that client's conversation jumps to the top of the provider's Messages inbox, and (3) a real text message fires to the provider's phone reading *"URGENT message from [Client Name] in CourtBridge: [their message]."* If the text fails to send — no provider phone number on file, or a Twilio issue — the client sees a warning that it may not reach the provider right away, but the message itself is still saved and visible in-app.
+
+**This only works if the provider's phone number is entered in Settings.** Confirm this during onboarding (Section 1) — a provider with no phone number set has effectively no urgent-alert coverage, with no error surfaced anywhere except to the client at the moment they try to use it.
+
 1. An urgent ping from a client should be checked **within minutes**, not at end of day — this is what separates CourtBridge from a generic check-in app.
 2. On receiving an urgent alert: contact the client directly (phone, not just in-app message) to assess the situation.
 3. Document what happened — in Contact Log if it's routine, in Violation Report if it affects program compliance, in CPS Tracking if it involves a child welfare concern.

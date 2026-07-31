@@ -4,6 +4,8 @@ import ProviderDashboard from './screens/ProviderDashboard';
 import ClientAppDashboard from './screens/ClientAppDashboard';
 import ClientOnboarding from './screens/ClientOnboarding';
 import SandboxApp from './demo/SandboxApp';
+import SelfServeSignup from './screens/SelfServeSignup';
+import SignupSuccess from './screens/SignupSuccess';
 import CheckIn from './screens/CheckIn';
 import CheckInHistory from './screens/CheckInHistory';
 import Clients from './screens/Clients';
@@ -48,6 +50,9 @@ const isEnrollRoute = window.location.pathname === '/enroll' &&
 
 const isSandboxRoute = window.location.pathname === '/sandbox';
 
+const isSignupRoute = window.location.pathname === '/signup';
+const isSignupSuccessRoute = window.location.pathname === '/signup/success';
+
 export default function App() {
   const [session, setSession] = useState(null);
   const [role, setRole] = useState(null);
@@ -76,7 +81,7 @@ export default function App() {
   const [loginLoading, setLoginLoading] = useState(false);
 
   useEffect(() => {
-    if (isEnrollRoute || isSandboxRoute) { setLoading(false); return; }
+    if (isEnrollRoute || isSandboxRoute || isSignupRoute || isSignupSuccessRoute) { setLoading(false); return; }
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session) fetchRole(session.user.id);
@@ -135,6 +140,10 @@ export default function App() {
   if (isEnrollRoute) return <ClientOnboarding />;
 
   if (isSandboxRoute) return <SandboxApp />;
+
+  if (isSignupRoute) return <SelfServeSignup />;
+
+  if (isSignupSuccessRoute) return <SignupSuccess />;
 
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: DARK_BG, fontFamily: NAV_FONT }}>

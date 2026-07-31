@@ -16,3 +16,6 @@ Still needed before this can go anywhere:
 - Client-count cutoffs per tier
 - Whether self-service fully replaces manual signup or runs alongside it for negotiated deals
 - Stripe integration (no upfront cost, just a per-transaction cut, so this isn't the blocker — pricing is)
+
+---
+2026-07-31 update: Self-serve signup + Stripe payment is now BUILT (a new /signup page, Stripe Checkout, and an automatic webhook that creates the org and emails the admin an invite). The three tiers/prices above are still placeholder numbers hardcoded in src/pricing.js -- decide real numbers, then update that file (and the matching numbers in the create-checkout-session edge function) before adding real Stripe keys. Until Stripe keys are added to Supabase secrets, /signup exists but checkout will not actually work.

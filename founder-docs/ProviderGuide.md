@@ -21,7 +21,7 @@ COMPLIANCE group — Alerts (missed check-ins), Check-Ins (full log), Map View (
 
 SENSITIVE RECORDS group — Drug Tests, PO Visits, CPS Tracking, Violations, Documents, and Case/Clinical/Legal Notes. Kept separate because this is the most restricted, client-identifying information in the system. Documents now works end-to-end (upload, secure signed-URL viewing) — clients can also see files you've shared with them under their own "My Documents" tab.
 
-CALENDAR — currently a manual, separate list (click "+ Add Event"). It does NOT yet pull in real Court Dates or Tasks automatically, so entries have to be added twice if you want them in both places. Known gap, not yet fixed.
+CALENDAR — a real month-grid calendar. Court Dates and Tasks pull in automatically -- "+ Add Event" is only for things that don't already live in Court Dates or Tasks (this doc was out of date and said otherwise until 2026-07-31; the automatic pull-in was already built).
 
 CALENDAR / TASKS / PROGRAMS — general scheduling and program management, not tied to a specific client.
 

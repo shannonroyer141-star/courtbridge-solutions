@@ -8,6 +8,11 @@ import SelfServeSignup from './screens/SelfServeSignup';
 import SignupSuccess from './screens/SignupSuccess';
 import ProviderSetupWizard from './screens/ProviderSetupWizard';
 import UserRoleManagement from './screens/UserRoleManagement';
+import JcxDirectory from './screens/JcxDirectory';
+import JcxResources from './screens/JcxResources';
+import JcxReferrals from './screens/JcxReferrals';
+import JcxRecordsRequests from './screens/JcxRecordsRequests';
+import RecordsRequestForm from './screens/RecordsRequestForm';
 import CheckIn from './screens/CheckIn';
 import CheckInHistory from './screens/CheckInHistory';
 import Clients from './screens/Clients';
@@ -54,6 +59,7 @@ const isSandboxRoute = window.location.pathname === '/sandbox';
 
 const isSignupRoute = window.location.pathname === '/signup';
 const isSignupSuccessRoute = window.location.pathname === '/signup/success';
+const isRecordsRequestRoute = window.location.pathname === '/request-records';
 
 export default function App() {
   const [session, setSession] = useState(null);
@@ -64,7 +70,8 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 768);
   const [expandedMenus, setExpandedMenus] = useState({
     clients: false, sensitive: false, founder: false,
-    workflow: false, orgwide: false, operational: false, personal: false
+    workflow: false, orgwide: false, operational: false, personal: false,
+    jcx: false
   });
   const [pendingInvites, setPendingInvites] = useState(0);
   const [isFounder, setIsFounder] = useState(false);
@@ -87,7 +94,7 @@ export default function App() {
   const [loginLoading, setLoginLoading] = useState(false);
 
   useEffect(() => {
-    if (isEnrollRoute || isSandboxRoute || isSignupRoute || isSignupSuccessRoute) { setLoading(false); return; }
+    if (isEnrollRoute || isSandboxRoute || isSignupRoute || isSignupSuccessRoute || isRecordsRequestRoute) { setLoading(false); return; }
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session) fetchRole(session.user.id);
@@ -158,6 +165,8 @@ export default function App() {
   if (isSignupRoute) return <SelfServeSignup />;
 
   if (isSignupSuccessRoute) return <SignupSuccess />;
+
+  if (isRecordsRequestRoute) return <RecordsRequestForm />;
 
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: DARK_BG, fontFamily: NAV_FONT }}>
@@ -303,6 +312,10 @@ export default function App() {
       case 'auditreadiness': return <AuditReadiness session={session} />;
       case 'assessments': return <Assessments />;
       case 'userrolemanagement': return <UserRoleManagement session={session} />;
+      case 'jcxdirectory': return <JcxDirectory session={session} />;
+      case 'jcxresources': return <JcxResources session={session} />;
+      case 'jcxreferrals': return <JcxReferrals session={session} />;
+      case 'jcxrecordsrequests': return <JcxRecordsRequests session={session} />;
       default: return <ProviderDashboard session={session} onNavigate={navTo} />;
     }
   }
@@ -496,6 +509,21 @@ export default function App() {
               <div style={subSubItem('reports')} onClick={() => navTo('reports')}>Reports</div>
               <div style={subSubItem('violationreport')} onClick={() => navTo('violationreport')}>Violations</div>
             </>}
+          </>}
+
+          <div style={divider} />
+
+          <div style={groupRow('jcx')} onClick={() => toggleMenu('jcx')}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Ic d={ICONS.wellness} /><span>Justice Collaboration</span>
+            </div>
+            <Ic d={expandedMenus.jcx ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
+          </div>
+          {expandedMenus.jcx && <>
+            <div style={subItem('jcxdirectory')} onClick={() => navTo('jcxdirectory')}>Agency Directory</div>
+            <div style={subItem('jcxresources')} onClick={() => navTo('jcxresources')}>Resource Marketplace</div>
+            <div style={subItem('jcxreferrals')} onClick={() => navTo('jcxreferrals')}>Referrals</div>
+            <div style={subItem('jcxrecordsrequests')} onClick={() => navTo('jcxrecordsrequests')}>Records Requests</div>
           </>}
 
           <div style={divider} />

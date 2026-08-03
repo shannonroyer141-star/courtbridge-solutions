@@ -4,7 +4,7 @@
 DRAFT, review before relying on this
 
 1. NEW CLIENT ENROLLMENT
-   - Use Client Intake to collect participant info and program requirements.
+   - Use "Enroll Client" (Client Invites) to run the 3-step wizard: participant info -> program requirements -> review & send. As of 2026-07-31, step 2 lets you link the invite to one of your real Programs -- do this when you can, since it means the client's Journey/progress tracking is created automatically the moment they accept, with no manual follow-up step needed. If you skip it, you'll still need to add their program manually afterward.
    - The system generates a 48-hour enrollment link — text or email it to the client.
    - Confirm they complete account setup (check Clients > All Clients for "Enrolled" status).
 

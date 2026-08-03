@@ -80,6 +80,24 @@ export default function ClientOnboarding() {
       return
     }
 
+    // Complete the enrollment wizard end-to-end: if the provider linked this
+    // invite to one of their real Programs, create the client_programs row
+    // now so Journey tracking is live immediately, no manual follow-up step.
+    let linkedProgram = null
+    if (invite.program_id) {
+      const { data } = await supabase.from('programs').select('duration_weeks').eq('id', invite.program_id).single()
+      linkedProgram = data
+    }
+    await supabase.from('client_programs').insert({
+      client_id: newClient.id,
+      order_name: invite.program_type || 'Program',
+      order_type: invite.enrollment_type || null,
+      start_date: new Date().toISOString().split('T')[0],
+      duration_weeks: linkedProgram?.duration_weeks ?? null,
+      status: 'active',
+      notes: invite.reporting_requirements || null,
+    })
+
     await supabase.from('invites').update({
       accepted: true,
       accepted_at: new Date().toISOString(),

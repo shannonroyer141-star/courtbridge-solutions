@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import { CARD_BG, ACCENT, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme'
+import { useState, useEffect } from 'react'
+import { supabase } from '../supabase'
+import { CARD_BG, ACCENT, GREEN, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme'
 import { PROGRAM_TYPES, ENROLLMENT_TYPES, PHASES, emptyEnrollmentForm, validateParticipantInfo, validateProgramRequirements, smsTextFor, createEnrollmentInvite } from '../enrollment'
 
 export default function SendEnrollmentLink({ providerId, onClose, onSuccess }) {
@@ -8,10 +9,27 @@ export default function SendEnrollmentLink({ providerId, onClose, onSuccess }) {
   const [error, setError] = useState(null)
   const [linkCopied, setLinkCopied] = useState(false)
   const [generatedLink, setGeneratedLink] = useState(null)
+  const [myPrograms, setMyPrograms] = useState([])
 
   const [form, setForm] = useState(emptyEnrollmentForm())
 
+  useEffect(() => {
+    supabase.from('programs').select('*').eq('provider_id', providerId).order('program_name')
+      .then(({ data }) => setMyPrograms(data || []))
+  }, [providerId])
+
   function update(field, value) { setForm(prev => ({ ...prev, [field]: value })); setError(null) }
+
+  function selectMyProgram(programId) {
+    const p = myPrograms.find(pr => pr.id === programId)
+    setForm(prev => ({
+      ...prev,
+      program_id: programId,
+      program_type: p ? (p.program_name || p.name || prev.program_type) : prev.program_type,
+      checkin_schedule: p?.frequency && !prev.checkin_schedule ? `Check in ${p.frequency.toLowerCase()}, as directed by ${p.program_name || p.name}.` : prev.checkin_schedule,
+    }))
+    setError(null)
+  }
 
   async function handleSend() {
     setLoading(true); setError(null)
@@ -84,6 +102,18 @@ export default function SendEnrollmentLink({ providerId, onClose, onSuccess }) {
           {step === 2 && (
             <>
               <div style={{ fontSize: 13, color: TEXT_MUTED, lineHeight: 1.6, marginBottom: 20 }}>Enter the participant's program requirements from their court order or referral document. This cannot be edited by the participant.</div>
+              {myPrograms.length > 0 && (
+                <>
+                  <label style={lbl}>Link to One of Your Programs (recommended)</label>
+                  <select style={sel} value={form.program_id} onChange={e => selectMyProgram(e.target.value)}>
+                    <option value="">Not linked — describe manually below</option>
+                    {myPrograms.map(p => <option key={p.id} value={p.id}>{p.program_name || p.name}</option>)}
+                  </select>
+                  {form.program_id && (
+                    <div style={{ fontSize: 12, color: GREEN, marginTop: -8, marginBottom: 14 }}>✓ This client's progress will track automatically against this program once they enroll.</div>
+                  )}
+                </>
+              )}
               <label style={lbl}>Program Type *</label>
               <select style={sel} value={form.program_type} onChange={e => update('program_type', e.target.value)}>
                 <option value="">Select program type...</option>

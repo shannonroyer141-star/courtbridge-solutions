@@ -17,7 +17,7 @@ export const PHASES = ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4']
 
 export const emptyEnrollmentForm = () => ({
   client_name: '', client_email: '', phone: '', date_of_birth: '',
-  program_type: '', enrollment_type: 'court_ordered', case_number: '',
+  program_id: '', program_type: '', enrollment_type: 'court_ordered', case_number: '',
   program_phase: 'Phase 1', reporting_requirements: '', checkin_schedule: '', message: ''
 })
 
@@ -45,6 +45,7 @@ export async function createEnrollmentInvite(providerId, form) {
     provider_id: providerId,
     client_name: form.client_name, client_email: form.client_email,
     phone: form.phone, date_of_birth: form.date_of_birth,
+    program_id: form.program_id || null,
     program_type: form.program_type, enrollment_type: form.enrollment_type,
     case_number: form.case_number || null, program_phase: form.program_phase,
     reporting_requirements: form.reporting_requirements,

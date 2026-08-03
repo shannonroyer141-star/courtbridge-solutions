@@ -6,6 +6,7 @@ import ClientOnboarding from './screens/ClientOnboarding';
 import SandboxApp from './demo/SandboxApp';
 import SelfServeSignup from './screens/SelfServeSignup';
 import SignupSuccess from './screens/SignupSuccess';
+import ProviderSetupWizard from './screens/ProviderSetupWizard';
 import CheckIn from './screens/CheckIn';
 import CheckInHistory from './screens/CheckInHistory';
 import Clients from './screens/Clients';
@@ -67,6 +68,7 @@ export default function App() {
   const [pendingInvites, setPendingInvites] = useState(0);
   const [isFounder, setIsFounder] = useState(false);
   const [isOrgAdmin, setIsOrgAdmin] = useState(false);
+  const [needsSetup, setNeedsSetup] = useState(false);
   const [activeClientId, setActiveClientId] = useState(null);
   const [cameFromWidget, setCameFromWidget] = useState(false);
 
@@ -98,12 +100,18 @@ export default function App() {
   }, []);
 
   async function fetchRole(userId) {
-    const { data } = await supabase.from('profiles').select('role, is_founder, is_org_admin').eq('id', userId).single();
+    const { data } = await supabase.from('profiles').select('role, is_founder, is_org_admin, onboarding_complete').eq('id', userId).single();
     setRole(data?.role || 'provider');
     setIsFounder(!!data?.is_founder);
     setIsOrgAdmin(!!data?.is_org_admin);
+    setNeedsSetup(data?.role !== 'client' && !data?.onboarding_complete && (!!data?.is_org_admin || !!data?.is_founder));
     setLoading(false);
     fetchPendingInvites(userId);
+  }
+
+  function handleSetupDone(goToClients) {
+    setNeedsSetup(false);
+    if (goToClients) navTo('clients');
   }
 
   async function fetchPendingInvites(userId) {
@@ -231,6 +239,10 @@ export default function App() {
         {activeScreen === 'checkin' && <CheckIn session={session} onBack={() => navTo('dashboard')} />}
       </div>
     );
+  }
+
+  if (needsSetup) {
+    return <ProviderSetupWizard session={session} onDone={handleSetupDone} />;
   }
 
   function renderMain() {

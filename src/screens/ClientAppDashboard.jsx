@@ -28,6 +28,22 @@ function isToday(isoString) {
   return new Date(isoString).toDateString() === new Date().toDateString()
 }
 
+// Provider's quiet hours, e.g. "21:00" to "08:00" -- handles ranges that
+// cross midnight. Uses the client device's local clock as a stand-in for
+// the provider's local time (same jurisdiction/timezone in practice).
+function isWithinQuietHours(startStr, endStr) {
+  if (!startStr || !endStr) return false
+  const now = new Date()
+  const nowMinutes = now.getHours() * 60 + now.getMinutes()
+  const [sh, sm] = startStr.split(':').map(Number)
+  const [eh, em] = endStr.split(':').map(Number)
+  const startMinutes = sh * 60 + sm
+  const endMinutes = eh * 60 + em
+  if (startMinutes === endMinutes) return false
+  if (startMinutes < endMinutes) return nowMinutes >= startMinutes && nowMinutes < endMinutes
+  return nowMinutes >= startMinutes || nowMinutes < endMinutes
+}
+
 const DARK_BG = '#1E2A3A'
 const CARD_BG = '#253347'
 const SIDEBAR_BG = '#2D3748'
@@ -247,7 +263,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
     setMessageStatus(null)
     try {
       const { data: providerProfile } = await supabase
-        .from('profiles').select('phone, email, alert_email').eq('id', client.provider_id).single()
+        .from('profiles').select('phone, email, alert_email, quiet_hours_enabled, quiet_hours_start, quiet_hours_end, backup_contact_name, backup_contact_phone').eq('id', client.provider_id).single()
 
       const { error } = await supabase.from('messages').insert({
         client_id: client.id,
@@ -264,15 +280,22 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
 
       let urgentAlertFailed = false
       if (composeUrgent) {
-        if (providerProfile?.phone) {
+        const inQuietHours = providerProfile?.quiet_hours_enabled && isWithinQuietHours(providerProfile.quiet_hours_start, providerProfile.quiet_hours_end)
+        const useBackup = inQuietHours && providerProfile?.backup_contact_phone
+        const targetPhone = useBackup ? providerProfile.backup_contact_phone : providerProfile?.phone
+        const smsBody = useBackup
+          ? `URGENT (after-hours backup contact) message from ${client.name} in CourtBridge: ${composeText.trim()}`
+          : `URGENT message from ${client.name} in CourtBridge: ${composeText.trim()}`
+
+        if (targetPhone) {
           try {
             const { data: { session: authSession } } = await supabase.auth.getSession()
             const smsResponse = await fetch(`https://howvgvrrxcpdiqjbnhzn.supabase.co/functions/v1/send-sms`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authSession.access_token}` },
               body: JSON.stringify({
-                to_phone: providerProfile.phone,
-                body: `URGENT message from ${client.name} in CourtBridge: ${composeText.trim()}`,
+                to_phone: targetPhone,
+                body: smsBody,
                 client_id: client.id,
               }),
             })

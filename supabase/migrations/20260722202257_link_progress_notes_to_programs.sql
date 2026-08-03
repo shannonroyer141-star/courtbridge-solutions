@@ -1,0 +1,1 @@
+alter table client_progress_notes add column if not exists client_program_id uuid references client_programs(id) on delete set null;

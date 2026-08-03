@@ -1,0 +1,3 @@
+
+DROP TABLE IF EXISTS "Clients";
+DROP TABLE IF EXISTS "Check_ins";

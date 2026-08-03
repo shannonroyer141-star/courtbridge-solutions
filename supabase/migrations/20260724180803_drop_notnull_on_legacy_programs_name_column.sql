@@ -1,0 +1,1 @@
+alter table programs alter column name drop not null;

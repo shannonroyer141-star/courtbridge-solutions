@@ -1,0 +1,1 @@
+ALTER TABLE public.checkins ADD COLUMN IF NOT EXISTS gps_accuracy_meters double precision;

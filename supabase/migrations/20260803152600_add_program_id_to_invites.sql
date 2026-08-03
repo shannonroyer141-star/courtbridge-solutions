@@ -1,0 +1,1 @@
+alter table invites add column if not exists program_id uuid references programs(id);

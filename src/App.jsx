@@ -7,6 +7,7 @@ import SandboxApp from './demo/SandboxApp';
 import SelfServeSignup from './screens/SelfServeSignup';
 import SignupSuccess from './screens/SignupSuccess';
 import ProviderSetupWizard from './screens/ProviderSetupWizard';
+import UserRoleManagement from './screens/UserRoleManagement';
 import CheckIn from './screens/CheckIn';
 import CheckInHistory from './screens/CheckInHistory';
 import Clients from './screens/Clients';
@@ -69,6 +70,7 @@ export default function App() {
   const [isFounder, setIsFounder] = useState(false);
   const [isOrgAdmin, setIsOrgAdmin] = useState(false);
   const [needsSetup, setNeedsSetup] = useState(false);
+  const [accountStatus, setAccountStatus] = useState('active');
   const [activeClientId, setActiveClientId] = useState(null);
   const [cameFromWidget, setCameFromWidget] = useState(false);
 
@@ -100,10 +102,11 @@ export default function App() {
   }, []);
 
   async function fetchRole(userId) {
-    const { data } = await supabase.from('profiles').select('role, is_founder, is_org_admin, onboarding_complete').eq('id', userId).single();
+    const { data } = await supabase.from('profiles').select('role, is_founder, is_org_admin, onboarding_complete, account_status').eq('id', userId).single();
     setRole(data?.role || 'provider');
     setIsFounder(!!data?.is_founder);
     setIsOrgAdmin(!!data?.is_org_admin);
+    setAccountStatus(data?.account_status || 'active');
     setNeedsSetup(data?.role !== 'client' && !data?.onboarding_complete && (!!data?.is_org_admin || !!data?.is_founder));
     setLoading(false);
     fetchPendingInvites(userId);
@@ -241,6 +244,21 @@ export default function App() {
     );
   }
 
+  if (accountStatus === 'inactive') {
+    return (
+      <div style={{ minHeight: '100vh', background: DARK_BG, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, fontFamily: NAV_FONT }}>
+        <div style={{ textAlign: 'center', maxWidth: 380 }}>
+          <div style={{ fontSize: 40, marginBottom: 16 }}>🔒</div>
+          <div style={{ fontSize: 19, fontWeight: 600, color: TEXT, marginBottom: 10 }}>Your account has been deactivated</div>
+          <div style={{ fontSize: 14, color: TEXT_MUTED, lineHeight: 1.6, marginBottom: 20 }}>
+            Contact your organization's admin if you believe this is a mistake.
+          </div>
+          <div onClick={handleLogout} style={{ display: 'inline-block', background: 'rgba(255,255,255,0.1)', color: TEXT, fontSize: 13, padding: '10px 20px', borderRadius: 8, cursor: 'pointer' }}>Log Out</div>
+        </div>
+      </div>
+    );
+  }
+
   if (needsSetup) {
     return <ProviderSetupWizard session={session} onDone={handleSetupDone} />;
   }
@@ -284,6 +302,7 @@ export default function App() {
       case 'fundingsources': return <FundingSources session={session} />;
       case 'auditreadiness': return <AuditReadiness session={session} />;
       case 'assessments': return <Assessments />;
+      case 'userrolemanagement': return <UserRoleManagement session={session} />;
       default: return <ProviderDashboard session={session} onNavigate={navTo} />;
     }
   }
@@ -498,6 +517,7 @@ export default function App() {
                 </div>
                 {expandedMenus.orgwide && <>
                   <div style={subSubItem('orgadmin')} onClick={() => navTo('orgadmin')}>Org Settings</div>
+                  <div style={subSubItem('userrolemanagement')} onClick={() => navTo('userrolemanagement')}>User &amp; Role Management</div>
                   <div style={subSubItem('compliancerequirements')} onClick={() => navTo('compliancerequirements')}>Compliance Requirements</div>
                   <div style={subSubItem('auditreadiness')} onClick={() => navTo('auditreadiness')}>Audit Readiness</div>
                   <div style={subSubItem('fundingsources')} onClick={() => navTo('fundingsources')}>Funding Sources</div>

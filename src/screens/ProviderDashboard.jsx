@@ -293,7 +293,7 @@ function StatCard({ label, value, sub, valueColor = TEXT, accentColor = ACCENT, 
 }
 
 export default function ProviderDashboard({ onNavigate }) {
-  const [stats, setStats] = useState({ activeClients: 0, checkedInToday: 0, missedLast24: 0, alertsCount: 0 });
+  const [stats, setStats] = useState({ activeClients: 0, checkedInToday: 0, missedLast24: 0, urgentCount: 0 });
   const [missedClients, setMissedClients] = useState([]);
   const [recentActivity, setRecentActivity] = useState([]);
   const [complianceRate, setComplianceRate] = useState(0);
@@ -333,7 +333,6 @@ export default function ProviderDashboard({ onNavigate }) {
     const todayDateStr = todayStr.slice(0, 10);
 
     const { data: todayCheckIns } = await supabase.from('checkins').select('*').in('client_id', clientIds).gte('checked_in_at', todayStr);
-    const { data: alerts } = await supabase.from('alerts').select('*').in('client_id', clientIds).eq('resolved', false);
     const { data: weekCheckIns } = await supabase.from('checkins').select('*').in('client_id', clientIds).gte('checked_in_at', new Date(Date.now() - 7 * 86400000).toISOString());
     const { data: recentCheckins } = await supabase.from('checkins').select('*, clients(name)').in('client_id', clientIds).order('checked_in_at', { ascending: false }).limit(10);
     const { data: locatedCheckins } = await supabase.from('checkins').select('*, clients(name)').in('client_id', clientIds).not('latitude', 'is', null).not('longitude', 'is', null).order('checked_in_at', { ascending: false }).limit(200);
@@ -356,10 +355,17 @@ export default function ProviderDashboard({ onNavigate }) {
     }) || [];
     const rate = activeClients > 0 ? Math.round(((weekCheckIns?.length || 0) / (activeClients * 7)) * 100) : 0;
 
-    setStats({ activeClients, checkedInToday: todayCheckIns?.length || 0, missedLast24: missed.length, alertsCount: alerts?.length || 0 });
+    const latestPerClient = new Map();
+    for (const m of recentMessages || []) {
+      if (!latestPerClient.has(m.client_id)) latestPerClient.set(m.client_id, m);
+    }
+    const urgentMsgs = [...latestPerClient.values()].filter(m => m.is_urgent && m.sender_role === 'client');
+
+    setStats({ activeClients, checkedInToday: todayCheckIns?.length || 0, missedLast24: missed.length, urgentCount: urgentMsgs.length });
     setMissedClients(missed.slice(0, 5));
     setRecentActivity(recentCheckins || []);
     setComplianceRate(Math.min(rate, 100));
+    setUrgentMessages(urgentMsgs.slice(0, 5));
 
     const seenMapClients = new Set();
     setMapPoints((locatedCheckins || []).filter(ci => {
@@ -367,12 +373,6 @@ export default function ProviderDashboard({ onNavigate }) {
       seenMapClients.add(ci.client_id);
       return true;
     }));
-
-    const latestPerClient = new Map();
-    for (const m of recentMessages || []) {
-      if (!latestPerClient.has(m.client_id)) latestPerClient.set(m.client_id, m);
-    }
-    setUrgentMessages([...latestPerClient.values()].filter(m => m.is_urgent && m.sender_role === 'client').slice(0, 5));
 
     const courtItems = (upcomingCourtDates || []).map(cd => ({
       id: `court-${cd.id}`, date: cd.hearing_date, label: `${cd.clients?.name || 'Unknown'} — ${cd.hearing_type || 'Court date'}`,
@@ -392,7 +392,7 @@ export default function ProviderDashboard({ onNavigate }) {
   );
 
   const missedColor = stats.missedLast24 > 0 ? RED : GREEN;
-  const alertColor = stats.alertsCount > 0 ? WARNING : GREEN;
+  const urgentColor = stats.urgentCount > 0 ? WARNING : GREEN;
   const progressColor = complianceRate >= 80 ? GREEN : complianceRate >= 60 ? WARNING : RED;
 
   return (
@@ -428,12 +428,12 @@ export default function ProviderDashboard({ onNavigate }) {
           onClick={() => onNavigate && onNavigate('alerts')}
         />
         <StatCard
-          label="Open Alerts"
-          value={stats.alertsCount}
-          sub={stats.alertsCount === 0 ? 'No action needed' : 'Needs review'}
-          valueColor={alertColor}
-          accentColor={alertColor}
-          onClick={() => onNavigate && onNavigate('alerts')}
+          label="Urgent Messages"
+          value={stats.urgentCount}
+          sub={stats.urgentCount === 0 ? 'No action needed' : 'Needs review'}
+          valueColor={urgentColor}
+          accentColor={urgentColor}
+          onClick={() => onNavigate && onNavigate('messages')}
         />
       </div>
 

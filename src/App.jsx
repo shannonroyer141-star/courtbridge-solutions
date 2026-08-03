@@ -61,10 +61,12 @@ export default function App() {
   const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 768);
   const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth >= 768);
   const [expandedMenus, setExpandedMenus] = useState({
-    clients: false, sensitive: false, founder: false, org: false
+    clients: false, sensitive: false, founder: false,
+    workflow: false, orgwide: false, operational: false, personal: false
   });
   const [pendingInvites, setPendingInvites] = useState(0);
   const [isFounder, setIsFounder] = useState(false);
+  const [isOrgAdmin, setIsOrgAdmin] = useState(false);
   const [activeClientId, setActiveClientId] = useState(null);
   const [cameFromWidget, setCameFromWidget] = useState(false);
 
@@ -96,9 +98,10 @@ export default function App() {
   }, []);
 
   async function fetchRole(userId) {
-    const { data } = await supabase.from('profiles').select('role, is_founder').eq('id', userId).single();
+    const { data } = await supabase.from('profiles').select('role, is_founder, is_org_admin').eq('id', userId).single();
     setRole(data?.role || 'provider');
     setIsFounder(!!data?.is_founder);
+    setIsOrgAdmin(!!data?.is_org_admin);
     setLoading(false);
     fetchPendingInvites(userId);
   }
@@ -466,21 +469,53 @@ export default function App() {
 
           <div style={divider} />
 
-          <div style={groupRow('org')} onClick={() => toggleMenu('org')}>
+          <div style={groupRow('workflow')} onClick={() => toggleMenu('workflow')}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Ic d={ICONS.admin} /><span>Org &amp; Preferences</span>
+              <Ic d={ICONS.settings} /><span>Workflow Studio</span>
             </div>
-            <Ic d={expandedMenus.org ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
+            <Ic d={expandedMenus.workflow ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
           </div>
-          {expandedMenus.org && <>
-            <div style={subItem('auditreadiness')} onClick={() => navTo('auditreadiness')}>Audit Readiness</div>
-            <div style={subItem('compliancerequirements')} onClick={() => navTo('compliancerequirements')}>Compliance Requirements</div>
-            <div style={subItem('compliancechart')} onClick={() => navTo('compliancechart')}>Compliance Chart</div>
-            <div style={subItem('fundingsources')} onClick={() => navTo('fundingsources')}>Funding Sources</div>
-            <div style={subItem('settings')} onClick={() => navTo('settings')}>My Preferences</div>
-            <div style={subItem('orgadmin')} onClick={() => navTo('orgadmin')}>Org Settings</div>
-            <div style={subItem('staffcredentialing')} onClick={() => navTo('staffcredentialing')}>Staff Credentialing</div>
-            <div style={subItem('affirmations')} onClick={() => navTo('affirmations')}>Wellness</div>
+          {expandedMenus.workflow && <>
+            {(isOrgAdmin || isFounder) && (
+              <>
+                <div style={subGroupRow('orgwide')} onClick={() => toggleMenu('orgwide')}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Ic d={ICONS.admin} size={12} /><span>Org-Wide</span>
+                  </div>
+                  <Ic d={expandedMenus.orgwide ? ICONS.chevronDown : ICONS.chevronRight} size={11} />
+                </div>
+                {expandedMenus.orgwide && <>
+                  <div style={subSubItem('orgadmin')} onClick={() => navTo('orgadmin')}>Org Settings</div>
+                  <div style={subSubItem('compliancerequirements')} onClick={() => navTo('compliancerequirements')}>Compliance Requirements</div>
+                  <div style={subSubItem('auditreadiness')} onClick={() => navTo('auditreadiness')}>Audit Readiness</div>
+                  <div style={subSubItem('fundingsources')} onClick={() => navTo('fundingsources')}>Funding Sources</div>
+                  <div style={subSubItem('staffcredentialing')} onClick={() => navTo('staffcredentialing')}>Staff Credentialing</div>
+                </>}
+              </>
+            )}
+
+            <div style={subGroupRow('operational')} onClick={() => toggleMenu('operational')}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Ic d={ICONS.operations} size={12} /><span>Operational</span>
+              </div>
+              <Ic d={expandedMenus.operational ? ICONS.chevronDown : ICONS.chevronRight} size={11} />
+            </div>
+            {expandedMenus.operational && <>
+              <div style={subSubItem('tasks')} onClick={() => navTo('tasks')}>Tasks</div>
+              <div style={subSubItem('programs')} onClick={() => navTo('programs')}>Programs</div>
+              <div style={subSubItem('compliancechart')} onClick={() => navTo('compliancechart')}>Compliance Chart</div>
+            </>}
+
+            <div style={subGroupRow('personal')} onClick={() => toggleMenu('personal')}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Ic d={ICONS.wellness} size={12} /><span>Personal</span>
+              </div>
+              <Ic d={expandedMenus.personal ? ICONS.chevronDown : ICONS.chevronRight} size={11} />
+            </div>
+            {expandedMenus.personal && <>
+              <div style={subSubItem('settings')} onClick={() => navTo('settings')}>My Preferences</div>
+              <div style={subSubItem('affirmations')} onClick={() => navTo('affirmations')}>Wellness</div>
+            </>}
           </>}
 
           <div style={divider} />

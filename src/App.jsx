@@ -147,8 +147,21 @@ export default function App() {
     setActiveScreen('dashboard');
   }
 
+  const TOP_LEVEL_NAV_GROUPS = ['clients', 'jcx', 'workflow', 'founder'];
+  const WORKFLOW_SUB_GROUPS = ['orgwide', 'operational', 'personal'];
+
   function toggleMenu(menu) {
-    setExpandedMenus(prev => ({ ...prev, [menu]: !prev[menu] }));
+    setExpandedMenus(prev => {
+      const opening = !prev[menu];
+      const next = { ...prev, [menu]: opening };
+      if (opening && TOP_LEVEL_NAV_GROUPS.includes(menu)) {
+        TOP_LEVEL_NAV_GROUPS.forEach(m => { if (m !== menu) next[m] = false; });
+      }
+      if (opening && WORKFLOW_SUB_GROUPS.includes(menu)) {
+        WORKFLOW_SUB_GROUPS.forEach(m => { if (m !== menu) next[m] = false; });
+      }
+      return next;
+    });
   }
 
   function navTo(screen, clientId = null, fromWidget = false) {

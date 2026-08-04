@@ -1,54 +1,27 @@
-// Plan tiers for self-serve signup. Prices are PLACEHOLDERS -- Shannon has not
-// finalized real numbers yet (see Founder Docs > Pricing). Edit priceMonthly
-// (in cents) here before going live with real Stripe keys.
+// Pricing model: a flat monthly platform fee + a per-active-client rate.
+// No tiers, no client caps -- the price scales with usage automatically.
 //
-// IMPORTANT: this file is mirrored in the create-checkout-session edge function
-// (supabase/functions/create-checkout-session, deployed via Supabase, not part
-// of this repo's build). If you change prices/tiers here, update that function
-// too -- the edge function is the authoritative source Stripe actually charges,
-// this file is just what the signup page displays.
+// NOT LOCKED IN YET -- these are the "Repriced" numbers from
+// CourtBridge_Locked_Pricing_Model.docx (one of two candidate models in that
+// doc; Shannon is still reviewing which to use). Change the two numbers below
+// once she decides.
+//
+// IMPORTANT: this file is mirrored in two edge functions (deployed via
+// Supabase, not part of this repo's build): create-checkout-session, which
+// sets the actual Stripe price at signup, and sync-client-billing, which
+// keeps the per-client line item's quantity in sync as clients are added or
+// removed. If you change these numbers, update both edge functions too.
 
-export const PLAN_TIERS = [
-  {
-    id: 'starter',
-    name: 'Starter',
-    priceMonthly: 9900, // $99.00/mo -- PLACEHOLDER
-    maxClients: 25,
-    tagline: 'For a small caseload getting started',
-    features: [
-      'Up to 25 active clients',
-      'Check-ins, alerts, messaging',
-      'Compliance reports',
-    ],
-  },
-  {
-    id: 'growth',
-    name: 'Growth',
-    priceMonthly: 24900, // $249.00/mo -- PLACEHOLDER
-    maxClients: 100,
-    tagline: 'For a growing agency',
-    popular: true,
-    features: [
-      'Up to 100 active clients',
-      'Everything in Starter',
-      'Urgent SMS alerts at volume',
-      'Compliance chart, document storage',
-    ],
-  },
-  {
-    id: 'agency',
-    name: 'Agency',
-    priceMonthly: 49900, // $499.00/mo -- PLACEHOLDER
-    maxClients: null,
-    tagline: 'For larger, multi-program agencies',
-    features: [
-      'Unlimited active clients',
-      'Everything in Growth',
-      'Priority support',
-    ],
-  },
-];
+export const PRICING = {
+  flatMonthlyCents: 19900,      // $199.00/mo flat platform fee -- PLACEHOLDER
+  perClientMonthlyCents: 2200,  // $22.00/mo per active client -- PLACEHOLDER
+};
 
 export function formatPrice(cents) {
-  return `$${(cents / 100).toFixed(0)}`;
+  return `$${(cents / 100).toFixed(cents % 100 === 0 ? 0 : 2)}`;
+}
+
+export function estimateMonthly(activeClientCount) {
+  const n = Math.max(0, activeClientCount || 0);
+  return PRICING.flatMonthlyCents + PRICING.perClientMonthlyCents * n;
 }

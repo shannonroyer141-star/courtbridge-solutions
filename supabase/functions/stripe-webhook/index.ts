@@ -5,6 +5,27 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 // check here. Security instead comes from verifying Stripe's own webhook
 // signature below (STRIPE_WEBHOOK_SECRET), which only Stripe can produce.
 
+// Mirrors src/pricing.js -- used to identify which subscription line item is
+// the per-client one (Stripe doesn't guarantee item order matches the
+// Checkout line_items order, so we match on price instead).
+const PER_CLIENT_UNIT_AMOUNT_CENTS = 2200;
+
+async function stripeGet(path: string, secretKey: string) {
+  const res = await fetch(`https://api.stripe.com${path}`, {
+    headers: { 'Authorization': `Bearer ${secretKey}` },
+  });
+  return { ok: res.ok, data: await res.json() };
+}
+
+async function stripePost(path: string, secretKey: string, params: URLSearchParams) {
+  const res = await fetch(`https://api.stripe.com${path}`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${secretKey}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params,
+  });
+  return { ok: res.ok, data: await res.json() };
+}
+
 async function verifyStripeSignature(rawBody: string, sigHeader: string, secret: string): Promise<boolean> {
   const parts = Object.fromEntries(sigHeader.split(',').map(p => p.split('=')));
   const timestamp = parts['t'];
@@ -50,19 +71,33 @@ Deno.serve(async (req: Request) => {
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
       const meta = session.metadata || {};
-      const { tier, org_name, admin_name, admin_email, phone } = meta;
+      const { org_name, admin_name, admin_email, phone } = meta;
 
       if (!org_name || !admin_email) {
         console.error('checkout.session.completed missing required metadata', meta);
         return new Response('ok', { status: 200 }); // ack to Stripe, nothing more we can do
       }
 
+      const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY') ?? '';
+      let clientLineItemId: string | null = null;
+
+      if (session.subscription && STRIPE_SECRET_KEY) {
+        const { ok, data: sub } = await stripeGet(`/v1/subscriptions/${session.subscription}?expand[]=items.data.price`, STRIPE_SECRET_KEY);
+        if (ok) {
+          const perClientItem = (sub.items?.data || []).find((it: any) => it.price?.unit_amount === PER_CLIENT_UNIT_AMOUNT_CENTS);
+          clientLineItemId = perClientItem?.id || null;
+        } else {
+          console.error('Could not fetch subscription to find per-client line item', sub);
+        }
+      }
+
       const { data: org, error: orgError } = await supabase.from('organizations').insert({
         organization_name: org_name,
         phone: phone || null,
-        plan: tier,
+        plan: 'standard',
         stripe_customer_id: session.customer,
         stripe_subscription_id: session.subscription,
+        stripe_client_line_item_id: clientLineItemId,
         subscription_status: 'active',
         billing_email: admin_email,
       }).select().single();
@@ -70,6 +105,16 @@ Deno.serve(async (req: Request) => {
       if (orgError || !org) {
         console.error('Failed to create organization', orgError);
         return new Response('ok', { status: 200 });
+      }
+
+      // Checkout required a positive quantity on the per-client line, so it
+      // was created at 1. A brand-new org has 0 clients -- correct it now.
+      if (clientLineItemId && STRIPE_SECRET_KEY) {
+        const correctParams = new URLSearchParams();
+        correctParams.set('quantity', '0');
+        correctParams.set('proration_behavior', 'none');
+        const { ok, data } = await stripePost(`/v1/subscription_items/${clientLineItemId}`, STRIPE_SECRET_KEY, correctParams);
+        if (!ok) console.error('Could not correct initial per-client quantity to 0', data);
       }
 
       const { data: invited, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(admin_email, {

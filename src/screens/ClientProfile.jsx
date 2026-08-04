@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
+import { syncClientBilling } from '../billing';
 import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 export default function ClientProfile({ clientId, onNavigate }) {
@@ -157,6 +158,7 @@ export default function ClientProfile({ clientId, onNavigate }) {
     setActionError(null);
     const { error } = await supabase.from('clients').update({ status: newStatus, status_changed_at: new Date().toISOString() }).eq('id', clientId);
     if (error) { setActionError('Could not update status: ' + error.message); }
+    else { syncClientBilling(client?.provider_id); }
     setSavingStatus(false);
     fetchAll();
   }
@@ -176,6 +178,7 @@ export default function ClientProfile({ clientId, onNavigate }) {
       phone: returnForm.phone || null,
     }).eq('id', clientId);
     if (error) { setActionError('Could not reactivate: ' + error.message); setSavingStatus(false); return; }
+    syncClientBilling(client?.provider_id);
     setSavingStatus(false);
     setShowReactivate(false);
     fetchAll();

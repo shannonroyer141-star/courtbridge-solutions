@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
+import { syncClientBilling } from '../billing'
 import { DARK_BG, CARD_BG, ACCENT, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme'
 import { LANGUAGES, getTranslator } from '../i18n'
 
@@ -79,6 +80,7 @@ export default function ClientOnboarding() {
       setSubmitting(false)
       return
     }
+    syncClientBilling(invite.provider_id)
 
     // Complete the enrollment wizard end-to-end: if the provider linked this
     // invite to one of their real Programs, create the client_programs row

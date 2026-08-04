@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { DARK_BG, CARD_BG, ACCENT, GREEN, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme'
-import { PLAN_TIERS, formatPrice } from '../pricing'
+import { PRICING, formatPrice, estimateMonthly } from '../pricing'
 
 const SUPABASE_URL = 'https://howvgvrrxcpdiqjbnhzn.supabase.co'
+const SAMPLE_CLIENT_COUNTS = [1, 10, 25, 50]
 
 export default function SelfServeSignup() {
   const [step, setStep] = useState(1)
   const [form, setForm] = useState({ org_name: '', admin_name: '', admin_email: '', phone: '' })
-  const [tier, setTier] = useState('growth')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
 
@@ -33,7 +33,7 @@ export default function SelfServeSignup() {
       const res = await fetch(`${SUPABASE_URL}/functions/v1/create-checkout-session`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tier, ...form }),
+        body: JSON.stringify(form),
       })
       const data = await res.json()
       if (!res.ok || !data.success) throw new Error(data.error || 'Could not start checkout. Please try again.')
@@ -71,40 +71,39 @@ export default function SelfServeSignup() {
       )}
 
       {step === 2 && (
-        <div style={{ width: '100%', maxWidth: 900 }}>
-          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 24 }}>
-            {PLAN_TIERS.map(p => (
-              <div
-                key={p.id}
-                onClick={() => setTier(p.id)}
-                style={{
-                  cursor: 'pointer', flex: '1 1 240px', maxWidth: 280, background: CARD_BG, borderRadius: 14, padding: '24px 22px',
-                  border: tier === p.id ? `2px solid ${ACCENT}` : `0.5px solid ${BORDER}`,
-                  position: 'relative',
-                }}
-              >
-                {p.popular && (
-                  <div style={{ position: 'absolute', top: -10, right: 18, background: ACCENT, color: '#fff', fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Popular</div>
-                )}
-                <div style={{ fontSize: 15, fontWeight: 700, color: TEXT, marginBottom: 2 }}>{p.name}</div>
-                <div style={{ fontSize: 12, color: TEXT_DIM, marginBottom: 14 }}>{p.tagline}</div>
-                <div style={{ fontSize: 30, fontWeight: 700, color: TEXT, marginBottom: 2 }}>{formatPrice(p.priceMonthly)}<span style={{ fontSize: 13, color: TEXT_MUTED, fontWeight: 400 }}>/mo</span></div>
-                <div style={{ fontSize: 12, color: TEXT_DIM, marginBottom: 18 }}>{p.maxClients ? `Up to ${p.maxClients} active clients` : 'Unlimited active clients'}</div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {p.features.map((f, i) => (
-                    <div key={i} style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', display: 'flex', gap: 8 }}>
-                      <span style={{ color: GREEN }}>✓</span>{f}
-                    </div>
-                  ))}
+        <div style={{ width: '100%', maxWidth: 520 }}>
+          <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 16, padding: '28px 26px', marginBottom: 20 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: TEXT, marginBottom: 4 }}>One simple price</div>
+            <div style={{ fontSize: 13, color: TEXT_DIM, marginBottom: 20 }}>A flat platform fee, plus a per-client rate. No tiers, no caps — it scales with your caseload automatically.</div>
+
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 4 }}>
+              <span style={{ fontSize: 34, fontWeight: 700, color: TEXT }}>{formatPrice(PRICING.flatMonthlyCents)}</span>
+              <span style={{ fontSize: 13, color: TEXT_MUTED }}>/mo flat</span>
+              <span style={{ fontSize: 16, color: TEXT_DIM, margin: '0 2px' }}>+</span>
+              <span style={{ fontSize: 34, fontWeight: 700, color: TEXT }}>{formatPrice(PRICING.perClientMonthlyCents)}</span>
+              <span style={{ fontSize: 13, color: TEXT_MUTED }}>/active client</span>
+            </div>
+            <div style={{ fontSize: 12, color: TEXT_DIM, marginBottom: 20 }}>Billed monthly. Cancel anytime.</div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 22 }}>
+              {['Check-ins, alerts, and messaging', 'Compliance reports and audit tools', 'Cross-agency referrals and directory access', 'Everything on the platform — no feature gating by plan'].map((f, i) => (
+                <div key={i} style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', display: 'flex', gap: 8 }}>
+                  <span style={{ color: GREEN }}>✓</span>{f}
                 </div>
-                <div style={{
-                  marginTop: 20, textAlign: 'center', padding: '9px', borderRadius: 8, fontSize: 13, fontWeight: 700,
-                  background: tier === p.id ? ACCENT : 'rgba(255,255,255,0.08)', color: tier === p.id ? '#fff' : TEXT_MUTED,
-                }}>
-                  {tier === p.id ? 'Selected' : 'Select'}
-                </div>
+              ))}
+            </div>
+
+            <div style={{ borderTop: `0.5px solid ${BORDER}`, paddingTop: 16 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>What that looks like</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                {SAMPLE_CLIENT_COUNTS.map(n => (
+                  <div key={n} style={{ flex: '1 1 100px', background: 'rgba(255,255,255,0.03)', border: `0.5px solid ${BORDER}`, borderRadius: 8, padding: '10px 12px', textAlign: 'center' }}>
+                    <div style={{ fontSize: 11, color: TEXT_DIM, marginBottom: 3 }}>{n} client{n !== 1 ? 's' : ''}</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: TEXT }}>{formatPrice(estimateMonthly(n))}<span style={{ fontSize: 11, color: TEXT_MUTED, fontWeight: 400 }}>/mo</span></div>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
 
           {error && <div style={{ color: RED, fontSize: 13, marginBottom: 14, textAlign: 'center' }}>{error}</div>}

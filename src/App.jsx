@@ -160,6 +160,13 @@ export default function App() {
       if (opening && WORKFLOW_SUB_GROUPS.includes(menu)) {
         WORKFLOW_SUB_GROUPS.forEach(m => { if (m !== menu) next[m] = false; });
       }
+
+      // Whenever a group ends up collapsed, collapse its own nested children
+      // too, so reopening it later always starts from a clean, fully-collapsed
+      // state instead of remembering whatever was open last time.
+      if (!next.clients) next.sensitive = false;
+      if (!next.workflow) { next.orgwide = false; next.operational = false; next.personal = false; }
+
       return next;
     });
   }

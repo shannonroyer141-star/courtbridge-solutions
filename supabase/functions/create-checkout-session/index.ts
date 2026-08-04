@@ -1,12 +1,14 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 // Mirrors src/pricing.js in the app repo -- keep these numbers in sync.
-// Server-side authoritative pricing: the frontend just tells us which tier
-// was picked, we look up the real price here so a client can't tamper with it.
-const PLAN_TIERS: Record<string, { name: string; priceMonthly: number }> = {
-  starter: { name: 'CourtBridge Starter', priceMonthly: 9900 },
-  growth: { name: 'CourtBridge Growth', priceMonthly: 24900 },
-  agency: { name: 'CourtBridge Agency', priceMonthly: 49900 },
+// Flat monthly platform fee + a per-active-client rate. Stripe Checkout won't
+// accept a line item quantity of 0, so the per-client line starts at 1 here
+// and stripe-webhook corrects it down to the org's real client count (0 for a
+// brand-new org) right after checkout completes. sync-client-billing keeps it
+// in sync from then on as clients are added or deactivated.
+const PRICING = {
+  flatMonthlyCents: 19900,
+  perClientMonthlyCents: 2200,
 };
 
 Deno.serve(async (req: Request) => {
@@ -20,10 +22,8 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { tier, org_name, admin_name, admin_email, phone } = await req.json();
+    const { org_name, admin_name, admin_email, phone } = await req.json();
 
-    const plan = PLAN_TIERS[tier];
-    if (!plan) throw new Error('Unknown plan tier.');
     if (!org_name?.trim()) throw new Error('Organization name is required.');
     if (!admin_name?.trim()) throw new Error('Your name is required.');
     if (!admin_email?.trim() || !admin_email.includes('@')) throw new Error('A valid email is required.');
@@ -40,19 +40,28 @@ Deno.serve(async (req: Request) => {
     params.set('customer_email', admin_email);
     params.set('success_url', `${siteUrl}/signup/success?session_id={CHECKOUT_SESSION_ID}`);
     params.set('cancel_url', `${siteUrl}/signup`);
+
+    // Line 0: flat platform fee, quantity 1.
     params.set('line_items[0][quantity]', '1');
     params.set('line_items[0][price_data][currency]', 'usd');
-    params.set('line_items[0][price_data][unit_amount]', String(plan.priceMonthly));
+    params.set('line_items[0][price_data][unit_amount]', String(PRICING.flatMonthlyCents));
     params.set('line_items[0][price_data][recurring][interval]', 'month');
-    params.set('line_items[0][price_data][product_data][name]', plan.name);
-    params.set('metadata[tier]', tier);
+    params.set('line_items[0][price_data][product_data][name]', 'CourtBridge Solutions -- Platform Fee');
+
+    // Line 1: per-client rate. Quantity 1 here is a placeholder -- Checkout
+    // requires a positive quantity; stripe-webhook sets the real number right after.
+    params.set('line_items[1][quantity]', '1');
+    params.set('line_items[1][price_data][currency]', 'usd');
+    params.set('line_items[1][price_data][unit_amount]', String(PRICING.perClientMonthlyCents));
+    params.set('line_items[1][price_data][recurring][interval]', 'month');
+    params.set('line_items[1][price_data][product_data][name]', 'CourtBridge Solutions -- Per Active Client');
+
     params.set('metadata[org_name]', org_name.trim());
     params.set('metadata[admin_name]', admin_name.trim());
     params.set('metadata[admin_email]', admin_email.trim());
     params.set('metadata[phone]', phone?.trim() || '');
     // Subscription-level metadata too, so the webhook's subscription.updated
     // events (which don't include the Checkout Session) can still find the org.
-    params.set('subscription_data[metadata][tier]', tier);
     params.set('subscription_data[metadata][org_name]', org_name.trim());
 
     const stripeResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {

@@ -266,7 +266,7 @@ export default function App() {
 
   if (role === 'client') {
     return (
-      <div style={{ fontFamily: 'Arial, sans-serif' }}>
+      <div style={{ fontFamily: NAV_FONT }}>
         {activeScreen === 'dashboard' && <ClientAppDashboard session={session} onLogout={handleLogout} onNavigate={navTo} />}
         {activeScreen === 'checkin' && <CheckIn session={session} onBack={() => navTo('dashboard')} />}
       </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
-import { CARD_BG, ACCENT, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme'
+import { CARD_BG, ACCENT, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme'
 
 export default function CheckInHistory({ session }) {
   const [checkins, setCheckins] = useState([])
@@ -58,7 +58,7 @@ export default function CheckInHistory({ session }) {
   }
 
   return (
-    <div style={{ fontFamily: NAV_FONT, maxWidth: 900, margin: '0 auto', padding: isPhone ? 14 : 24 }}>
+    <div style={{ fontFamily: NAV_FONT, maxWidth: 900, margin: '0 auto', padding: isPhone ? 14 : 30 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <div style={{ fontSize: 22, fontWeight: 700, color: TEXT }}>Check-In Log</div>
@@ -80,7 +80,7 @@ export default function CheckInHistory({ session }) {
       {loading && <div style={{ color: TEXT_MUTED, fontSize: 15 }}>Loading check-ins...</div>}
 
       {!loading && loadError && (
-        <div style={{ background: 'rgba(248,113,113,0.1)', border: '0.5px solid #f87171', borderRadius: 10, padding: '12px 16px', fontSize: 14, color: '#f87171', marginBottom: 16 }}>
+        <div style={{ background: 'rgba(248,113,113,0.1)', border: `0.5px solid ${RED}`, borderRadius: 10, padding: '12px 16px', fontSize: 14, color: RED, marginBottom: 16 }}>
           Couldn't load check-ins: {loadError}. Click Refresh to try again.
         </div>
       )}

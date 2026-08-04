@@ -7,6 +7,10 @@ export const LANGUAGES = {
 // First pass, machine-quality translations for es/ht. Flagged for a native-speaker
 // review pass before relying on this for real clients (same caution as Legal.md) —
 // this touches legal consent language and safety instructions.
+//
+// waiverBody and smsBody (onboarding section, all 3 languages) are draft consent
+// language, not yet reviewed by an attorney -- same caution as Legal.md. Don't
+// remove this comment until that review has actually happened.
 export const translations = {
   en: {
     onboarding: {
@@ -34,7 +38,6 @@ export const translations = {
       passwordPlaceholder: 'Minimum 8 characters',
       confirmLabel: 'Confirm Password',
       confirmPlaceholder: 'Re-enter password',
-      legalReviewNote: '⚠ Placeholder — needs legal review before use',
       waiverTitle: 'Program Waiver & Consent',
       waiverBody: "By enrolling, you acknowledge that your participation in this program is subject to the terms set by your referring court, probation officer, or agency. You understand that your check-ins, location data, and compliance record are recorded and may be shared with your provider, probation officer, or the court as required. This program does not provide legal advice. You agree to comply with your program's requirements and to communicate promptly with your provider about any issues affecting your participation.",
       waiverCheckbox: 'I have read and agree to the program waiver above.',
@@ -255,7 +258,6 @@ export const translations = {
       passwordPlaceholder: 'Mínimo 8 caracteres',
       confirmLabel: 'Confirmar contraseña',
       confirmPlaceholder: 'Vuelva a escribir la contraseña',
-      legalReviewNote: '⚠ Borrador — requiere revisión legal antes de usarse',
       waiverTitle: 'Exención y consentimiento del programa',
       waiverBody: 'Al inscribirse, usted reconoce que su participación en este programa está sujeta a los términos establecidos por el tribunal, el oficial de libertad condicional o la agencia que lo remitió. Usted entiende que sus registros de entrada/salida, datos de ubicación e historial de cumplimiento quedan registrados y pueden compartirse con su proveedor, oficial de libertad condicional o el tribunal según sea necesario. Este programa no brinda asesoría legal. Usted se compromete a cumplir con los requisitos de su programa y a comunicarse con prontitud con su proveedor sobre cualquier problema que afecte su participación.',
       waiverCheckbox: 'He leído y acepto la exención del programa mencionada arriba.',
@@ -476,7 +478,6 @@ export const translations = {
       passwordPlaceholder: 'Minimòm 8 karaktè',
       confirmLabel: 'Konfime Modpas',
       confirmPlaceholder: 'Antre modpas la ankò',
-      legalReviewNote: '⚠ Bouyon — bezwen revizyon legal anvan itilizasyon',
       waiverTitle: 'Dokiman Egzoneratwa ak Konsantman Pwogram',
       waiverBody: "Lè ou enskri, ou rekonèt patisipasyon ou nan pwogram sa a soumèt anba kondisyon tribinal, ofisye pwobasyon, oswa ajans ki refere ou a etabli. Ou konprann ke chèk-in ou yo, done kote ou ye, ak istwa konfòmite ou anrejistre e yo ka pataje ak founisè ou, ofisye pwobasyon ou, oswa tribinal la jan sa nesesè. Pwogram sa a pa bay konsèy legal. Ou dakò pou respekte egzijans pwogram ou epi kominike vit ak founisè ou konsènan nenpòt pwoblèm ki afekte patisipasyon ou.",
       waiverCheckbox: 'Mwen li epi mwen dakò ak dokiman egzoneratwa pwogram ki anwo a.',

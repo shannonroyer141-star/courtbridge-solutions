@@ -213,7 +213,6 @@ export default function ClientOnboarding() {
                 style={inputStyle} />
             </div>
             <div style={{ marginBottom: 20, background: 'rgba(255,255,255,0.03)', border: `0.5px solid ${BORDER}`, borderRadius: 8, padding: 14 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>{t('onboarding', 'legalReviewNote')}</div>
               <div style={{ fontSize: 12, fontWeight: 700, color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>{t('onboarding', 'waiverTitle')}</div>
               <div style={{ fontSize: 13, color: TEXT, lineHeight: 1.6, marginBottom: 10, maxHeight: 140, overflowY: 'auto', background: 'rgba(255,255,255,0.03)', border: `0.5px solid ${BORDER}`, borderRadius: 6, padding: 10 }}>
                 {t('onboarding', 'waiverBody')}
@@ -231,7 +230,6 @@ export default function ClientOnboarding() {
             </div>
             {form.phone && (
               <div style={{ marginBottom: 24, background: 'rgba(255,255,255,0.03)', border: `0.5px solid ${BORDER}`, borderRadius: 8, padding: 14 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>{t('onboarding', 'legalReviewNote')}</div>
                 <div style={{ fontSize: 13, color: TEXT, lineHeight: 1.6, marginBottom: 10 }}>
                   {t('onboarding', 'smsBody')}
                 </div>

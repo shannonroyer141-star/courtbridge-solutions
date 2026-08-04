@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
+import { DARK_BG, RED, GREEN, NAV_FONT } from '../theme'
 
 export default function CheckIn({ session, onBack }) {
   const [location, setLocation] = useState(null)
@@ -80,8 +81,8 @@ export default function CheckIn({ session, onBack }) {
     else setSubmitted(true)
   }
 
-  const SLATE = '#1E2A3A'
-  const s = { page: { minHeight: '100vh', background: SLATE, fontFamily: 'Arial, sans-serif', padding: 24 }, card: { background: 'rgba(255,255,255,0.05)', borderRadius: 12, padding: 16, marginBottom: 20, border: '1px solid rgba(255,255,255,0.08)' }, label: { display: 'block', fontSize: 12, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }, input: { width: '100%', padding: '12px 14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, fontSize: 15, color: '#fff', boxSizing: 'border-box', colorScheme: 'dark' } }
+  const SLATE = DARK_BG
+  const s = { page: { minHeight: '100vh', background: SLATE, fontFamily: NAV_FONT, padding: 24 }, card: { background: 'rgba(255,255,255,0.05)', borderRadius: 12, padding: 16, marginBottom: 20, border: '1px solid rgba(255,255,255,0.08)' }, label: { display: 'block', fontSize: 12, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }, input: { width: '100%', padding: '12px 14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, fontSize: 15, color: '#fff', boxSizing: 'border-box', colorScheme: 'dark' } }
 
   if (submitted) return (
     <div style={{ ...s.page, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -111,7 +112,7 @@ export default function CheckIn({ session, onBack }) {
           {gpsLoading && <div style={{ color: '#94A3B8', fontSize: 14 }}>⟳ Acquiring location...</div>}
           {!gpsLoading && location && (
             <div>
-              <div style={{ color: '#4CAF7D', fontSize: 14, fontWeight: 600 }}>✓ Location captured</div>
+              <div style={{ color: GREEN, fontSize: 14, fontWeight: 600 }}>✓ Location captured</div>
               <div style={{ color: '#64748B', fontSize: 12, marginTop: 4 }}>
                 {location.lat.toFixed(5)}, {location.lng.toFixed(5)} · ±{location.accuracy}m
               </div>
@@ -119,7 +120,7 @@ export default function CheckIn({ session, onBack }) {
           )}
           {!gpsLoading && locationError && (
             <div>
-              <div style={{ color: '#F87171', fontSize: 14, marginBottom: 8 }}>⚠ {locationError}</div>
+              <div style={{ color: RED, fontSize: 14, marginBottom: 8 }}>⚠ {locationError}</div>
               <button onClick={retryGPS} style={{ fontSize: 13, color: '#94A3B8', background: 'none', border: '1px solid #334155', borderRadius: 6, padding: '6px 14px', cursor: 'pointer' }}>
                 Try Again
               </button>

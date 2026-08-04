@@ -57,7 +57,7 @@ export default function Alerts({ session }) {
   }
 
   return (
-    <div style={{ fontFamily: NAV_FONT, maxWidth: 700, margin: '0 auto' }}>
+    <div style={{ fontFamily: NAV_FONT, maxWidth: 700, margin: '0 auto', padding: 30 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 10 }}>
         <div>
           <div style={{ fontSize: 22, fontWeight: 700, color: TEXT }}>Missed Check-In Alerts</div>

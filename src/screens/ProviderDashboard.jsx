@@ -512,7 +512,7 @@ export default function ProviderDashboard({ onNavigate }) {
         </div>
       </div>
 
-      <div style={S.twoCol}>
+      <div style={{ ...S.twoCol, gridTemplateColumns: isPhone ? '1fr' : '1fr 1fr' }}>
         <div style={S.card}>
           <div style={S.cardHeader}>
             <div style={{ ...S.cardDot, background: stats.missedLast24 > 0 ? RED : GREEN }} />

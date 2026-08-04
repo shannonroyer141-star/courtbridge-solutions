@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import { LANGUAGES, getTranslator } from '../i18n'
+import { DARK_BG, CARD_BG, SIDEBAR_BG, BLUE, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme'
 
 function escapeHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
@@ -43,18 +44,6 @@ function isWithinQuietHours(startStr, endStr) {
   if (startMinutes < endMinutes) return nowMinutes >= startMinutes && nowMinutes < endMinutes
   return nowMinutes >= startMinutes || nowMinutes < endMinutes
 }
-
-const DARK_BG = '#1E2A3A'
-const CARD_BG = '#253347'
-const SIDEBAR_BG = '#2D3748'
-const BLUE = '#1B3A6B'
-const ACCENT = '#5B9BF0'
-const GREEN = '#4CAF7D'
-const WARNING = '#3D6FA8'
-const TEXT = '#ffffff'
-const TEXT_MUTED = 'rgba(255,255,255,0.45)'
-const TEXT_DIM = 'rgba(255,255,255,0.35)'
-const BORDER = 'rgba(255,255,255,0.06)'
 
 const POPULATION_TYPES = ['catch_court', 'drug_court', 'bip', 'probation', 'mental_health', 'other']
 
@@ -684,7 +673,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
   if (isFirstTime) return <FirstTimeWelcome name={firstName} lang={lang} onDone={() => setIsFirstTime(false)} />
 
   if (client && (client.status === 'terminated' || client.status === 'inactive')) return (
-    <div style={{ minHeight: '100vh', background: DARK_BG, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: DARK_BG, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, fontFamily: NAV_FONT }}>
       <div style={{ textAlign: 'center', maxWidth: 380 }}>
         <div style={{ fontSize: 40, marginBottom: 16 }}>📋</div>
         <div style={{ fontSize: 19, fontWeight: 600, color: TEXT, marginBottom: 10 }}>{t('dashboard', 'common').statusChangedTitle}</div>
@@ -697,7 +686,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
   )
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: DARK_BG, fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: DARK_BG, fontFamily: NAV_FONT }}>
 
       {/* SIDEBAR — desktop only */}
       {!isMobile && (
@@ -980,7 +969,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                       <div style={{
                         fontSize: 10, fontWeight: 500, padding: '2px 8px', borderRadius: 20,
                         background: isDone ? 'rgba(76,175,125,0.15)' : p.status === 'terminated' ? 'rgba(248,113,113,0.15)' : 'rgba(91,155,240,0.15)',
-                        color: isDone ? GREEN : p.status === 'terminated' ? '#F87171' : ACCENT,
+                        color: isDone ? GREEN : p.status === 'terminated' ? RED : ACCENT,
                       }}>
                         {isDone ? jT.completedBadge : p.status === 'terminated' ? jT.endedBadge : jT.inProgressBadge}
                       </div>
@@ -1099,7 +1088,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                 </div>
               </div>
               {messageStatus && (
-                <div style={{ marginTop: 8, fontSize: 12, color: messageStatus.type === 'success' ? GREEN : '#F87171' }}>{messageStatus.text}</div>
+                <div style={{ marginTop: 8, fontSize: 12, color: messageStatus.type === 'success' ? GREEN : RED }}>{messageStatus.text}</div>
               )}
             </div>
           </div>
@@ -1336,7 +1325,7 @@ function FirstTimeWelcome({ name, lang, onDone }) {
   const current = steps[step]
   const isLast = step === steps.length - 1
   return (
-    <div style={{ minHeight: '100vh', background: DARK_BG, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 24px', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: DARK_BG, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 24px', fontFamily: NAV_FONT }}>
       <div style={{ fontSize: 15, fontWeight: 500, color: TEXT, marginBottom: 4 }}>CourtBridge Solutions</div>
       <div style={{ fontSize: 12, color: TEXT_MUTED, marginBottom: 40 }}>{w.portalSubtitle}</div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 32 }}>

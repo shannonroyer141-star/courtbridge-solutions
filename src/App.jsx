@@ -325,7 +325,7 @@ export default function App() {
       case 'auditreadiness': return <AuditReadiness session={session} />;
       case 'assessments': return <Assessments />;
       case 'userrolemanagement': return <UserRoleManagement session={session} />;
-      case 'jcxdirectory': return <JcxDirectory session={session} />;
+      case 'jcxdirectory': return <JcxDirectory session={session} isOrgAdmin={isOrgAdmin} isFounder={isFounder} />;
       case 'jcxresources': return <JcxResources session={session} />;
       case 'jcxreferrals': return <JcxReferrals session={session} />;
       case 'jcxrecordsrequests': return <JcxRecordsRequests session={session} />;

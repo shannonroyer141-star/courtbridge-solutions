@@ -7,6 +7,7 @@ export default function JcxRecordsRequests({ session }) {
   const [loading, setLoading] = useState(true);
   const [decidingId, setDecidingId] = useState(null);
   const [noteDrafts, setNoteDrafts] = useState({});
+  const [decideError, setDecideError] = useState(null);
 
   useEffect(() => { load(); }, []);
 
@@ -19,11 +20,14 @@ export default function JcxRecordsRequests({ session }) {
 
   async function decide(id, status) {
     setDecidingId(id);
-    await supabase.from('records_access_requests').update({
+    setDecideError(null);
+    const { data, error } = await supabase.from('records_access_requests').update({
       status, decided_by: session.user.id, decided_at: new Date().toISOString(),
       decision_note: noteDrafts[id] || null,
-    }).eq('id', id);
+    }).eq('id', id).select();
     setDecidingId(null);
+    if (error) { setDecideError('That decision was not saved: ' + error.message); return; }
+    if (!data || data.length === 0) { setDecideError("That decision was not saved — you may not have permission to decide on this request."); return; }
     load();
   }
 
@@ -45,6 +49,8 @@ export default function JcxRecordsRequests({ session }) {
       <div style={{ background: 'rgba(91,155,240,0.1)', border: `0.5px solid ${ACCENT}`, borderRadius: 10, padding: '12px 16px', marginBottom: 24, fontSize: 13, color: TEXT }}>
         Share this link with courts/POs who need to request records: <strong style={{ color: ACCENT }}>{link}</strong>
       </div>
+
+      {decideError && <div style={{ color: RED, fontSize: 13, marginBottom: 16 }}>{decideError}</div>}
 
       <div style={{ fontSize: 13, fontWeight: 700, color: TEXT, marginBottom: 10 }}>Pending Decision ({pending.length})</div>
       {pending.length === 0 ? <div style={{ color: TEXT_DIM, fontSize: 13, marginBottom: 20 }}>No pending requests.</div> : pending.map(r => (

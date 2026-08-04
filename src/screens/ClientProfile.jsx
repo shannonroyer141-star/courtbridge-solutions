@@ -489,8 +489,7 @@ export default function ClientProfile({ clientId, onNavigate }) {
 
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
         <button onClick={() => onNavigate && onNavigate('messages', clientId)} style={{ background: ACCENT, color: 'white', border: 'none', borderRadius: 8, padding: '10px 20px', cursor: 'pointer', fontWeight: 600 }}>📩 Send Message</button>
-        <button style={{ background: RED, color: 'white', border: 'none', borderRadius: 8, padding: '10px 20px', cursor: 'pointer', fontWeight: 600 }}>🚨 Create Alert</button>
-        <button style={{ background: GREEN, color: 'white', border: 'none', borderRadius: 8, padding: '10px 20px', cursor: 'pointer', fontWeight: 600 }}>📄 View Reports</button>
+        <button onClick={() => onNavigate && onNavigate('reports')} style={{ background: GREEN, color: 'white', border: 'none', borderRadius: 8, padding: '10px 20px', cursor: 'pointer', fontWeight: 600 }}>📄 View Reports</button>
       </div>
     </div>
   );

@@ -109,7 +109,8 @@ export default function UserRoleManagement({ session }) {
       </div>
 
       <div style={{ marginTop: 16, fontSize: 12, color: TEXT_DIM, lineHeight: 1.6 }}>
-        Deactivating someone blocks their access without deleting anything — their history stays intact and they can be reactivated anytime.
+        Deactivating someone blocks their access without deleting anything — their history stays intact and they can be reactivated anytime.<br />
+        The role dropdown (Case Manager, Front Desk, etc.) is a label for your own reference only — it doesn't change what someone can access. "Org Admin" and "Deactivate" are the two controls that actually restrict access today.
       </div>
     </div>
   );

@@ -5,13 +5,15 @@ import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDE
 const CAPACITY_LABEL = { accepting: 'Accepting Referrals', limited: 'Limited Capacity', full: 'At Capacity' };
 const CAPACITY_COLOR = { accepting: GREEN, limited: WARNING, full: RED };
 
-export default function JcxDirectory({ session }) {
+export default function JcxDirectory({ session, isOrgAdmin, isFounder }) {
   const [orgs, setOrgs] = useState([]);
   const [myOrg, setMyOrg] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState(null);
   const [form, setForm] = useState({ directory_visible: false, specialty_tags: '', capacity_status: 'accepting', directory_description: '', directory_contact_email: '', directory_contact_phone: '' });
+  const canEdit = !!(isOrgAdmin || isFounder);
 
   useEffect(() => { load(); }, []);
 
@@ -40,8 +42,11 @@ export default function JcxDirectory({ session }) {
   async function saveListing() {
     if (!myOrg) return;
     setSaving(true);
-    await supabase.from('organizations').update(form).eq('id', myOrg.id);
+    setSaveError(null);
+    const { data, error } = await supabase.from('organizations').update(form).eq('id', myOrg.id).select();
     setSaving(false);
+    if (error) { setSaveError(error.message); return; }
+    if (!data || data.length === 0) { setSaveError("That didn't save — you may not have permission to edit your agency's listing. Only an org admin can."); return; }
     setEditing(false);
     load();
   }
@@ -61,9 +66,13 @@ export default function JcxDirectory({ session }) {
       <div style={{ background: CARD_BG, border: `0.5px solid ${ACCENT}`, borderRadius: 12, padding: 20, marginBottom: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: editing ? 16 : 0 }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: TEXT }}>Your Listing</div>
-          <button onClick={() => setEditing(!editing)} style={{ padding: '7px 14px', background: 'transparent', border: `0.5px solid ${ACCENT}`, color: ACCENT, borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
-            {editing ? 'Cancel' : 'Edit Listing'}
-          </button>
+          {canEdit ? (
+            <button onClick={() => setEditing(!editing)} style={{ padding: '7px 14px', background: 'transparent', border: `0.5px solid ${ACCENT}`, color: ACCENT, borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
+              {editing ? 'Cancel' : 'Edit Listing'}
+            </button>
+          ) : (
+            <span style={{ fontSize: 12, color: TEXT_DIM }}>Only an org admin can edit this</span>
+          )}
         </div>
         {!editing ? (
           <div style={{ fontSize: 13, color: TEXT_MUTED, marginTop: 10 }}>
@@ -91,6 +100,7 @@ export default function JcxDirectory({ session }) {
             <input style={inputStyle} value={form.directory_contact_email} onChange={e => setForm({ ...form, directory_contact_email: e.target.value })} />
             <label style={labelStyle}>Contact Phone</label>
             <input style={inputStyle} value={form.directory_contact_phone} onChange={e => setForm({ ...form, directory_contact_phone: e.target.value })} />
+            {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}
             <button onClick={saveListing} disabled={saving} style={{ padding: '10px 20px', background: GREEN, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
               {saving ? 'Saving...' : 'Save Listing'}
             </button>

@@ -7,6 +7,7 @@ export default function CheckInHistory({ session }) {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [width, setWidth] = useState(window.innerWidth)
+  const [loadError, setLoadError] = useState(null)
 
   useEffect(() => { fetchCheckins() }, [])
 
@@ -20,12 +21,14 @@ export default function CheckInHistory({ session }) {
 
   async function fetchCheckins() {
     setLoading(true)
+    setLoadError(null)
 
-    const { data: clients } = await supabase
+    const { data: clients, error: clientsError } = await supabase
       .from('clients')
       .select('id, name')
       .eq('provider_id', session.user.id)
 
+    if (clientsError) { setLoadError(clientsError.message); setCheckins([]); setLoading(false); return }
     if (!clients || clients.length === 0) { setCheckins([]); setLoading(false); return }
 
     const clientMap = {}
@@ -39,9 +42,8 @@ export default function CheckInHistory({ session }) {
       .order('checked_in_at', { ascending: false })
       .limit(200)
 
-    if (!error && data) {
-      setCheckins(data.map(c => ({ ...c, client_name: clientMap[c.client_id] || 'Unknown Client' })))
-    }
+    if (error) { setLoadError(error.message); setLoading(false); return }
+    setCheckins(data.map(c => ({ ...c, client_name: clientMap[c.client_id] || 'Unknown Client' })))
     setLoading(false)
   }
 
@@ -76,6 +78,12 @@ export default function CheckInHistory({ session }) {
       />
 
       {loading && <div style={{ color: TEXT_MUTED, fontSize: 15 }}>Loading check-ins...</div>}
+
+      {!loading && loadError && (
+        <div style={{ background: 'rgba(248,113,113,0.1)', border: '0.5px solid #f87171', borderRadius: 10, padding: '12px 16px', fontSize: 14, color: '#f87171', marginBottom: 16 }}>
+          Couldn't load check-ins: {loadError}. Click Refresh to try again.
+        </div>
+      )}
 
       {!loading && filtered.length === 0 && (
         <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 32, textAlign: 'center' }}>

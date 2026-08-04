@@ -108,6 +108,7 @@ export default function OrgAdmin({ session }) {
   const [itContactName, setItContactName] = useState('')
   const [itContactEmail, setItContactEmail] = useState('')
   const [savingItContact, setSavingItContact] = useState(false)
+  const [itContactError, setItContactError] = useState(null)
 
   useEffect(() => { fetchProfile() }, [])
 
@@ -130,6 +131,7 @@ export default function OrgAdmin({ session }) {
 
   async function saveItContact() {
     setSavingItContact(true)
+    setItContactError(null)
     const { error } = await supabase.from('profiles').update({
       it_contact_name: itContactName,
       it_contact_email: itContactEmail,
@@ -137,6 +139,8 @@ export default function OrgAdmin({ session }) {
     if (!error) {
       setProfile(p => ({ ...p, it_contact_name: itContactName, it_contact_email: itContactEmail }))
       setEditingItContact(false)
+    } else {
+      setItContactError('Could not save: ' + error.message)
     }
     setSavingItContact(false)
   }
@@ -204,6 +208,7 @@ export default function OrgAdmin({ session }) {
             <input type="email" value={itContactEmail} onChange={e => setItContactEmail(e.target.value)} placeholder="IT contact email"
               style={{ width: '100%', padding: 10, marginBottom: 10, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT, fontSize: 14 }} />
             <div style={{ display: 'flex', gap: 8 }}>
+              {itContactError && <div style={{ color: RED, fontSize: 13, marginBottom: 10 }}>{itContactError}</div>}
               <button onClick={saveItContact} disabled={savingItContact}
                 style={{ padding: '8px 16px', background: ACCENT, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, cursor: savingItContact ? 'not-allowed' : 'pointer' }}>
                 {savingItContact ? 'Saving...' : 'Save'}

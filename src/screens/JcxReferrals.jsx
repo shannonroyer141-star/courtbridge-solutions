@@ -53,7 +53,8 @@ export default function JcxReferrals({ session }) {
   }
 
   async function respond(id, status) {
-    await supabase.from('referrals').update({ status, responded_by: session.user.id, responded_at: new Date().toISOString() }).eq('id', id);
+    const { error: err } = await supabase.from('referrals').update({ status, responded_by: session.user.id, responded_at: new Date().toISOString() }).eq('id', id);
+    if (err) { setError('Could not update that referral: ' + err.message); return; }
     load();
   }
 
@@ -79,6 +80,8 @@ export default function JcxReferrals({ session }) {
         </button>
       </div>
       <p style={{ color: TEXT_MUTED, marginTop: 0, marginBottom: 20, fontSize: 14 }}>Send a client to another agency for a program or specialty you don't offer. Only what you write here is shared — nothing pulls from their record automatically.</p>
+
+      {error && !showForm && <div style={{ color: RED, fontSize: 13, marginBottom: 16 }}>{error}</div>}
 
       {showForm && (
         <div style={{ background: CARD_BG, border: `0.5px solid ${ACCENT}`, borderRadius: 12, padding: 20, marginBottom: 20 }}>

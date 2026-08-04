@@ -5,17 +5,20 @@ import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, BORDER, NAV_FON
 export default function Alerts({ session }) {
   const [alerts, setAlerts] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(null)
 
   useEffect(() => { fetchAlerts() }, [])
 
   async function fetchAlerts() {
     setLoading(true)
-    const { data: clients } = await supabase
+    setLoadError(null)
+    const { data: clients, error } = await supabase
       .from('clients')
-      .select('id, name, population_type')
+      .select('id, name, population_type, check_in_frequency_days')
       .eq('provider_id', session.user.id)
       .eq('status', 'active')
 
+    if (error) { setLoadError(error.message); setAlerts([]); setLoading(false); return }
     if (!clients || clients.length === 0) { setAlerts([]); setLoading(false); return }
 
     const missed = []
@@ -67,7 +70,13 @@ export default function Alerts({ session }) {
 
       {loading && <div style={{ color: TEXT_MUTED, fontSize: 15 }}>Loading alerts...</div>}
 
-      {!loading && alerts.length === 0 && (
+      {!loading && loadError && (
+        <div style={{ background: 'rgba(248,113,113,0.1)', border: `0.5px solid ${RED}`, borderRadius: 10, padding: '12px 16px', fontSize: 14, color: RED }}>
+          Couldn't load alerts: {loadError}. Click Refresh to try again — this list may not reflect who's actually missed a check-in right now.
+        </div>
+      )}
+
+      {!loading && !loadError && alerts.length === 0 && (
         <div style={{ background: 'rgba(76,175,125,0.1)', border: `0.5px solid ${GREEN}`, borderRadius: 12, padding: 32, textAlign: 'center' }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
           <div style={{ fontSize: 18, fontWeight: 600, color: GREEN }}>All participants are current</div>

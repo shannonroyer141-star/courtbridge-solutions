@@ -10,6 +10,7 @@ export function DemoProvider({ children }) {
   const [clientInfo, setClientInfo] = useState({ ...DEMO_CLIENT });
   const [checkins, setCheckins] = useState([]);
   const [branding, setBrandingState] = useState({ accentColor: '#1B3A6B', agencyName: '' });
+  const [lang, setLang] = useState('en');
 
   function signUpProvider(name, email) {
     setProviderInfo({ name, email });
@@ -61,6 +62,8 @@ export function DemoProvider({ children }) {
     clientInfo,
     checkins,
     branding,
+    lang,
+    setLang,
     complianceSummary: DEMO_COMPLIANCE_SUMMARY,
     signUpProvider,
     setBranding,

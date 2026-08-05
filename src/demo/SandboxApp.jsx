@@ -1,6 +1,40 @@
 import { useState } from 'react';
 import { DemoProvider, useDemo } from './DemoContext';
 import { DARK_BG, CARD_BG, SIDEBAR_BG, BLUE, ACCENT, GREEN, RED, WARNING, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { LANGUAGES } from '../i18n';
+
+// Real product supports English, Spanish, and Haitian Creole end-to-end --
+// this is a small demo-only copy of the onboarding steps so the sandbox can
+// showcase that without pulling in the full app's translation system.
+const ONBOARDING_COPY = {
+  en: {
+    stepLabel: (step) => `Step ${step} of 3 — Enrollment`,
+    intro: "You've been enrolled in a compliance program through your provider. This app will track your check-ins with GPS verification.",
+    location: 'We need permission to use your location only at the moment you check in — never tracked in the background.',
+    agree: 'By continuing, you agree to check in as scheduled. Your provider will see your compliance record.',
+    continueBtn: 'Continue',
+    allowBtn: 'Allow & Continue',
+    agreeBtn: 'I Agree — Complete Enrollment',
+  },
+  es: {
+    stepLabel: (step) => `Paso ${step} de 3 — Inscripción`,
+    intro: 'Ha sido inscrito en un programa de cumplimiento a través de su proveedor. Esta aplicación registrará sus check-ins con verificación GPS.',
+    location: 'Necesitamos permiso para usar su ubicación solo en el momento en que registra su check-in — nunca se rastrea en segundo plano.',
+    agree: 'Al continuar, usted acepta registrar su check-in según lo programado. Su proveedor verá su registro de cumplimiento.',
+    continueBtn: 'Continuar',
+    allowBtn: 'Permitir y Continuar',
+    agreeBtn: 'Acepto — Completar Inscripción',
+  },
+  ht: {
+    stepLabel: (step) => `Etap ${step} nan 3 — Enskripsyon`,
+    intro: 'Ou te enskri nan yon pwogram konfòmite atravè founisè ou. App sa a ap swiv chèk-in ou yo ak verifikasyon GPS.',
+    location: 'Nou bezwen pèmisyon pou itilize kote ou ye sèlman nan moman ou chèk-in — li pa janm swiv ou an background.',
+    agree: 'Lè ou kontinye, ou dakò pou chèk-in jan sa pwograme. Founisè ou ap wè dosye konfòmite ou.',
+    continueBtn: 'Kontinye',
+    allowBtn: 'Pèmèt & Kontinye',
+    agreeBtn: 'Mwen Dakò — Konplete Enskripsyon',
+  },
+};
 
 const FEEDBACK_EMAIL = 'info@courtbridgesolutions.com';
 
@@ -189,37 +223,62 @@ function ProviderDashboardDemo() {
   );
 }
 
+function LanguagePicker() {
+  const { lang, setLang } = useDemo();
+  return (
+    <div style={{ display: 'flex', gap: 6, justifyContent: 'center', marginBottom: 18 }}>
+      {Object.entries(LANGUAGES).map(([code, label]) => (
+        <button
+          key={code}
+          type="button"
+          onClick={() => setLang(code)}
+          style={{
+            padding: '6px 12px', borderRadius: 20, fontSize: 12, cursor: 'pointer', fontFamily: NAV_FONT,
+            border: lang === code ? `1px solid ${ACCENT}` : `0.5px solid ${BORDER}`,
+            background: lang === code ? 'rgba(91,155,240,0.12)' : 'transparent',
+            color: lang === code ? ACCENT : TEXT_MUTED,
+          }}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function ClientOnboardingDemo() {
-  const { clientInfo, completeOnboarding } = useDemo();
+  const { clientInfo, completeOnboarding, lang } = useDemo();
   const [step, setStep] = useState(1);
+  const c = ONBOARDING_COPY[lang] || ONBOARDING_COPY.en;
 
   return (
     <Shell>
       <Card>
-        <CardHeader title={`Welcome, ${clientInfo.name}`} subtitle={`Step ${step} of 3 — Enrollment`} />
+        <CardHeader title={`Welcome, ${clientInfo.name}`} subtitle={c.stepLabel(step)} />
         <div style={{ padding: '28px 32px' }}>
+          <LanguagePicker />
           {step === 1 && (
             <>
               <div style={{ fontSize: 14, color: TEXT_MUTED, marginBottom: 20, lineHeight: 1.6 }}>
-                You've been enrolled in a compliance program through your provider. This app will track your check-ins with GPS verification.
+                {c.intro}
               </div>
-              <Button onClick={() => setStep(2)}>Continue</Button>
+              <Button onClick={() => setStep(2)}>{c.continueBtn}</Button>
             </>
           )}
           {step === 2 && (
             <>
               <div style={{ fontSize: 14, color: TEXT_MUTED, marginBottom: 20, lineHeight: 1.6 }}>
-                We need permission to use your location only at the moment you check in — never tracked in the background.
+                {c.location}
               </div>
-              <Button onClick={() => setStep(3)}>Allow &amp; Continue</Button>
+              <Button onClick={() => setStep(3)}>{c.allowBtn}</Button>
             </>
           )}
           {step === 3 && (
             <>
               <div style={{ fontSize: 14, color: TEXT_MUTED, marginBottom: 20, lineHeight: 1.6 }}>
-                By continuing, you agree to check in as scheduled. Your provider will see your compliance record.
+                {c.agree}
               </div>
-              <Button onClick={completeOnboarding}>I Agree — Complete Enrollment</Button>
+              <Button onClick={completeOnboarding}>{c.agreeBtn}</Button>
             </>
           )}
         </div>

@@ -466,9 +466,12 @@ export default function App() {
         flexDirection: 'column',
       }} className="sidebar">
 
-        <div style={{ padding: '15px 16px 13px', borderBottom: `0.5px solid ${BORDER}` }}>
-          <div style={{ color: TEXT, fontSize: 15, fontWeight: 700, letterSpacing: '-0.3px' }}>CourtBridge</div>
-          <div style={{ color: TEXT_MUTED, fontSize: 11, marginTop: 1 }}>Provider Platform</div>
+        <div style={{ padding: '13px 16px', borderBottom: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <img src="/cb-logo.png" alt="CourtBridge Solutions" style={{ height: 32, width: 'auto', flexShrink: 0 }} />
+          <div>
+            <div style={{ color: TEXT, fontSize: 15, fontWeight: 700, letterSpacing: '-0.3px' }}>CourtBridge</div>
+            <div style={{ color: TEXT_MUTED, fontSize: 11, marginTop: 1 }}>Provider Platform</div>
+          </div>
         </div>
 
         <div style={{ flex: 1, paddingTop: 8, paddingBottom: 8 }}>

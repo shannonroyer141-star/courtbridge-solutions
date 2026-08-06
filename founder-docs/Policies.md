@@ -1,4 +1,4 @@
-<!-- Backup mirror of the live founder_docs.policies row. The app reads from Supabase, not this file — edit in-app (Founder Docs screen), then re-sync here. Last synced 2026-07-31. -->
+<!-- Backup mirror of the live founder_docs.policies row. The app reads from Supabase, not this file — edit in-app (Founder Docs screen), then re-sync here. Last synced 2026-08-06. -->
 
 # Policies
 DRAFT, written by Claude at Shannon's direction 2026-07-31. Not reviewed by an attorney or compliance specialist -- read alongside Legal & Compliance Notes before treating this as final or official.
@@ -7,7 +7,7 @@ DRAFT, written by Claude at Shannon's direction 2026-07-31. Not reviewed by an a
 - Every client record (compliance history, GPS check-in points, and sensitive categories like drug tests, CPS involvement, or mental health program enrollment) is confidential. Staff may only access what their role actually requires -- the platform enforces this at the account level (role-based access, the Sensitive Records section is restricted).
 - Do not discuss a specific client outside documented, work-related channels (in-app notes, official meetings). Never over personal text, email, or casual conversation -- even with a coworker who "already knows" the client.
 - Location data is captured only at the moment a client taps Check In/Check Out. Never represent this to a client, court, or funder as continuous tracking -- it isn't.
-- Staff accounts are individual, never shared. If someone leaves the organization, deactivate their account the same day.
+- Staff accounts are individual, never shared. If someone leaves the organization, deactivate their account the same day. (2026-08-06: confirmed this is enforced at the database level, not just hidden in the UI -- a deactivated or non-admin account cannot reactivate or promote itself even via a direct API call. Tested and verified, not just assumed.)
 
 ## 2. Response Time Standards
 - Urgent client messages (flagged "Mark Urgent"): respond within [Shannon to set a real target -- e.g. same business day, or within 1 hour during business hours]. This is the platform's core safety commitment -- treat it as higher priority than routine work.

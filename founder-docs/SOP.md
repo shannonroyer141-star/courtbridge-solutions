@@ -1,4 +1,4 @@
-<!-- Backup mirror of the live founder_docs.sop row. The app reads from Supabase, not this file — edit in-app (Founder Docs screen), then re-sync here. Last synced 2026-07-30. -->
+<!-- Backup mirror of the live founder_docs.sop row. The app reads from Supabase, not this file — edit in-app (Founder Docs screen), then re-sync here. Last synced 2026-08-06. -->
 
 # Standard Operating Procedures
 DRAFT, review before relying on this
@@ -34,3 +34,7 @@ DRAFT, review before relying on this
    - All designs print in true landscape and pull the provider's own organization name automatically -- no hardcoded branding.
    - Default is Navy & Gold Classic if they don't choose. The design is saved per certificate, so past certificates always reprint the way they were issued even if the provider picks a different one next time.
    - Full custom branding (their own logo/colors) is planned but not built yet -- for now it's a pick-from-library choice, not true customization.
+
+8. WHERE THE PLATFORM ACTUALLY LIVES
+   - As of 2026-08-06, the entire platform is backed up in the GitHub repo -- not just the app code (which was always there), but also the full database schema (every migration, as real files) and all 5 backend functions (send-email, send-invite, send-sms, create-checkout-session, stripe-webhook). Before this, half the platform only existed inside Supabase with no copy anywhere else -- a real single point of failure that's now closed.
+   - Deploys happen automatically on every push to master via GitHub Actions. If a deploy ever fails, check whether it's a real code problem or an outage on GitHub's own side (githubstatus.com) before assuming something's broken -- confirmed this happened for real on 2026-08-06.

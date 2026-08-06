@@ -622,8 +622,8 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
   const todaysCheckin = syncedTodaysCheckin
   const checkedOutToday = !!todaysCheckin?.checked_out_at
   const hasUnsyncedCheckins = pendingCheckins.some(p => p.client_id === client?.id)
-  const sessionMinutes = (todaysCheckin?.checked_in_at && todaysCheckin?.checked_out_at)
-    ? Math.round((new Date(todaysCheckin.checked_out_at) - new Date(todaysCheckin.checked_in_at)) / 60000)
+  const checkedOutTime = todaysCheckin?.checked_out_at
+    ? new Date(todaysCheckin.checked_out_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
     : null
   const streak = checkIns.reduce((acc, ci, i, arr) => {
     if (i === 0) return 1
@@ -1149,7 +1149,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                     opacity: checkingOut ? 0.7 : 1,
                   }}
                 >
-                  {checkingOut ? t('dashboard', 'home').gettingLocation : checkedOutToday ? t('dashboard', 'home').checkedOutLabel(Math.floor(sessionMinutes / 60), sessionMinutes % 60) : `${t('dashboard', 'home').checkOutButton} 📍`}
+                  {checkingOut ? t('dashboard', 'home').gettingLocation : checkedOutToday ? t('dashboard', 'home').checkedOutLabel(checkedOutTime) : `${t('dashboard', 'home').checkOutButton} 📍`}
                 </div>
               )}
             </div>

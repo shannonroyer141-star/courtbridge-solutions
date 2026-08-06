@@ -1096,6 +1096,12 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
         })()}
 
         {activeTab === 'dashboard' && <>
+        {/* Affirmation */}
+        <div style={{ margin: '14px 22px 0', background: CARD_BG, borderRadius: 8, padding: '13px 14px', border: `0.5px solid rgba(91,155,240,0.15)` }}>
+          <div style={{ fontSize: 10, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>{t('dashboard', 'home').affirmationLabel}</div>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5, fontStyle: 'italic' }}>"{affirmation}"</div>
+        </div>
+
         {pendingFormsCount > 0 && (
           <div onClick={() => setActiveTab('forms')} style={{ margin: '16px 22px 0', background: 'rgba(61,111,168,0.1)', border: `0.5px solid rgba(61,111,168,0.3)`, borderRadius: 10, padding: '12px 16px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ fontSize: 13, color: TEXT }}>
@@ -1171,12 +1177,6 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
           <StatCard label={t('dashboard', 'home').statCompliance} value={`${complianceRate}%`} sub={t('dashboard', 'home').statAllTime} valueColor={GREEN} />
           <StatCard label={t('dashboard', 'home').statCheckinsMonth} value={checkIns.length} sub={checkedInToday ? t('dashboard', 'home').statIncludingToday : t('dashboard', 'home').statNotYetToday} valueColor={ACCENT} />
           <StatCard label={t('dashboard', 'home').statNextAppt} value={nextApptLabel || '—'} sub={nextApptSub} valueColor={nextApptDate ? WARNING : TEXT_MUTED} />
-        </div>
-
-        {/* Affirmation */}
-        <div style={{ margin: '14px 22px 0', background: CARD_BG, borderRadius: 8, padding: '13px 14px', border: `0.5px solid rgba(91,155,240,0.15)` }}>
-          <div style={{ fontSize: 10, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>{t('dashboard', 'home').affirmationLabel}</div>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5, fontStyle: 'italic' }}>"{affirmation}"</div>
         </div>
 
         {/* Safety note — CATCH only */}

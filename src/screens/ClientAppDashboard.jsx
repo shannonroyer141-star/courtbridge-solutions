@@ -625,6 +625,9 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
   const checkedOutTime = todaysCheckin?.checked_out_at
     ? new Date(todaysCheckin.checked_out_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
     : null
+  const checkedInTime = (todaysCheckin || pendingTodaysCheckin)?.checked_in_at
+    ? new Date((todaysCheckin || pendingTodaysCheckin).checked_in_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+    : null
   const streak = checkIns.reduce((acc, ci, i, arr) => {
     if (i === 0) return 1
     const diff = (new Date(arr[i - 1].checked_in_at) - new Date(ci.checked_in_at)) / 86400000
@@ -699,11 +702,14 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
           borderRight: `0.5px solid rgba(255,255,255,0.08)`,
           zIndex: 10,
         }}>
-          {/* Toggle button */}
+          {/* Logo + toggle button */}
           <div style={{
-            height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            height: 56, display: 'flex', alignItems: 'center',
+            justifyContent: showLabels ? 'space-between' : 'center',
+            padding: showLabels ? '0 6px 0 14px' : 0,
             flexShrink: 0, borderBottom: `0.5px solid rgba(255,255,255,0.06)`,
           }}>
+            {showLabels && <img src="/cb-logo.png" alt="CourtBridge Solutions" style={{ height: 24, width: 'auto' }} />}
             <div
               onClick={toggleSidebar}
               style={{
@@ -765,12 +771,9 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
       {/* MAIN */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
-        <div style={{ padding: '20px 22px 0', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          <div>
-            <div style={{ fontSize: 19, fontWeight: 500, color: TEXT }}>{getGreeting()}, {firstName}</div>
-            <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 3 }}>{today} · Day {daysEnrolled} of your program</div>
-          </div>
-          <div style={{ width: 32, height: 32, borderRadius: '50%', background: CARD_BG, border: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, color: TEXT_MUTED }}>🔔</div>
+        <div style={{ padding: '20px 22px 0' }}>
+          <div style={{ fontSize: 19, fontWeight: 500, color: TEXT }}>{getGreeting()}, {firstName}</div>
+          <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 3 }}>{today} · Day {daysEnrolled} of your program</div>
         </div>
 
         {activeTab === 'documents' && (
@@ -1141,7 +1144,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
                   opacity: checkingIn ? 0.7 : 1,
                 }}
               >
-                {checkingIn ? t('dashboard', 'home').gettingLocation : checkedInToday ? t('dashboard', 'home').checkedInTodayLabel : `${pop.checkInLabel} 📍`}
+                {checkingIn ? t('dashboard', 'home').gettingLocation : checkedInToday ? t('dashboard', 'home').checkedInTodayLabel(checkedInTime) : `${pop.checkInLabel} 📍`}
               </div>
               {syncedTodaysCheckin && (
                 <div

@@ -23,3 +23,9 @@ DRAFT, written by Claude at Shannon's direction 2026-07-31. Not reviewed by an a
 
 ## 4. Record Retention
 - Not yet decided. How long check-in/compliance data should be kept (and when/whether it's ever deleted) depends on state law and individual program/funder requirements, which haven't been researched yet. Do not delete client history without a real answer here first -- when in doubt, keep it. Needs a real decision from Shannon (and likely a quick legal check), not a guess.
+
+## 5. Victim Information Prohibition
+- CourtBridge is not a victim-services system and must never create victim profiles or knowingly collect, store, process, display, export, or transmit victim-identifying information (names, contact info, addresses, locations, safety plans, medical/behavioral-health info, or info about a victim's children/household members).
+- Participant records are limited to the participant's own program requirements, attendance, compliance, completion, and authorized administrative info.
+- If victim information is submitted by mistake, it gets flagged Restricted, hidden from ordinary users immediately, and reviewed by an authorized privacy administrator -- never auto-deleted, in case of a legal-preservation requirement.
+- Every notes field and document upload in the app shows a standing warning against entering victim information; uploads require an explicit reviewed-and-redacted confirmation before they're allowed to complete.

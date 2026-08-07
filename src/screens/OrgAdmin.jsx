@@ -193,6 +193,31 @@ export default function OrgAdmin({ session }) {
         </div>
       </div>
 
+      {/* VICTIM INFORMATION PROHIBITION */}
+      <div style={{ background: 'rgba(248,113,113,0.08)', border: `0.5px solid ${RED}`, borderRadius: 12, padding: '18px 24px', marginBottom: 32 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: RED, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 8 }}>Victim Information Prohibition</div>
+        <div style={{ fontSize: 14, color: TEXT, lineHeight: 1.7 }}>
+          CourtBridge Solutions is a compliance and program-coordination platform for court-ordered program participants and authorized organizations. CourtBridge is not a victim-services system and does not create, maintain, or process victim profiles.
+          <br /><br />
+          Users must not enter, upload, transmit, or store information that identifies or could reasonably identify an alleged or confirmed victim or survivor.
+          <br /><br />
+          <strong>Prohibited information includes:</strong>
+          <ul style={{ margin: '8px 0', paddingLeft: 22 }}>
+            <li>Names, initials, photographs, or identifying descriptions</li>
+            <li>Home, work, school, shelter, or temporary addresses</li>
+            <li>Telephone numbers, email addresses, or social-media information</li>
+            <li>Current or historical location information</li>
+            <li>Safety plans, protective measures, or shelter information</li>
+            <li>Medical, counseling, or behavioral-health information</li>
+            <li>Information concerning children or other protected household members</li>
+            <li>Documents or narrative notes containing victim-identifying information</li>
+          </ul>
+          Participant records must be limited to the participant's program requirements, attendance, compliance, completion status, and other authorized administrative information.
+          <br /><br />
+          If victim-identifying information is submitted inadvertently, CourtBridge Solutions will restrict access to the information and follow its incident-review and secure-removal procedures, subject to applicable legal-preservation requirements. The submitting organization may be required to provide a properly redacted replacement.
+        </div>
+      </div>
+
       {/* IT CONTACT */}
       <div style={{ background: 'rgba(91,155,240,0.1)', border: `0.5px solid ${ACCENT}`, borderRadius: 12, padding: '18px 24px', marginBottom: 32 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>

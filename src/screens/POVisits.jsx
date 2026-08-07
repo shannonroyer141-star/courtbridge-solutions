@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from '../theme';
-import { NotesWarning } from '../components/VictimInfoWarning';
+import { NotesWarning, FlagRestrictedButton } from '../components/VictimInfoWarning';
 
 export default function POVisits() {
   const [visits, setVisits] = useState([]);
@@ -89,7 +89,10 @@ export default function POVisits() {
                 <p style={{ margin: '3px 0 0', fontSize: 13, color: TEXT_MUTED }}>{v.visit_date ? new Date(v.visit_date).toLocaleDateString() : ''}</p>
                 {v.po_name && <p style={{ margin: '3px 0 0', fontSize: 13, color: TEXT_MUTED }}>PO: {v.po_name}</p>}
               </div>
-              <span style={{ padding: '5px 12px', borderRadius: 20, fontSize: 12, fontWeight: 'bold', background: s.bg, color: s.color }}>{s.label}</span>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+                <span style={{ padding: '5px 12px', borderRadius: 20, fontSize: 12, fontWeight: 'bold', background: s.bg, color: s.color }}>{s.label}</span>
+                <FlagRestrictedButton tableName="po_visits" recordId={v.id} clientId={v.client_id} onFlagged={fetchVisits} />
+              </div>
             </div>
           </div>
         );

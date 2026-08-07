@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from '../theme';
-import { NotesWarning } from '../components/VictimInfoWarning';
+import { NotesWarning, FlagRestrictedButton } from '../components/VictimInfoWarning';
 
 export default function MeetingLog() {
   const [meetings, setMeetings] = useState([]);
@@ -87,6 +87,7 @@ export default function MeetingLog() {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
               <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 'bold', background: m.verified ? 'rgba(76,175,125,0.15)' : 'rgba(61,111,168,0.15)', color: m.verified ? GREEN : WARNING }}>{m.verified ? '✅ Verified' : '⏳ Pending'}</span>
               {!m.verified && <button onClick={() => toggleVerified(m)} style={{ padding: '5px 12px', background: ACCENT, color: 'white', border: 'none', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>Mark Verified</button>}
+              <FlagRestrictedButton tableName="meeting_log" recordId={m.id} clientId={m.client_id} onFlagged={fetchMeetings} />
             </div>
           </div>
         </div>

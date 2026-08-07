@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { syncClientBilling } from '../billing';
 import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
-import { NotesWarning } from '../components/VictimInfoWarning';
+import { NotesWarning, FlagRestrictedButton } from '../components/VictimInfoWarning';
 
 export default function ClientProfile({ clientId, onNavigate }) {
   const [client, setClient] = useState(null);
@@ -358,7 +358,10 @@ export default function ClientProfile({ clientId, onNavigate }) {
                           </div>
                           <div style={{ fontSize: 13, color: TEXT }}>{n.content}</div>
                         </div>
-                        <button onClick={() => deleteProgressNote(n.id)} style={{ background: 'none', border: 'none', color: RED, fontSize: 11, cursor: 'pointer', whiteSpace: 'nowrap' }}>Delete</button>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+                          <button onClick={() => deleteProgressNote(n.id)} style={{ background: 'none', border: 'none', color: RED, fontSize: 11, cursor: 'pointer', whiteSpace: 'nowrap' }}>Delete</button>
+                          <FlagRestrictedButton tableName="client_progress_notes" recordId={n.id} clientId={clientId} onFlagged={fetchAll} />
+                        </div>
                       </div>
                     ))
                   )}
@@ -423,7 +426,10 @@ export default function ClientProfile({ clientId, onNavigate }) {
                     </div>
                     <div style={{ fontSize: 14, color: TEXT }}>{n.content}</div>
                   </div>
-                  <button onClick={() => deleteProgressNote(n.id)} style={{ background: 'none', border: 'none', color: RED, fontSize: 12, cursor: 'pointer', whiteSpace: 'nowrap' }}>Delete</button>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+                    <button onClick={() => deleteProgressNote(n.id)} style={{ background: 'none', border: 'none', color: RED, fontSize: 12, cursor: 'pointer', whiteSpace: 'nowrap' }}>Delete</button>
+                    <FlagRestrictedButton tableName="client_progress_notes" recordId={n.id} clientId={clientId} onFlagged={fetchAll} />
+                  </div>
                 </div>
               ))
             )}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
-import { NotesWarning } from '../components/VictimInfoWarning';
+import { NotesWarning, FlagRestrictedButton } from '../components/VictimInfoWarning';
 
 export default function JcxReferrals({ session }) {
   const [referrals, setReferrals] = useState([]);
@@ -126,6 +126,7 @@ export default function JcxReferrals({ session }) {
               <button onClick={() => respond(r.id, 'declined')} style={{ padding: '7px 14px', background: 'rgba(248,113,113,0.12)', color: RED, border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Decline</button>
             </div>
           )}
+          <div style={{ marginTop: 8 }}><FlagRestrictedButton tableName="referrals" recordId={r.id} onFlagged={load} /></div>
         </div>
       ))}
 
@@ -137,6 +138,7 @@ export default function JcxReferrals({ session }) {
             <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 20, background: 'rgba(255,255,255,0.06)', color: statusColor[r.status] }}>{r.status.toUpperCase()}</span>
           </div>
           <div style={{ fontSize: 13, color: TEXT_MUTED, marginTop: 8 }}>{r.reason}</div>
+          <div style={{ marginTop: 8 }}><FlagRestrictedButton tableName="referrals" recordId={r.id} onFlagged={load} /></div>
         </div>
       ))}
     </div>

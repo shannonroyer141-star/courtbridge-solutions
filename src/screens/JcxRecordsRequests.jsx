@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { FlagRestrictedButton } from '../components/VictimInfoWarning';
 
 export default function JcxRecordsRequests({ session }) {
   const [requests, setRequests] = useState([]);
@@ -74,6 +75,7 @@ export default function JcxRecordsRequests({ session }) {
               Deny
             </button>
           </div>
+          <div style={{ marginTop: 8 }}><FlagRestrictedButton tableName="records_access_requests" recordId={r.id} clientId={r.client_id} onFlagged={load} /></div>
         </div>
       ))}
 

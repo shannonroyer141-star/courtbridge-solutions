@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
-import { NotesWarning } from '../components/VictimInfoWarning';
+import { NotesWarning, FlagRestrictedButton } from '../components/VictimInfoWarning';
 
 const inputStyle = { padding: 12, marginBottom: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT, fontSize: 14, width: '100%' };
 const labelStyle = { fontSize: 12, color: TEXT_MUTED, marginBottom: 4, display: 'block' };
@@ -318,6 +318,7 @@ export default function CourtReporting() {
                 </div>
                 <div style={{ fontSize: 12.5, color: TEXT_MUTED, marginTop: 4 }}>{r.attendance_status}{r.units ? ` • ${r.units} unit(s)` : ''}{r.new_offense_reported ? ' • New offense reported' : ''}</div>
                 {r.event_notes && <div style={{ fontSize: 12.5, color: TEXT_DIM, marginTop: 3 }}>{r.event_notes}</div>}
+                <div style={{ marginTop: 6 }}><FlagRestrictedButton tableName="service_records" recordId={r.id} clientId={clientId} onFlagged={() => fetchClientData(clientId)} /></div>
               </div>
             ))}
           </div>

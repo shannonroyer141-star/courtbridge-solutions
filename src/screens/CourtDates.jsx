@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
-import { NotesWarning } from '../components/VictimInfoWarning';
+import { NotesWarning, FlagRestrictedButton } from '../components/VictimInfoWarning';
 
 export default function CourtDates() {
   const [hearings, setHearings] = useState([]);
@@ -94,6 +94,7 @@ export default function CourtDates() {
                   <p style={{ margin: '2px 0 0', fontSize: 11, color: TEXT_DIM }}>away</p>
                 </div>
               </div>
+              <div style={{ marginTop: 8, textAlign: 'right' }}><FlagRestrictedButton tableName="court_dates" recordId={h.id} clientId={h.client_id} onFlagged={fetchHearings} /></div>
             </div>
           ))}
         </div>
@@ -105,6 +106,7 @@ export default function CourtDates() {
             <div key={h.id} style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 10, padding: 14, marginBottom: 8, opacity: 0.8 }}>
               <p style={{ margin: 0, fontWeight: 'bold', color: TEXT_MUTED }}>{h.clients?.name}</p>
               <p style={{ margin: '3px 0 0', fontSize: 13, color: TEXT_DIM }}>{h.hearing_type} — {new Date(h.hearing_date).toLocaleDateString()}</p>
+              <div style={{ marginTop: 6 }}><FlagRestrictedButton tableName="court_dates" recordId={h.id} clientId={h.client_id} onFlagged={fetchHearings} /></div>
             </div>
           ))}
         </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, GREEN, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
-import { NotesWarning } from '../components/VictimInfoWarning';
+import { NotesWarning, FlagRestrictedButton } from '../components/VictimInfoWarning';
 
 export default function ContactLog() {
   const [logs, setLogs] = useState([]);
@@ -79,6 +79,7 @@ export default function ContactLog() {
           </div>
           {l.summary && <p style={{ margin: '8px 0 0', fontSize: 14, color: TEXT }}>{l.summary}</p>}
           {l.outcome && <p style={{ margin: '4px 0 0', fontSize: 13, color: GREEN }}>→ {l.outcome}</p>}
+          <div style={{ marginTop: 8 }}><FlagRestrictedButton tableName="contact_log" recordId={l.id} clientId={l.client_id} onFlagged={fetchLogs} /></div>
         </div>
       ))}
     </div>

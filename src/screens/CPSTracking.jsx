@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from '../theme';
-import { NotesWarning } from '../components/VictimInfoWarning';
+import { NotesWarning, FlagRestrictedButton } from '../components/VictimInfoWarning';
 
 export default function CPSTracking() {
   const [cases, setCases] = useState([]);
@@ -106,7 +106,10 @@ export default function CPSTracking() {
                 {c.case_worker_name && <p style={{ margin: '3px 0 0', fontSize: 13, color: TEXT_MUTED }}>CW: {c.case_worker_name}</p>}
                 {c.next_hearing_date && <p style={{ margin: '3px 0 0', fontSize: 13, color: RED, fontWeight: 'bold' }}>Next Hearing: {new Date(c.next_hearing_date).toLocaleDateString()}</p>}
               </div>
-              <span style={{ padding: '5px 12px', borderRadius: 20, fontSize: 12, fontWeight: 'bold', background: s.bg, color: s.color }}>{s.label}</span>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+                <span style={{ padding: '5px 12px', borderRadius: 20, fontSize: 12, fontWeight: 'bold', background: s.bg, color: s.color }}>{s.label}</span>
+                <FlagRestrictedButton tableName="cps_cases" recordId={c.id} clientId={c.client_id} onFlagged={fetchCases} />
+              </div>
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {c.reunification_goal && <span style={{ background: 'rgba(91,155,240,0.15)', color: ACCENT, padding: '3px 10px', borderRadius: 20, fontSize: 11 }}>Reunification Goal</span>}

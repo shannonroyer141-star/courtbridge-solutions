@@ -1,4 +1,6 @@
-import { RED, TEXT, NAV_FONT } from '../theme';
+import { useState } from 'react';
+import { supabase } from '../supabase';
+import { RED, TEXT, TEXT_MUTED, NAV_FONT } from '../theme';
 
 const warningBox = {
   background: 'rgba(248,113,113,0.1)',
@@ -38,5 +40,32 @@ export function UploadConfirmCheckbox({ checked, onChange }) {
       <input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} style={{ marginTop: 2, flexShrink: 0 }} />
       <span>I confirm that this document has been reviewed and does not contain victim-identifying information, victim contact information, protected locations, safety information, or information identifying a victim's children or household members.</span>
     </label>
+  );
+}
+
+// Section 6: lets whoever can currently see a record flag it as suspected victim
+// information. Sets restricted = true on the source row (RLS then hides it from
+// ordinary users immediately) and logs the flag for an authorized privacy admin to review.
+export function FlagRestrictedButton({ tableName, recordId, clientId, onFlagged }) {
+  const [flagging, setFlagging] = useState(false);
+  const [flagged, setFlagged] = useState(false);
+
+  async function handleFlag() {
+    const reason = window.prompt('Briefly describe why this record may contain victim information (optional):') || null;
+    if (reason === null && !window.confirm('Flag this record as restricted without a reason?')) return;
+    setFlagging(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase.from('victim_info_flags').insert([{ table_name: tableName, record_id: recordId, client_id: clientId || null, flagged_by: user.id, reason }]);
+    const { error } = await supabase.from(tableName).update({ restricted: true }).eq('id', recordId);
+    setFlagging(false);
+    if (!error) { setFlagged(true); onFlagged?.(); }
+  }
+
+  if (flagged) return <span style={{ fontSize: 11, color: RED, fontFamily: NAV_FONT }}>Restricted — pending review</span>;
+
+  return (
+    <button onClick={handleFlag} disabled={flagging} style={{ background: 'none', border: 'none', color: TEXT_MUTED, fontSize: 11, cursor: 'pointer', fontFamily: NAV_FONT, padding: 0, textDecoration: 'underline' }}>
+      {flagging ? 'Flagging...' : '🚩 Flag as possible victim information'}
+    </button>
   );
 }

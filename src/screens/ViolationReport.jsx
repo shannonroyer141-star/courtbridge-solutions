@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
-import { NotesWarning } from '../components/VictimInfoWarning';
+import { NotesWarning, FlagRestrictedButton } from '../components/VictimInfoWarning';
 
 function escapeHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -145,6 +145,7 @@ export default function ViolationReport() {
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
                 <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 'bold', background: s.bg, color: s.color }}>{r.status.toUpperCase()}</span>
                 <button onClick={() => printReport(r)} style={{ padding: '5px 12px', background: ACCENT, color: 'white', border: 'none', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>🖨️ Print</button>
+                <FlagRestrictedButton tableName="violation_reports" recordId={r.id} clientId={r.client_id} onFlagged={fetchReports} />
               </div>
             </div>
             <p style={{ margin: 0, fontSize: 13, color: TEXT_MUTED }}>{r.description?.substring(0, 150)}{r.description?.length > 150 ? '...' : ''}</p>

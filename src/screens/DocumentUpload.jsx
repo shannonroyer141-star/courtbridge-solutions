@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, ACCENT, GREEN, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
-import { NotesWarning, UploadWarning, UploadConfirmCheckbox } from '../components/VictimInfoWarning';
+import { NotesWarning, UploadWarning, UploadConfirmCheckbox, FlagRestrictedButton } from '../components/VictimInfoWarning';
 
 const DOC_TYPES = ['Court Order', 'Signed Agreement', 'Drug Test Lab Result', 'Meeting Slip', 'Intake Form', 'Discharge Summary', 'Violation Report', 'Compliance Report', 'ID / Documentation', 'Other'];
 
@@ -131,9 +131,12 @@ export default function DocumentUpload({ clientId }) {
               {d.notes && <p style={{ margin: '4px 0 0', fontSize: 12, color: TEXT_MUTED }}>{d.notes}</p>}
             </div>
           </div>
-          {d.file_url && (
-            <button onClick={() => viewDocument(d)} style={{ padding: '8px 16px', background: ACCENT, color: 'white', border: 'none', borderRadius: 8, fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap' }}>View</button>
-          )}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+            {d.file_url && (
+              <button onClick={() => viewDocument(d)} style={{ padding: '8px 16px', background: ACCENT, color: 'white', border: 'none', borderRadius: 8, fontSize: 13, cursor: 'pointer', whiteSpace: 'nowrap' }}>View</button>
+            )}
+            <FlagRestrictedButton tableName="documents" recordId={d.id} clientId={d.client_id} onFlagged={fetchDocuments} />
+          </div>
         </div>
       ))}
     </div>

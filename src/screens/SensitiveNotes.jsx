@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
-import { NotesWarning } from '../components/VictimInfoWarning';
+import { NotesWarning, FlagRestrictedButton } from '../components/VictimInfoWarning';
 
 const TYPES = {
   case_note: { label: 'Case Note', table: 'case_notes', ownerField: 'provider_id', color: '#5B9BF0' },
@@ -99,7 +99,10 @@ export default function SensitiveNotes() {
           <p style={{ margin: 0, fontWeight: 'bold', color: TEXT }}>{e.clients?.name || 'Unknown'}</p>
           {e.title && <p style={{ margin: '3px 0 0', fontWeight: 600, color: TEXT }}>{e.title}</p>}
           <p style={{ margin: '6px 0 0', fontSize: 14, color: TEXT, whiteSpace: 'pre-wrap' }}>{e.content}</p>
-          <p style={{ margin: '8px 0 0', fontSize: 12, color: TEXT_DIM }}>{e.entry_date ? new Date(e.entry_date).toLocaleDateString() : ''}</p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+            <p style={{ margin: 0, fontSize: 12, color: TEXT_DIM }}>{e.entry_date ? new Date(e.entry_date).toLocaleDateString() : ''}</p>
+            <FlagRestrictedButton tableName={TYPES[type].table} recordId={e.id} clientId={e.client_id} onFlagged={fetchEntries} />
+          </div>
         </div>
       ))}
     </div>

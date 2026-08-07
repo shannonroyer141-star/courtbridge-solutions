@@ -38,6 +38,7 @@ import Messages from './screens/Messages';
 import ClientInvite from './screens/ClientInvite';
 import ViolationReport from './screens/ViolationReport';
 import CourtReporting from './screens/CourtReporting';
+import VictimInfoReview from './screens/VictimInfoReview';
 import FounderDocs from './screens/FounderDocs';
 import BusinessOrganizer from './screens/BusinessOrganizer';
 import ProviderOnboarding from './screens/ProviderOnboarding';
@@ -320,6 +321,7 @@ export default function App() {
       case 'clientinvite': return <ClientInvite session={session} />;
       case 'violationreport': return <ViolationReport session={session} />;
       case 'courtreporting': return <CourtReporting session={session} />;
+      case 'victiminforeview': return <VictimInfoReview session={session} />;
       case 'founderdocs': return <FounderDocs session={session} />;
       case 'businessorganizer': return <BusinessOrganizer session={session} />;
       case 'provideronboarding': return <ProviderOnboarding session={session} />;
@@ -556,6 +558,11 @@ export default function App() {
           <div style={navItem('courtreporting')} onClick={() => navTo('courtreporting')}>
             <Ic d={ICONS.compliance} /><span>Court Reporting</span>
           </div>
+          {(isOrgAdmin || isFounder) && (
+            <div style={navItem('victiminforeview')} onClick={() => navTo('victiminforeview')}>
+              <Ic d={ICONS.admin} /><span>Victim Info Review</span>
+            </div>
+          )}
 
           <div style={divider} />
 

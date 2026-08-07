@@ -154,23 +154,19 @@ export default function CourtReporting() {
       <style>body{font-family:Arial,sans-serif;padding:40px;max-width:750px;margin:0 auto;}h1{color:#1B3A6B;border-bottom:3px solid #1B3A6B;padding-bottom:12px;font-size:20px;}h2{color:#1B3A6B;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;margin-top:22px;}.field{margin-bottom:8px;}.label{font-weight:bold;color:#555;font-size:12.5px;}.val{color:#222;font-size:14px;}table{width:100%;border-collapse:collapse;margin-top:8px;}th,td{border:1px solid #ddd;padding:6px 8px;font-size:12.5px;text-align:left;}th{background:#f2f2f2;}.footer{margin-top:36px;padding-top:14px;border-top:1px solid #ddd;font-size:11px;color:#888;}.note{background:#eef4fb;border-left:4px solid #1B3A6B;padding:10px 14px;font-size:12px;color:#333;margin:16px 0;}</style>
       </head><body>
       <h1>Participant Compliance Summary</h1>
-      <div class="note">Prepared by CourtBridge Solutions. Internal provider record — not an official OSCA submission or certification of compliance.</div>
+      <div class="note">Prepared by CourtBridge Solutions. Internal provider record — not an official OSCA submission or certification of compliance. Limited to enrollment, attendance, requirements completed, compliance status, and discharge status — no participant history, offense, or personal-status detail is included.</div>
       <div class="field"><span class="label">Generated: </span><span class="val">${new Date().toLocaleString()}</span></div>
       <div class="field"><span class="label">Participant: </span><span class="val">${escapeHtml(client.name)}</span></div>
-      <h2>Program Entry</h2>
-      <div class="field"><span class="label">Referral Source: </span><span class="val">${escapeHtml(client.referral_source) || '—'}</span></div>
-      <div class="field"><span class="label">Primary Offense: </span><span class="val">${escapeHtml(client.primary_offense) || '—'}</span></div>
-      <div class="field"><span class="label">Screening Result: </span><span class="val">${escapeHtml(client.screening_result) || '—'}</span></div>
-      <div class="field"><span class="label">Eligibility Determination: </span><span class="val">${escapeHtml(client.eligibility_determination) || '—'}</span></div>
-      <div class="field"><span class="label">Employment / Housing / Custody at Admission: </span><span class="val">${escapeHtml(client.employment_status_admission) || '—'} / ${escapeHtml(client.housing_status_admission) || '—'} / ${escapeHtml(client.custody_status_admission) || '—'}</span></div>
-      <h2>Court Orders</h2>
-      <table><tr><th>Order</th><th>Court/Program Type</th><th>Status</th><th>Termination Reason</th></tr>
-      ${programs.map(p => `<tr><td>${escapeHtml(p.order_name)}</td><td>${escapeHtml(COURT_TYPE_LABELS[p.court_program_type] || p.court_program_type) || '—'}</td><td>${escapeHtml(p.status)}</td><td>${escapeHtml(p.termination_reason) || '—'}</td></tr>`).join('')}
+      <h2>Enrollment &amp; Discharge Status</h2>
+      <table><tr><th>Order</th><th>Enrollment Confirmed</th><th>Discharge / Completion Status</th></tr>
+      ${programs.map(p => `<tr><td>${escapeHtml(p.order_name)}</td><td>Yes — since ${escapeHtml(p.start_date) || '—'}</td><td>${escapeHtml(p.status)}${p.completed_at ? ' (' + escapeHtml(p.completed_at.split('T')[0]) + ')' : ''}</td></tr>`).join('') || '<tr><td colspan="3">No court orders on record</td></tr>'}
       </table>
-      <h2>Service &amp; Compliance Records</h2>
-      <table><tr><th>Date</th><th>Service</th><th>Attendance</th><th>Compliance Decision</th></tr>
-      ${records.map(r => `<tr><td>${escapeHtml(r.service_date)}</td><td>${escapeHtml(r.service_type)}</td><td>${escapeHtml(r.attendance_status)}</td><td>${escapeHtml((r.compliance_status || '').replace('_', ' '))}</td></tr>`).join('') || '<tr><td colspan="4">No records</td></tr>'}
-      </table>
+      <h2>Sessions Attended / Missed</h2>
+      <div class="field"><span class="label">Attended: </span><span class="val">${records.filter(r => r.attendance_status === 'attended').length}</span> &nbsp; <span class="label">Missed: </span><span class="val">${records.filter(r => r.attendance_status === 'missed').length}</span> &nbsp; <span class="label">Excused: </span><span class="val">${records.filter(r => r.attendance_status === 'excused').length}</span></div>
+      <h2>Requirements Completed</h2>
+      ${programs.map(p => `<div class="field"><span class="label">${escapeHtml(p.order_name)}: </span><span class="val">${p.total_services_completed ?? '—'} services, ${p.total_units_completed ?? '—'} units</span></div>`).join('') || '<div class="field">—</div>'}
+      <h2>Compliance Status</h2>
+      <div class="field"><span class="label">Compliant: </span><span class="val">${records.filter(r => r.compliance_status === 'compliant').length}</span> &nbsp; <span class="label">Noncompliant: </span><span class="val">${records.filter(r => r.compliance_status === 'noncompliant').length}</span> &nbsp; <span class="label">Pending Review: </span><span class="val">${records.filter(r => r.compliance_status === 'pending_review').length}</span></div>
       <div class="footer">This report was generated by CourtBridge Solutions to support Florida's problem-solving court reporting requirements (Ch. 2026-139). OSCA has not yet published a final technical reporting format; this is a preparation document, not a certified submission.</div>
       </body></html>
     `);
@@ -186,13 +182,15 @@ export default function CourtReporting() {
     setExporting(false);
     if (!allClients) return;
 
+    // Limited to what a court legitimately needs for compliance reporting: enrollment
+    // confirmed, sessions attended/missed, requirements completed, compliance status,
+    // and discharge/completion status. No referral, offense, screening, eligibility,
+    // employment/housing/custody, or narrative fields -- those stay internal.
     const rows = [[
-      'Client Name', 'Court/Program Type', 'Order Name', 'Order Status', 'Start Date', 'Completed/Terminated Date',
-      'Referral Source', 'Primary Offense', 'Screening Result', 'Eligibility Determination',
-      'Employment (Admission)', 'Housing (Admission)', 'Custody (Admission)',
-      'Termination Reason', 'Employment (Exit)', 'Housing (Exit)', 'Custody (Exit)',
-      'Total Services Completed', 'Total Units Completed',
-      'Compliant Records', 'Noncompliant Records', 'Pending Review Records', 'New Offenses Reported',
+      'Client Name', 'Order Name', 'Enrollment Confirmed Since', 'Discharge / Completion Status', 'Discharge Date',
+      'Sessions Attended', 'Sessions Missed', 'Sessions Excused',
+      'Services Completed', 'Units Completed',
+      'Compliant Records', 'Noncompliant Records', 'Pending Review Records',
     ]];
 
     const programsByClient = (allPrograms || []).reduce((acc, p) => { (acc[p.client_id] ||= []).push(p); return acc; }, {});
@@ -202,15 +200,14 @@ export default function CourtReporting() {
       for (const p of clientPrograms) {
         const recs = (allRecords || []).filter(r => (p.id ? r.client_program_id === p.id : r.client_id === c.id));
         rows.push([
-          c.name, COURT_TYPE_LABELS[p.court_program_type] || p.court_program_type || '', p.order_name || '', p.status || '', p.start_date || '', p.completed_at ? p.completed_at.split('T')[0] : '',
-          c.referral_source || '', c.primary_offense || '', c.screening_result || '', c.eligibility_determination || '',
-          c.employment_status_admission || '', c.housing_status_admission || '', c.custody_status_admission || '',
-          p.termination_reason || '', p.employment_status_exit || '', p.housing_status_exit || '', p.custody_status_exit || '',
+          c.name, p.order_name || '', p.start_date || '', p.status || '', p.completed_at ? p.completed_at.split('T')[0] : '',
+          recs.filter(r => r.attendance_status === 'attended').length,
+          recs.filter(r => r.attendance_status === 'missed').length,
+          recs.filter(r => r.attendance_status === 'excused').length,
           p.total_services_completed ?? '', p.total_units_completed ?? '',
           recs.filter(r => r.compliance_status === 'compliant').length,
           recs.filter(r => r.compliance_status === 'noncompliant').length,
           recs.filter(r => r.compliance_status === 'pending_review').length,
-          recs.filter(r => r.new_offense_reported).length,
         ]);
       }
     }

@@ -37,6 +37,7 @@ import ClientProfile from './screens/ClientProfile';
 import Messages from './screens/Messages';
 import ClientInvite from './screens/ClientInvite';
 import ViolationReport from './screens/ViolationReport';
+import CourtReporting from './screens/CourtReporting';
 import FounderDocs from './screens/FounderDocs';
 import BusinessOrganizer from './screens/BusinessOrganizer';
 import ProviderOnboarding from './screens/ProviderOnboarding';
@@ -318,6 +319,7 @@ export default function App() {
       case 'messages': return <Messages session={session} clientId={activeClientId} />;
       case 'clientinvite': return <ClientInvite session={session} />;
       case 'violationreport': return <ViolationReport session={session} />;
+      case 'courtreporting': return <CourtReporting session={session} />;
       case 'founderdocs': return <FounderDocs session={session} />;
       case 'businessorganizer': return <BusinessOrganizer session={session} />;
       case 'provideronboarding': return <ProviderOnboarding session={session} />;
@@ -548,6 +550,12 @@ export default function App() {
             <div style={subItem('jcxreferrals')} onClick={() => navTo('jcxreferrals')}>Referrals</div>
             <div style={subItem('jcxrecordsrequests')} onClick={() => navTo('jcxrecordsrequests')}>Records Requests</div>
           </>}
+
+          <div style={divider} />
+
+          <div style={navItem('courtreporting')} onClick={() => navTo('courtreporting')}>
+            <Ic d={ICONS.compliance} /><span>Court Reporting</span>
+          </div>
 
           <div style={divider} />
 

@@ -38,3 +38,14 @@ DRAFT, review before relying on this
 8. WHERE THE PLATFORM ACTUALLY LIVES
    - As of 2026-08-06, the entire platform is backed up in the GitHub repo -- not just the app code (which was always there), but also the full database schema (every migration, as real files) and all 5 backend functions (send-email, send-invite, send-sms, create-checkout-session, stripe-webhook). Before this, half the platform only existed inside Supabase with no copy anywhere else -- a real single point of failure that's now closed.
    - Deploys happen automatically on every push to master via GitHub Actions. If a deploy ever fails, check whether it's a real code problem or an outage on GitHub's own side (githubstatus.com) before assuming something's broken -- confirmed this happened for real on 2026-08-06.
+
+9. VICTIM INFORMATION -- WHAT NOT TO ENTER
+   - CourtBridge tracks program participants only. Never enter victim names, contact info, addresses, locations, safety plans, or info about a victim's children/household members anywhere in the platform -- notes, messages, and uploaded documents included.
+   - Every notes field and document upload shows a warning before you type or upload. Read it, don't click past it.
+   - If victim information gets entered or uploaded by mistake, use the "Flag as possible victim information" button right on that record. This immediately hides it from everyone except an org admin/founder -- it does NOT delete it. Flag it yourself the moment you notice, don't wait for someone else to catch it.
+   - Only an org admin or founder can review and resolve a flagged record, on the Victim Info Review screen (sidebar, admin accounts only). A manual flag-by-record form is there too, for the rare screen that doesn't have its own flag button.
+
+10. GPS / LOCATION DATA
+   - Location is only captured the moment a client taps Check In/Check Out -- never continuous or background tracking. Clients see this explained directly during consent.
+   - Most screens show "GPS Verified" instead of raw coordinates. Exact coordinates only appear on the Map View screen and through explicit "view on map" links -- both are logged (who viewed, when) for audit purposes.
+   - How long location data gets kept is still undecided (see Policies.md Section 4/5) -- don't promise a specific retention period to a client or court until that's actually settled.

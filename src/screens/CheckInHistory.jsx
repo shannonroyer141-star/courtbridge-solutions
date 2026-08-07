@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import { CARD_BG, ACCENT, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme'
+import { logLocationAccess } from '../lib/locationAccessLog'
 
 export default function CheckInHistory({ session }) {
   const [checkins, setCheckins] = useState([])
@@ -101,7 +102,7 @@ export default function CheckInHistory({ session }) {
               <div style={{ color: TEXT_MUTED, fontSize: 13, marginBottom: 4 }}>{formatTime(c.checked_in_at)}</div>
               <div style={{ marginBottom: 4 }}>
                 {c.latitude && c.longitude ? (
-                  <a href={`https://www.google.com/maps?q=${c.latitude},${c.longitude}`} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'none', fontSize: 13 }}>
+                  <a href={`https://www.google.com/maps?q=${c.latitude},${c.longitude}`} target="_blank" rel="noopener noreferrer" onClick={() => logLocationAccess('viewed_coordinate_link', { clientId: c.client_id })} style={{ color: ACCENT, textDecoration: 'none', fontSize: 13 }}>
                     View on map
                   </a>
                 ) : (
@@ -128,7 +129,7 @@ export default function CheckInHistory({ session }) {
               <div style={{ color: TEXT_MUTED }}>{formatTime(c.checked_in_at)}</div>
               <div>
                 {c.latitude && c.longitude ? (
-                  <a href={`https://www.google.com/maps?q=${c.latitude},${c.longitude}`} target="_blank" rel="noopener noreferrer" style={{ color: ACCENT, textDecoration: 'none', fontSize: 13 }}>
+                  <a href={`https://www.google.com/maps?q=${c.latitude},${c.longitude}`} target="_blank" rel="noopener noreferrer" onClick={() => logLocationAccess('viewed_coordinate_link', { clientId: c.client_id })} style={{ color: ACCENT, textDecoration: 'none', fontSize: 13 }}>
                     View on map
                   </a>
                 ) : (

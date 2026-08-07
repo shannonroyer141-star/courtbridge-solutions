@@ -453,7 +453,7 @@ export default function ClientProfile({ clientId, onNavigate }) {
             return (
               <div key={ci.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: `0.5px solid ${BORDER}`, flexWrap: 'wrap', gap: 6 }}>
                 <span style={{ color: TEXT }}>{new Date(ci.checked_in_at).toLocaleDateString()}</span>
-                <span style={{ color: TEXT_MUTED, fontSize: 13 }}>{ci.latitude && ci.longitude ? `${ci.latitude.toFixed(5)}, ${ci.longitude.toFixed(5)}` : 'No location'}</span>
+                <span style={{ color: TEXT_MUTED, fontSize: 13 }}>{ci.latitude && ci.longitude ? '📍 GPS Verified' : 'No location'}</span>
                 {durationMin !== null ? (
                   <span style={{ color: GREEN, fontWeight: 600, fontSize: 13 }}>✓ {Math.floor(durationMin / 60)}h {durationMin % 60}m</span>
                 ) : (

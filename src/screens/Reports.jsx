@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, ACCENT, GREEN, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from '../theme';
+import { logLocationAccess } from '../lib/locationAccessLog';
 
 export default function Reports() {
   const [clients, setClients] = useState([]);
@@ -24,10 +25,14 @@ export default function Reports() {
     setLoading(false);
   }
 
-  function printReport() { window.print(); }
+  function printReport() {
+    logLocationAccess('exported_report', { clientId: selectedClient, checkinCount: checkins.length });
+    window.print();
+  }
 
   function exportCSV() {
     if (!checkins.length) return;
+    logLocationAccess('exported_report', { clientId: selectedClient, checkinCount: checkins.length });
     const headers = ['Date', 'Time', 'Latitude', 'Longitude'];
     const rows = checkins.map(c => [
       new Date(c.checked_in_at).toLocaleDateString(),

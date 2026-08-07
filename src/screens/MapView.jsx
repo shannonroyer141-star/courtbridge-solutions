@@ -7,6 +7,7 @@ import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { supabase } from '../supabase';
 import { CARD_BG, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { logLocationAccess } from '../lib/locationAccessLog';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -166,6 +167,7 @@ export default function MapView() {
 
     setLatestByClient(latest);
     setLoading(false);
+    if (latest.length > 0) logLocationAccess('viewed_map', { checkinCount: latest.length });
   }
 
   if (loading) return (

@@ -41,3 +41,6 @@ If your provider marks your account inactive or terminated, you'll see a simple 
 
 ## If you're in a CATCH Court program
 If you are ever unsafe, go to Messages and check "Mark urgent" before sending. Your provider is notified immediately, including by text.
+
+## A note you may see when messaging
+You may notice a short reminder above the message box asking you not to include other people's private information (names, addresses, contact info, etc.) in your messages. This is there to protect everyone's safety and privacy, including yours -- it is not specific to you and does not mean anything is wrong.

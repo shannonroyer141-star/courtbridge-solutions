@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { NotesWarning } from '../components/VictimInfoWarning';
 
 export default function SMSAlerts() {
   const [logs, setLogs] = useState([]);
@@ -91,6 +92,7 @@ export default function SMSAlerts() {
             </button>
           ))}
         </div>
+        <NotesWarning />
         <textarea placeholder="Message text... Use [NAME] to insert client's first name." value={form.message} onChange={e => setForm({...form, message: e.target.value})} style={{ ...inputStyle, minHeight: 100, marginBottom: 8 }} />
         <p style={{ fontSize: 12, color: TEXT_DIM, marginBottom: 12 }}>{form.message.length} characters {form.message.length > 160 ? '— will send as 2 messages' : ''}</p>
         {status && <div style={{ background: status.includes('✅') ? 'rgba(76,175,125,0.12)' : 'rgba(61,111,168,0.12)', border: `0.5px solid ${status.includes('✅') ? GREEN : WARNING}`, borderRadius: 8, padding: 12, marginBottom: 12, fontSize: 13, color: status.includes('✅') ? GREEN : WARNING }}>{status}</div>}

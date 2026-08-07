@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import { LANGUAGES, getTranslator } from '../i18n'
 import { DARK_BG, CARD_BG, SIDEBAR_BG, BLUE, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme'
+import { NotesWarning } from '../components/VictimInfoWarning'
 
 function escapeHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
@@ -1075,6 +1076,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
               ))}
             </div>
             <div style={{ borderTop: `0.5px solid ${BORDER}`, paddingTop: 12 }}>
+              <NotesWarning />
               <textarea
                 value={composeText}
                 onChange={e => setComposeText(e.target.value)}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { NotesWarning } from '../components/VictimInfoWarning';
 
 function escapeHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -108,6 +109,7 @@ export default function ViolationReport() {
               </select>
             </div>
           </div>
+          <NotesWarning />
           <textarea placeholder="Describe the violation in detail *" value={form.description} onChange={e => setForm({...form, description: e.target.value})} style={{ ...inputStyle, minHeight: 100 }} />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginBottom: 12 }}>
             <div><label style={{ fontSize: 12, color: TEXT_MUTED, display: 'block', marginBottom: 4 }}>Missed Check-Ins</label><input type="number" min="0" value={form.missed_checkins} onChange={e => setForm({...form, missed_checkins: parseInt(e.target.value)})} style={{ ...inputStyle, padding: 10, marginBottom: 0 }} /></div>

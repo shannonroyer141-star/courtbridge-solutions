@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { NotesWarning } from '../components/VictimInfoWarning';
 
 // calendar_events.event_type has a DB check constraint requiring these exact
 // lowercase values -- 'court_date' is excluded from the manual form since
@@ -164,6 +165,7 @@ export default function Calendar() {
           </select>
           <input placeholder="Client Name (optional)" value={form.client_name} onChange={e => setForm({ ...form, client_name: e.target.value })}
             style={{ width: '100%', padding: 12, marginBottom: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT }} />
+          <NotesWarning />
           <textarea placeholder="Notes" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })}
             style={{ width: '100%', padding: 12, marginBottom: 15, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', minHeight: 70, background: 'rgba(255,255,255,0.04)', color: TEXT }} />
           {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}

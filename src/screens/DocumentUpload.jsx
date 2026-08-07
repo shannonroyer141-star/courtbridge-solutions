@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, ACCENT, GREEN, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { NotesWarning, UploadWarning, UploadConfirmCheckbox } from '../components/VictimInfoWarning';
 
 const DOC_TYPES = ['Court Order', 'Signed Agreement', 'Drug Test Lab Result', 'Meeting Slip', 'Intake Form', 'Discharge Summary', 'Violation Report', 'Compliance Report', 'ID / Documentation', 'Other'];
 
@@ -14,6 +15,7 @@ export default function DocumentUpload({ clientId }) {
   const [docType, setDocType] = useState('');
   const [notes, setNotes] = useState('');
   const [file, setFile] = useState(null);
+  const [victimCheckConfirmed, setVictimCheckConfirmed] = useState(false);
 
   useEffect(() => { fetchDocuments(); fetchClients(); }, []);
 
@@ -29,6 +31,7 @@ export default function DocumentUpload({ clientId }) {
 
   async function handleUpload() {
     if (!file || !selectedClient || !docType) { setStatus('Please select a client, document type, and file.'); return; }
+    if (!victimCheckConfirmed) { setStatus('Please confirm this document does not contain victim-identifying information before uploading.'); return; }
     setUploading(true);
     setStatus('');
     try {
@@ -43,12 +46,13 @@ export default function DocumentUpload({ clientId }) {
         client_id: selectedClient, provider_id: user.id,
         file_name: file.name, file_url: fileName,
         file_size: file.size, file_type: file.type,
-        document_type: docType, notes
+        document_type: docType, notes,
+        victim_check_confirmed: true, victim_check_confirmed_by: user.id, victim_check_confirmed_at: new Date().toISOString(),
       }]);
       if (insertError) throw insertError;
 
       setStatus('✅ Document uploaded successfully!');
-      setFile(null); setDocType(''); setNotes('');
+      setFile(null); setDocType(''); setNotes(''); setVictimCheckConfirmed(false);
       setShowForm(false);
       fetchDocuments();
     } catch (err) {
@@ -90,7 +94,9 @@ export default function DocumentUpload({ clientId }) {
             <option value="">Document Type *</option>
             {DOC_TYPES.map(t => <option key={t}>{t}</option>)}
           </select>
+          <NotesWarning />
           <textarea placeholder="Notes (optional)" value={notes} onChange={e => setNotes(e.target.value)} style={{ ...inputStyle, minHeight: 60 }} />
+          <UploadWarning />
           <div
             style={{ border: `2px dashed ${ACCENT}`, borderRadius: 8, padding: 30, textAlign: 'center', marginBottom: 16, cursor: 'pointer', background: file ? 'rgba(91,155,240,0.1)' : 'rgba(255,255,255,0.02)' }}
             onClick={() => document.getElementById('file-input').click()}
@@ -102,7 +108,8 @@ export default function DocumentUpload({ clientId }) {
               <div><p style={{ margin: 0, color: TEXT_MUTED, fontSize: 15 }}>📁 Click to select a file</p><p style={{ margin: '4px 0 0', color: TEXT_DIM, fontSize: 12 }}>PDF, JPG, PNG, DOC — max 10MB</p></div>
             )}
           </div>
-          <button onClick={handleUpload} disabled={uploading || !file || !selectedClient || !docType} style={{ width: '100%', padding: 13, background: file && selectedClient && docType ? GREEN : 'rgba(255,255,255,0.08)', color: file && selectedClient && docType ? 'white' : TEXT_DIM, border: 'none', borderRadius: 8, fontSize: 15, cursor: 'pointer', fontWeight: 'bold' }}>
+          <UploadConfirmCheckbox checked={victimCheckConfirmed} onChange={setVictimCheckConfirmed} />
+          <button onClick={handleUpload} disabled={uploading || !file || !selectedClient || !docType || !victimCheckConfirmed} style={{ width: '100%', padding: 13, background: file && selectedClient && docType && victimCheckConfirmed ? GREEN : 'rgba(255,255,255,0.08)', color: file && selectedClient && docType && victimCheckConfirmed ? 'white' : TEXT_DIM, border: 'none', borderRadius: 8, fontSize: 15, cursor: 'pointer', fontWeight: 'bold' }}>
             {uploading ? 'Uploading...' : '⬆️ Upload Document'}
           </button>
         </div>

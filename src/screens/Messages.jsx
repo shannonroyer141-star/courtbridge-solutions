@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, ACCENT, GREEN, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { NotesWarning } from '../components/VictimInfoWarning';
 
 const TEMPLATES = {
   missed_checkin: {
@@ -233,6 +234,7 @@ export default function Messages({ clientId }) {
             style={{ width: '100%', padding: 12, marginBottom: 14, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', fontSize: 14, background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT }} />
 
           <label style={{ fontWeight: 'bold', color: TEXT_MUTED, fontSize: 13, display: 'block', marginBottom: 6 }}>Message</label>
+          <NotesWarning />
           <textarea placeholder="Write your message... Replace [BRACKETS] with actual details." value={body} onChange={e => setBody(e.target.value)}
             style={{ width: '100%', padding: 12, marginBottom: 14, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', fontSize: 14, minHeight: 200, lineHeight: 1.6, background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT }} />
 
@@ -317,6 +319,7 @@ export default function Messages({ clientId }) {
                   </div>
                   <div style={{ padding: '16px 20px', borderTop: `0.5px solid ${BORDER}` }}>
                     {replyError && <div style={{ color: RED, fontSize: 12, marginBottom: 8 }}>{replyError}</div>}
+                    <NotesWarning />
                     <textarea value={replyText} onChange={e => setReplyText(e.target.value)} placeholder="Type a reply..." rows={2}
                       style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', fontSize: 14, resize: 'vertical', fontFamily: NAV_FONT, background: 'rgba(255,255,255,0.04)', color: TEXT }} />
                     <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>

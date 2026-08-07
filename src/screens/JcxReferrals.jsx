@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { NotesWarning } from '../components/VictimInfoWarning';
 
 export default function JcxReferrals({ session }) {
   const [referrals, setReferrals] = useState([]);
@@ -99,6 +100,7 @@ export default function JcxReferrals({ session }) {
           </select>
           <input style={inputStyle} placeholder="Client Name *" value={form.client_name} onChange={e => setForm({ ...form, client_name: e.target.value })} />
           <input style={inputStyle} placeholder="Client Contact (phone/email)" value={form.client_contact} onChange={e => setForm({ ...form, client_contact: e.target.value })} />
+          <NotesWarning />
           <textarea style={{ ...inputStyle, minHeight: 50 }} placeholder="Reason for referral *" value={form.reason} onChange={e => setForm({ ...form, reason: e.target.value })} />
           <textarea style={{ ...inputStyle, minHeight: 70 }} placeholder="Case summary — only what you choose to write here is sent" value={form.case_summary} onChange={e => setForm({ ...form, case_summary: e.target.value })} />
           {error && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{error}</div>}

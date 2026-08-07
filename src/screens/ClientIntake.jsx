@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { CARD_BG, ACCENT, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme'
+import { NotesWarning } from '../components/VictimInfoWarning'
 import { PROGRAM_TYPES, ENROLLMENT_TYPES, PHASES, emptyEnrollmentForm, validateParticipantInfo, validateProgramRequirements, smsTextFor, createEnrollmentInvite } from '../enrollment'
 
 export default function ClientIntake({ session }) {
@@ -90,6 +91,7 @@ export default function ClientIntake({ session }) {
             {PHASES.map(p => <option key={p} value={p}>{p}</option>)}
           </select>
           <label style={lbl}>Program Reporting Requirements *</label>
+          <NotesWarning />
           <textarea style={ta} value={form.reporting_requirements} onChange={e => update('reporting_requirements', e.target.value)} placeholder="e.g. Attend group sessions 3 times per week." />
           <label style={lbl}>Check-In Schedule *</label>
           <textarea style={{ ...ta, minHeight: 60 }} value={form.checkin_schedule} onChange={e => update('checkin_schedule', e.target.value)} placeholder="e.g. Check in daily by 10:00 AM." />

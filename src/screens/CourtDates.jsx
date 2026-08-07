@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { NotesWarning } from '../components/VictimInfoWarning';
 
 export default function CourtDates() {
   const [hearings, setHearings] = useState([]);
@@ -69,6 +70,7 @@ export default function CourtDates() {
             <input placeholder="Courtroom" value={form.courtroom} onChange={e => setForm({...form, courtroom: e.target.value})} style={{ flex: 1, minWidth: 140, ...inputStyle }} />
             <input placeholder="Judge Name" value={form.judge_name} onChange={e => setForm({...form, judge_name: e.target.value})} style={{ flex: 1, minWidth: 140, ...inputStyle }} />
           </div>
+          <NotesWarning />
           <textarea placeholder="Documents required" value={form.documents_required} onChange={e => setForm({...form, documents_required: e.target.value})} style={{ width: '100%', minHeight: 60, marginBottom: 15, ...inputStyle }} />
           {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}
           <button onClick={handleSave} disabled={saving || !form.client_id || !form.hearing_date} style={{ width: '100%', padding: 13, background: GREEN, color: 'white', border: 'none', borderRadius: 8, fontSize: 15, cursor: 'pointer' }}>{saving ? 'Saving...' : 'Save Hearing'}</button>

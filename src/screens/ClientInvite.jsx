@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, ACCENT, GREEN, WARNING, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { NotesWarning } from '../components/VictimInfoWarning';
 
 export default function ClientInvite() {
   const [invites, setInvites] = useState([]);
@@ -100,6 +101,7 @@ export default function ClientInvite() {
             <option value="">Program Type (optional)</option>
             <option>BIP (Batterers Intervention)</option><option>DUI</option><option>Drug Court</option><option>Mental Health Court</option><option>Veterans Court</option><option>Anger Management</option><option>Substance Abuse</option><option>Probation Supervision</option>
           </select>
+          <NotesWarning />
           <textarea placeholder="Personal message to include in the email (optional)" value={form.message} onChange={e => setForm({...form, message: e.target.value})} style={{ ...inputStyle, minHeight: 80, marginBottom: 16 }} />
           <div style={{ background: 'rgba(91,155,240,0.1)', borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 13, color: TEXT_MUTED }}>
             📧 The client will receive a branded email from CourtBridge Solutions with a secure signup link. The link expires in 7 days. When they sign up, they are automatically connected to your provider account.

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { DARK_BG, CARD_BG, ACCENT, GREEN, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { NotesWarning } from '../components/VictimInfoWarning';
 
 export default function RecordsRequestForm() {
   const [orgs, setOrgs] = useState([]);
@@ -92,6 +93,7 @@ export default function RecordsRequestForm() {
         <label style={labelStyle}>What are you requesting? *</label>
         <input style={inputStyle} value={form.scope_requested} onChange={e => update('scope_requested', e.target.value)} placeholder="e.g. Last 90 days check-in compliance report" />
         <label style={labelStyle}>Reason *</label>
+        <NotesWarning />
         <textarea style={{ ...inputStyle, minHeight: 70 }} value={form.reason} onChange={e => update('reason', e.target.value)} placeholder="e.g. Upcoming compliance hearing on [date]" />
 
         {error && <div style={{ color: RED, fontSize: 13, marginBottom: 14 }}>{error}</div>}

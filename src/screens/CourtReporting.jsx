@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { NotesWarning } from '../components/VictimInfoWarning';
 
 const inputStyle = { padding: 12, marginBottom: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT, fontSize: 14, width: '100%' };
 const labelStyle = { fontSize: 12, color: TEXT_MUTED, marginBottom: 4, display: 'block' };
@@ -288,6 +289,7 @@ export default function CourtReporting() {
                     </select>
                   </Field>
                 </div>
+                <NotesWarning />
                 <Field label="What happened (event notes)"><textarea style={{ ...inputStyle, minHeight: 60 }} value={recordForm.event_notes} onChange={e => setRecordForm({ ...recordForm, event_notes: e.target.value })} /></Field>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0 16px' }}>
                   <Field label="Compliance Decision">

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from '../theme';
+import { NotesWarning } from '../components/VictimInfoWarning';
 
 export default function POVisits() {
   const [visits, setVisits] = useState([]);
@@ -71,6 +72,7 @@ export default function POVisits() {
           </div>
           <input placeholder="PO Name" value={form.po_name} onChange={e => setForm({...form, po_name: e.target.value})} style={{ width: '100%', ...inputStyle }} />
           <input placeholder="PO Agency" value={form.po_agency} onChange={e => setForm({...form, po_agency: e.target.value})} style={{ width: '100%', ...inputStyle }} />
+          <NotesWarning />
           <textarea placeholder="Notes" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} style={{ width: '100%', minHeight: 60, marginBottom: 15, ...inputStyle }} />
           {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}
           <button onClick={handleSave} disabled={saving || !form.client_id || !form.visit_date} style={{ width: '100%', padding: 13, background: GREEN, color: 'white', border: 'none', borderRadius: 8, fontSize: 15, cursor: 'pointer' }}>{saving ? 'Saving...' : 'Save Visit Record'}</button>

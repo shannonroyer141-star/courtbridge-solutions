@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import { DARK_BG, RED, GREEN, NAV_FONT } from '../theme'
+import { NotesWarning } from '../components/VictimInfoWarning'
 
 export default function CheckIn({ session, onBack }) {
   const [location, setLocation] = useState(null)
@@ -135,6 +136,7 @@ export default function CheckIn({ session, onBack }) {
           </div>
           <div style={{ marginBottom: 28 }}>
             <label style={s.label}>Notes (optional)</label>
+            <NotesWarning />
             <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} placeholder="Anything to add..." style={{ ...s.input, resize: 'vertical' }} />
           </div>
           <button type="submit" disabled={submitting || gpsLoading}

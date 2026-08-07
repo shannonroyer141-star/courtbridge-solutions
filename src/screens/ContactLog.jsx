@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, GREEN, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { NotesWarning } from '../components/VictimInfoWarning';
 
 export default function ContactLog() {
   const [logs, setLogs] = useState([]);
@@ -60,6 +61,7 @@ export default function ContactLog() {
           <select value={form.direction} onChange={e => setForm({...form, direction: e.target.value})} style={inputStyle}>
             <option>Outbound</option><option>Inbound</option>
           </select>
+          <NotesWarning />
           <textarea placeholder="Summary *" value={form.summary} onChange={e => setForm({...form, summary: e.target.value})} style={{ ...inputStyle, minHeight: 80 }} />
           <input placeholder="Outcome / Next steps" value={form.outcome} onChange={e => setForm({...form, outcome: e.target.value})} style={{ ...inputStyle, marginBottom: 15 }} />
           {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}

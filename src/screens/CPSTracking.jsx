@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from '../theme';
+import { NotesWarning } from '../components/VictimInfoWarning';
 
 export default function CPSTracking() {
   const [cases, setCases] = useState([]);
@@ -88,6 +89,7 @@ export default function CPSTracking() {
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14, color: TEXT }}><input type="checkbox" checked={form.safety_plan} onChange={e => setForm({...form, safety_plan: e.target.checked})} />Safety Plan</label>
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 14, color: TEXT }}><input type="checkbox" checked={form.out_of_home} onChange={e => setForm({...form, out_of_home: e.target.checked})} />Out of Home</label>
           </div>
+          <NotesWarning />
           <textarea placeholder="Notes" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} style={{ width: '100%', minHeight: 70, marginBottom: 15, ...inputStyle }} />
           {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}
           <button onClick={handleSave} disabled={saving || !form.client_id} style={{ width: '100%', padding: 13, background: GREEN, color: 'white', border: 'none', borderRadius: 8, fontSize: 15, cursor: 'pointer' }}>{saving ? 'Saving...' : 'Save CPS Case'}</button>

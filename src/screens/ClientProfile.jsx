@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { syncClientBilling } from '../billing';
 import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { NotesWarning } from '../components/VictimInfoWarning';
 
 export default function ClientProfile({ clientId, onNavigate }) {
   const [client, setClient] = useState(null);
@@ -330,6 +331,7 @@ export default function ClientProfile({ clientId, onNavigate }) {
                   {showAddNote === p.id && (
                     <div style={{ ...subCardStyle, padding: 12, marginTop: 8, marginBottom: 0 }}>
                       <input type="date" value={noteForm.note_date} onChange={e => setNoteForm({ ...noteForm, note_date: e.target.value })} style={{ ...inputStyle, padding: 9 }} />
+                      <NotesWarning />
                       <textarea placeholder="e.g. Showed up on time, we talked about job search — doing well."
                         value={noteForm.content} onChange={e => setNoteForm({ ...noteForm, content: e.target.value })}
                         style={{ ...inputStyle, padding: 9, minHeight: 60, marginBottom: 0 }} />
@@ -396,6 +398,7 @@ export default function ClientProfile({ clientId, onNavigate }) {
             {showAddNote === 'general' && (
               <div style={subCardStyle}>
                 <input type="date" value={noteForm.note_date} onChange={e => setNoteForm({ ...noteForm, note_date: e.target.value })} style={inputStyle} />
+                <NotesWarning />
                 <textarea placeholder="e.g. Showed up on time, we talked about job search — doing well."
                   value={noteForm.content} onChange={e => setNoteForm({ ...noteForm, content: e.target.value })}
                   style={{ ...inputStyle, minHeight: 70 }} />

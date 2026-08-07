@@ -49,3 +49,8 @@ DRAFT, review before relying on this
    - Location is only captured the moment a client taps Check In/Check Out -- never continuous or background tracking. Clients see this explained directly during consent.
    - Most screens show "GPS Verified" instead of raw coordinates. Exact coordinates only appear on the Map View screen and through explicit "view on map" links -- both are logged (who viewed, when) for audit purposes.
    - How long location data gets kept is still undecided (see Policies.md Section 4/5) -- don't promise a specific retention period to a client or court until that's actually settled.
+
+11. RECORDS DISCLOSURE REQUESTS (courts, POs, other agencies)
+   - When a court, PO, or other agency requests records through Justice Collaboration > Records Requests, CourtBridge never decides on its own. Approving requires an org admin or founder to answer, in writing, on that request: is there valid participant consent, is there a qualifying court order or other legal authority, does 42 CFR Part 2 apply, and what is the minimum information that actually needs to go out (often narrower than what was asked for).
+   - The Approve button will not work until every question is answered and you've personally attested you are authorized to make the call. This is enforced by the database, not just the screen -- there is no way to approve a request without it.
+   - Ordinary staff can no longer approve/deny these requests, only org admins and founders, since this is a legal disclosure decision, not routine data entry.

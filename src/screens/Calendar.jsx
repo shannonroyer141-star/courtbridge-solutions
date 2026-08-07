@@ -71,7 +71,7 @@ export default function Calendar() {
     const { error } = await supabase.from('calendar_events').insert([{
       ...form,
       provider_id: user.id,
-      start_time: form.event_date,
+      start_time: new Date(form.event_date).toISOString(),
     }]);
     if (error) {
       setSaveError('Could not save event: ' + error.message);
@@ -92,10 +92,10 @@ export default function Calendar() {
     itemsByDay[key].push(item);
   }
   manualEvents.forEach(e => {
-    if (!e.event_date) return;
-    addItem(new Date(e.event_date), {
+    if (!e.start_time) return;
+    addItem(new Date(e.start_time), {
       title: e.title, type: EVENT_TYPE_LABELS[e.event_type] || 'Other', sub: e.client_name, notes: e.notes,
-      time: new Date(e.event_date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+      time: new Date(e.start_time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
     });
   });
   courtDates.forEach(cd => {

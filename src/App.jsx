@@ -40,6 +40,7 @@ import ViolationReport from './screens/ViolationReport';
 import CourtReporting from './screens/CourtReporting';
 import VictimInfoReview from './screens/VictimInfoReview';
 import FounderDocs from './screens/FounderDocs';
+import PlatformActivity from './screens/PlatformActivity';
 import BusinessOrganizer from './screens/BusinessOrganizer';
 import ProviderOnboarding from './screens/ProviderOnboarding';
 import DocumentUpload from './screens/DocumentUpload';
@@ -331,6 +332,7 @@ export default function App() {
       case 'courtreporting': return <CourtReporting session={session} />;
       case 'victiminforeview': return <VictimInfoReview session={session} />;
       case 'founderdocs': return <FounderDocs session={session} />;
+      case 'platformactivity': return <PlatformActivity session={session} />;
       case 'businessorganizer': return <BusinessOrganizer session={session} />;
       case 'provideronboarding': return <ProviderOnboarding session={session} />;
       case 'documents': return <DocumentUpload session={session} />;
@@ -627,6 +629,7 @@ export default function App() {
                 <Ic d={expandedMenus.founder ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
               </div>
               {expandedMenus.founder && <>
+                <div style={subItem('platformactivity')} onClick={() => navTo('platformactivity')}>Platform Activity</div>
                 <div style={subItem('founderdocs')} onClick={() => navTo('founderdocs')}>Founder Docs</div>
                 <div style={subItem('businessorganizer')} onClick={() => navTo('businessorganizer')}>Business Organizer</div>
                 <div style={subItem('forms')} onClick={() => navTo('forms')}>Forms &amp; Signatures</div>

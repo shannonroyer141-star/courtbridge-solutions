@@ -58,7 +58,8 @@ Deno.serve(async (req: Request) => {
 
     const authHeader = req.headers.get('Authorization')!;
     const supabase = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_ANON_KEY') ?? '', { global: { headers: { Authorization: authHeader } } });
-    await supabase.from('invites').update({ accepted: false }).eq('token', invite_token);
+    const expires_at = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    await supabase.from('invites').update({ accepted: false, expires_at }).eq('token', invite_token);
 
     if (!resendResponse.ok) throw new Error(`Resend error: ${JSON.stringify(resendData)}`);
 

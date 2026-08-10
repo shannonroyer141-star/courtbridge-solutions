@@ -21,7 +21,7 @@ export default function ClientInvite() {
 
   async function fetchInvites() {
     const { data: { user } } = await supabase.auth.getUser();
-    const { data } = await supabase.from('invites').select('*').eq('provider_id', user.id).order('created_at', { ascending: false });
+    const { data } = await supabase.from('invites').select('*').eq('provider_id', user.id).eq('accepted', false).order('created_at', { ascending: false });
     if (data) setInvites(data);
   }
 
@@ -129,14 +129,12 @@ export default function ClientInvite() {
                 <p style={{ margin: '3px 0 0', fontSize: 12, color: TEXT_DIM }}>Sent {new Date(i.created_at).toLocaleDateString()} • Expires {new Date(i.expires_at).toLocaleDateString()}</p>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
-                <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 'bold', background: i.accepted ? 'rgba(76,175,125,0.15)' : '#fff', color: i.accepted ? GREEN : '#000' }}>
-                  {i.accepted ? '✅ Signed Up' : '⏳ Pending'}
+                <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 'bold', background: '#fff', color: '#000' }}>
+                  ⏳ Pending
                 </span>
-                {!i.accepted && (
-                  <button onClick={() => resendInvite(i)} disabled={saving} style={{ padding: '5px 12px', background: 'rgba(255,255,255,0.04)', color: ACCENT, border: `0.5px solid ${ACCENT}`, borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
-                    Resend
-                  </button>
-                )}
+                <button onClick={() => resendInvite(i)} disabled={saving} style={{ padding: '5px 12px', background: 'rgba(255,255,255,0.04)', color: ACCENT, border: `0.5px solid ${ACCENT}`, borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
+                  Resend
+                </button>
               </div>
             </div>
           ))}

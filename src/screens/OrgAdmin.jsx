@@ -110,8 +110,6 @@ export default function OrgAdmin({ session }) {
   const [savingItContact, setSavingItContact] = useState(false)
   const [itContactError, setItContactError] = useState(null)
 
-  useEffect(() => { fetchProfile() }, [])
-
   useEffect(() => {
     function onResize() { setWidth(window.innerWidth) }
     window.addEventListener('resize', onResize)
@@ -128,6 +126,8 @@ export default function OrgAdmin({ session }) {
     setItContactEmail(data?.it_contact_email || '')
     setLoading(false)
   }
+
+  useEffect(() => { fetchProfile() }, [])
 
   async function saveItContact() {
     setSavingItContact(true)

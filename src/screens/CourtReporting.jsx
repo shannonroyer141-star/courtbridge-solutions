@@ -13,11 +13,6 @@ const COMPLIANCE_COLORS = {
   pending_review: WARNING,
 };
 
-const COURT_TYPE_LABELS = {
-  drug_court: 'Drug Court', mental_health_court: 'Mental Health Court',
-  veterans_treatment_court: 'Veterans Treatment Court', early_childhood_court: 'Early Childhood Court', other: 'Other',
-};
-
 function Field({ label, children }) {
   return <div style={{ marginBottom: 4 }}><span style={labelStyle}>{label}</span>{children}</div>;
 }

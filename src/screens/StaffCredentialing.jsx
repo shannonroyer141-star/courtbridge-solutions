@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 const EMPTY_FORM = {
   full_name: '', role_title: '', employment_status: 'active', hire_date: '',
@@ -136,14 +136,14 @@ export default function StaffCredentialing() {
             {field('hire_date', 'Hire Date', 'date')}
           </div>
 
-          <h3 style={{ color: TEXT, fontSize: 13, marginTop: 8, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em', color: TEXT_DIM }}>Licensing</h3>
+          <h3 style={{ fontSize: 13, marginTop: 8, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em', color: TEXT_DIM }}>Licensing</h3>
           <div style={{ display: 'grid', gridTemplateColumns: isPhone ? '1fr' : '1fr 1fr 1fr', gap: 12 }}>
             {field('license_type', 'License Type')}
             {field('license_number', 'License Number')}
             {field('license_expiration', 'License Expiration', 'date')}
           </div>
 
-          <h3 style={{ color: TEXT, fontSize: 13, marginTop: 8, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em', color: TEXT_DIM }}>DV Training &amp; Continuing Education</h3>
+          <h3 style={{ fontSize: 13, marginTop: 8, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em', color: TEXT_DIM }}>DV Training &amp; Continuing Education</h3>
           <div style={{ display: 'grid', gridTemplateColumns: isPhone ? '1fr' : '1fr 1fr', gap: 12 }}>
             {field('dv_training_hours_completed', 'DV Training Hours Completed', 'number')}
             {field('dv_training_completed_at', 'DV Training Completed On', 'date')}
@@ -151,7 +151,7 @@ export default function StaffCredentialing() {
             {field('continuing_ed_year', 'Continuing Ed Year', 'number')}
           </div>
 
-          <h3 style={{ color: TEXT, fontSize: 13, marginTop: 8, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em', color: TEXT_DIM }}>Background &amp; Character</h3>
+          <h3 style={{ fontSize: 13, marginTop: 8, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em', color: TEXT_DIM }}>Background &amp; Character</h3>
           <div style={{ display: 'grid', gridTemplateColumns: isPhone ? '1fr' : '1fr 1fr 1fr', gap: 12 }}>
             {field('good_moral_character_signed_at', 'Good Moral Character Signed', 'date')}
             {field('good_moral_character_expires_at', 'Good Moral Character Expires', 'date')}

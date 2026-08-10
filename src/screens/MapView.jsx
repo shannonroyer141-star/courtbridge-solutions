@@ -125,8 +125,6 @@ export default function MapView() {
   const [latestByClient, setLatestByClient] = useState([]);
   const [width, setWidth] = useState(window.innerWidth);
 
-  useEffect(() => { fetchLocations(); }, []);
-
   useEffect(() => {
     function onResize() { setWidth(window.innerWidth); }
     window.addEventListener('resize', onResize);
@@ -169,6 +167,8 @@ export default function MapView() {
     setLoading(false);
     if (latest.length > 0) logLocationAccess('viewed_map', { checkinCount: latest.length });
   }
+
+  useEffect(() => { fetchLocations(); }, []);
 
   if (loading) return (
     <div style={S.loadingWrap}>

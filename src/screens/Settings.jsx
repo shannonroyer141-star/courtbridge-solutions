@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, ACCENT, GREEN, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { CARD_BG, ACCENT, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
 export default function Settings() {
   const [alertEmail, setAlertEmail] = useState('');
@@ -13,8 +13,6 @@ export default function Settings() {
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => { loadSettings(); }, []);
 
   async function loadSettings() {
     const { data: { user } } = await supabase.auth.getUser();
@@ -33,6 +31,8 @@ export default function Settings() {
     }
     setLoading(false);
   }
+
+  useEffect(() => { loadSettings(); }, []);
 
   function normalizePhone(raw) {
     const digits = raw.replace(/\D/g, '');

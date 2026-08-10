@@ -55,7 +55,7 @@ export default function SMSAlerts() {
         await supabase.from('sms_logs').insert([{ client_id: form.client_id, phone_number: client.phone, message: messageText, status: 'pending_configuration' }]);
         fetchLogs();
       }
-    } catch (err) {
+    } catch {
       setStatus('SMS coming in Phase 2. Add Twilio credentials to enable. Message has been logged.');
       await supabase.from('sms_logs').insert([{ client_id: form.client_id, phone_number: client.phone, message: messageText, status: 'pending_configuration' }]);
       fetchLogs();

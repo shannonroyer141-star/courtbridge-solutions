@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, ACCENT, GREEN, TEXT, TEXT_MUTED, BORDER, NAV_FONT } from '../theme';
 import { logLocationAccess } from '../lib/locationAccessLog';
@@ -9,12 +9,12 @@ export default function Reports() {
   const [checkins, setCheckins] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => { fetchClients(); }, []);
-
   async function fetchClients() {
     const { data } = await supabase.from('clients').select('*').order('name');
     if (data) setClients(data);
   }
+
+  useEffect(() => { fetchClients(); }, []);
 
   async function fetchCheckins() {
     if (!selectedClient) return;

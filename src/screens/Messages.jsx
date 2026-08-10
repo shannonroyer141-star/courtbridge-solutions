@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, ACCENT, GREEN, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 import { NotesWarning } from '../components/VictimInfoWarning';
@@ -117,7 +117,7 @@ export default function Messages({ clientId }) {
       } else {
         setStatus('Error: ' + result.error);
       }
-    } catch (err) {
+    } catch {
       setStatus('Error sending message. Please check your Resend API key is configured.');
     }
     setSending(false);

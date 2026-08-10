@@ -15,11 +15,6 @@ export default function ClientOnboarding() {
   const t = getTranslator(lang)
   const token = new URLSearchParams(window.location.search).get('token')
 
-  useEffect(() => {
-    if (!token) { setStep('invalid'); return }
-    validateToken()
-  }, [])
-
   async function validateToken() {
     const { data, error } = await supabase
       .from('invites')
@@ -33,6 +28,11 @@ export default function ClientOnboarding() {
     setInvite(data)
     setStep('form')
   }
+
+  useEffect(() => {
+    if (!token) { setStep('invalid'); return }
+    validateToken()
+  }, [])
 
   async function handleSubmit(e) {
     e.preventDefault()

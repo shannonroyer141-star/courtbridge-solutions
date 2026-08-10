@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import { LANGUAGES, getTranslator } from '../i18n'
 import { DARK_BG, CARD_BG, SIDEBAR_BG, BLUE, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme'
@@ -146,7 +146,7 @@ function ListRow({ icon, iconBg, iconColor, title, meta, badgeText, badgeColor, 
   )
 }
 
-export default function ClientAppDashboard({ session, clientName = 'there', onNavigate, onLogout }) {
+export default function ClientAppDashboard({ session, onLogout }) {
   const [client, setClient] = useState(null)
   const [checkIns, setCheckIns] = useState([])
   const [pendingCheckins, setPendingCheckins] = useState(() => readOfflineQueue())
@@ -290,7 +290,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
               }),
             })
             if (!smsResponse.ok) urgentAlertFailed = true
-          } catch (smsErr) {
+          } catch {
             urgentAlertFailed = true
           }
         } else {
@@ -304,7 +304,7 @@ export default function ClientAppDashboard({ session, clientName = 'there', onNa
         ? { type: 'error', text: t('dashboard', 'common').errUrgentSmsFailed }
         : { type: 'success', text: t('dashboard', 'common').messageSent })
       fetchMessages()
-    } catch (err) {
+    } catch {
       setMessageStatus({ type: 'error', text: t('dashboard', 'common').errMessageSend })
     } finally {
       setSendingMessage(false)

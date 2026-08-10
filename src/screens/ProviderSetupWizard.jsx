@@ -20,8 +20,6 @@ export default function ProviderSetupWizard({ session, onDone }) {
   const [org, setOrg] = useState({ organization_name: '', contact_name: '', phone: '', address: '', city: '', state: '', zip: '', license_number: '', website: '' })
   const [selectedPrograms, setSelectedPrograms] = useState([])
 
-  useEffect(() => { loadProfile() }, [])
-
   async function loadProfile() {
     const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single()
     if (data) {
@@ -36,6 +34,8 @@ export default function ProviderSetupWizard({ session, onDone }) {
     }
     setLoading(false)
   }
+
+  useEffect(() => { loadProfile() }, [])
 
   function update(field, value) { setOrg(prev => ({ ...prev, [field]: value })); setError(null) }
 

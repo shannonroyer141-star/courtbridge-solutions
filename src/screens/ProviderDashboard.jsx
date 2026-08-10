@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -303,8 +303,6 @@ export default function ProviderDashboard({ onNavigate }) {
   const [loading, setLoading] = useState(true);
   const [width, setWidth] = useState(window.innerWidth);
 
-  useEffect(() => { fetchDashboardData(); }, []);
-
   useEffect(() => {
     function onResize() { setWidth(window.innerWidth); }
     window.addEventListener('resize', onResize);
@@ -384,6 +382,8 @@ export default function ProviderDashboard({ onNavigate }) {
 
     setLoading(false);
   }
+
+  useEffect(() => { fetchDashboardData(); }, []);
 
   if (loading) return (
     <div style={S.loadingWrap}>

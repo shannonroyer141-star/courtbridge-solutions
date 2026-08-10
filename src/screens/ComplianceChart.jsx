@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { CARD_BG, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
@@ -27,8 +27,6 @@ function rateColor(rate) {
 export default function ComplianceChart({ session }) {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => { fetchCompliance(); }, []);
 
   async function fetchCompliance() {
     setLoading(true);
@@ -60,6 +58,8 @@ export default function ComplianceChart({ session }) {
     setRows(results);
     setLoading(false);
   }
+
+  useEffect(() => { fetchCompliance(); }, []);
 
   if (loading) return <div style={S.loading}>Loading compliance chart...</div>;
 

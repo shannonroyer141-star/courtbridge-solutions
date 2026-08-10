@@ -14,8 +14,6 @@ export default function ProviderOnboarding({ session }) {
     program_types: '', license_number: '', website: '',
   });
 
-  useEffect(() => { loadProfile(); }, []);
-
   async function loadProfile() {
     setLoading(true);
     const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
@@ -37,6 +35,8 @@ export default function ProviderOnboarding({ session }) {
     }
     setLoading(false);
   }
+
+  useEffect(() => { loadProfile(); }, []);
 
   async function handleSave() {
     setSaving(true);

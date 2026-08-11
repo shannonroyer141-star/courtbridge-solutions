@@ -219,8 +219,11 @@ export default function App() {
             <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.12em', color: '#7A8FA6', textTransform: 'uppercase', marginBottom: 18 }}>
               Specialty Court Compliance Platform
             </div>
-            <div style={{ fontSize: 34, fontWeight: 800, lineHeight: 1.25, marginBottom: 20 }}>
-              CourtBridge Solutions
+            <div style={{ fontSize: 34, fontWeight: 800, lineHeight: 1.25, marginBottom: 4 }}>
+              InterventionConnect
+            </div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#8FB4E0', marginBottom: 20 }}>
+              Powered by CourtBridge Solutions
             </div>
             <div style={{ fontSize: 15, color: '#C8D0DC', lineHeight: 1.6, marginBottom: 36 }}>
               GPS-verified check-ins, real-time compliance alerts, and court-ready reporting — all in one place.
@@ -245,12 +248,12 @@ export default function App() {
         <div style={{ width: '100%', maxWidth: 380 }}>
           {!isDesktop && (
             <div style={{ textAlign: 'center', marginBottom: 28 }}>
-              <div style={{ color: TEXT, fontSize: 22, fontWeight: 800 }}>CourtBridge Solutions</div>
-              <div style={{ color: TEXT_MUTED, fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', marginTop: 4 }}>Provider Platform</div>
+              <div style={{ color: TEXT, fontSize: 22, fontWeight: 800 }}>InterventionConnect</div>
+              <div style={{ color: TEXT_MUTED, fontSize: 12, fontWeight: 700, letterSpacing: '0.04em', marginTop: 4 }}>Powered by CourtBridge Solutions</div>
             </div>
           )}
           <div style={{ fontSize: 24, fontWeight: 800, color: TEXT, marginBottom: 6 }}>Welcome back</div>
-          <div style={{ fontSize: 14, color: TEXT_MUTED, marginBottom: 28 }}>Sign in to your CourtBridge portal</div>
+          <div style={{ fontSize: 14, color: TEXT_MUTED, marginBottom: 28 }}>Sign in to your InterventionConnect portal</div>
           <form onSubmit={handleLogin}>
             <div style={{ marginBottom: 16 }}>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Email</label>
@@ -475,7 +478,7 @@ export default function App() {
         <div style={{ padding: '13px 16px', borderBottom: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', gap: 10 }}>
           <img src="/cb-logo.png" alt="CourtBridge Solutions" style={{ height: 32, width: 'auto', flexShrink: 0 }} />
           <div>
-            <div style={{ color: TEXT, fontSize: 15, fontWeight: 700, letterSpacing: '-0.3px' }}>CourtBridge</div>
+            <div style={{ color: TEXT, fontSize: 15, fontWeight: 700, letterSpacing: '-0.3px' }}>CourtBridge Solutions</div>
             <div style={{ color: TEXT_MUTED, fontSize: 11, marginTop: 1 }}>Provider Platform</div>
           </div>
         </div>

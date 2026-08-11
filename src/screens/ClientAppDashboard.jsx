@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import { LANGUAGES, getTranslator } from '../i18n'
 import { DARK_BG, CARD_BG, SIDEBAR_BG, BLUE, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme'
-import { NotesWarning } from '../components/VictimInfoWarning'
+import { NotesWarning, UploadWarning, UploadConfirmCheckbox } from '../components/VictimInfoWarning'
 
 function escapeHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
@@ -68,6 +68,8 @@ function StreakRing({ streak }) {
     </div>
   )
 }
+
+const CLIENT_DOC_TYPES = ['ID / Documentation', 'Proof of Employment', 'Proof of Residence', 'Court Order', 'Signed Agreement', 'Other']
 
 const BadgeIcon = ({ d, size = 22 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{d}</svg>
@@ -170,6 +172,13 @@ export default function ClientAppDashboard({ session, onLogout }) {
   const [savingJournal, setSavingJournal] = useState(false)
   const [editingJournalId, setEditingJournalId] = useState(null)
   const [expandedJournalIds, setExpandedJournalIds] = useState(new Set())
+  const [showUploadForm, setShowUploadForm] = useState(false)
+  const [uploadFile, setUploadFile] = useState(null)
+  const [uploadDocType, setUploadDocType] = useState('')
+  const [uploadNotes, setUploadNotes] = useState('')
+  const [uploadVictimConfirmed, setUploadVictimConfirmed] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [uploadStatus, setUploadStatus] = useState('')
   const [courtDates, setCourtDates] = useState([])
   const [tasks, setTasks] = useState([])
   const [documents, setDocuments] = useState([])
@@ -625,6 +634,36 @@ export default function ClientAppDashboard({ session, onLogout }) {
     window.open(data.signedUrl, '_blank')
   }
 
+  async function handleClientUpload() {
+    if (!uploadFile || !uploadDocType || !client) { setUploadStatus('Please choose a document type and a file.'); return }
+    if (!uploadVictimConfirmed) { setUploadStatus('Please confirm this document does not contain victim-identifying information before uploading.'); return }
+    setUploading(true)
+    setUploadStatus('')
+    try {
+      const fileExt = uploadFile.name.split('.').pop()
+      const fileName = `${client.id}/${Date.now()}.${fileExt}`
+
+      const { error: uploadError } = await supabase.storage.from('documents').upload(fileName, uploadFile)
+      if (uploadError) throw uploadError
+
+      const { data: inserted, error: insertError } = await supabase.from('documents').insert([{
+        client_id: client.id, file_name: uploadFile.name, file_url: fileName,
+        file_size: uploadFile.size, file_type: uploadFile.type,
+        document_type: uploadDocType, notes: uploadNotes,
+        victim_check_confirmed: true, victim_check_confirmed_by: client.auth_user_id, victim_check_confirmed_at: new Date().toISOString(),
+      }]).select().single()
+      if (insertError) throw insertError
+
+      setUploadStatus('✅ Document uploaded successfully!')
+      setUploadFile(null); setUploadDocType(''); setUploadNotes(''); setUploadVictimConfirmed(false)
+      setShowUploadForm(false)
+      if (inserted) setDocuments(prev => [inserted, ...prev])
+    } catch (err) {
+      setUploadStatus('Upload failed: ' + err.message)
+    }
+    setUploading(false)
+  }
+
   async function handleCheckIn() {
     if (checkingIn) return
     if (!client?.id) { setCheckInMsg({ type: 'error', text: t('dashboard', 'common').errClientNotFound }); return }
@@ -887,7 +926,63 @@ export default function ClientAppDashboard({ session, onLogout }) {
 
         {activeTab === 'documents' && (
           <div style={{ margin: '16px 22px', paddingBottom: isMobile ? 80 : 20 }}>
-            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>{t('dashboard', 'documents').title}</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <div style={{ fontSize: 13, fontWeight: 500, color: TEXT }}>{t('dashboard', 'documents').title}</div>
+              <div
+                onClick={() => setShowUploadForm(v => !v)}
+                style={{ fontSize: 12, fontWeight: 600, color: ACCENT, cursor: 'pointer', padding: '5px 10px', borderRadius: 6, border: `0.5px solid ${ACCENT}` }}
+              >
+                {showUploadForm ? 'Cancel' : '+ Upload'}
+              </div>
+            </div>
+
+            {showUploadForm && (
+              <InnerCard style={{ marginBottom: 16 }}>
+                {uploadStatus && (
+                  <div style={{ fontSize: 12, color: uploadStatus.includes('✅') ? GREEN : RED, marginBottom: 10 }}>{uploadStatus}</div>
+                )}
+                <select
+                  value={uploadDocType}
+                  onChange={e => setUploadDocType(e.target.value)}
+                  style={{ width: '100%', padding: 12, marginBottom: 10, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT, fontSize: 13.5 }}
+                >
+                  <option value="">Document Type *</option>
+                  {CLIENT_DOC_TYPES.map(dt => <option key={dt} value={dt}>{dt}</option>)}
+                </select>
+                <NotesWarning />
+                <textarea
+                  placeholder="Notes (optional)"
+                  value={uploadNotes}
+                  onChange={e => setUploadNotes(e.target.value)}
+                  style={{ width: '100%', minHeight: 60, padding: 12, marginBottom: 10, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT, fontSize: 13.5 }}
+                />
+                <UploadWarning />
+                <div
+                  onClick={() => document.getElementById('client-file-input').click()}
+                  style={{ border: `2px dashed ${ACCENT}`, borderRadius: 8, padding: 20, textAlign: 'center', marginBottom: 10, cursor: 'pointer', background: uploadFile ? 'rgba(91,155,240,0.1)' : 'rgba(255,255,255,0.02)' }}
+                >
+                  <input id="client-file-input" type="file" style={{ display: 'none' }} accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onChange={e => setUploadFile(e.target.files[0])} />
+                  {uploadFile ? (
+                    <div style={{ color: ACCENT, fontWeight: 600, fontSize: 13 }}>📎 {uploadFile.name}</div>
+                  ) : (
+                    <div style={{ color: TEXT_MUTED, fontSize: 13 }}>📁 Tap to select a file<div style={{ color: TEXT_DIM, fontSize: 11, marginTop: 2 }}>PDF, JPG, PNG, DOC — max 10MB</div></div>
+                  )}
+                </div>
+                <UploadConfirmCheckbox checked={uploadVictimConfirmed} onChange={setUploadVictimConfirmed} />
+                <div
+                  onClick={uploading ? undefined : handleClientUpload}
+                  style={{
+                    marginTop: 10, textAlign: 'center', padding: '11px 16px', borderRadius: 8, fontSize: 13, fontWeight: 700,
+                    cursor: uploadFile && uploadDocType && uploadVictimConfirmed && !uploading ? 'pointer' : 'default',
+                    opacity: uploadFile && uploadDocType && uploadVictimConfirmed && !uploading ? 1 : 0.5,
+                    background: GREEN, color: '#fff',
+                  }}
+                >
+                  {uploading ? 'Uploading...' : '⬆️ Upload Document'}
+                </div>
+              </InnerCard>
+            )}
+
             <InnerCard>
               {documents.length === 0 ? (
                 <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>{t('dashboard', 'documents').empty}</div>

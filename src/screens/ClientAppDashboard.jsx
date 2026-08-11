@@ -626,7 +626,7 @@ export default function ClientAppDashboard({ session, onLogout }) {
   }
 
   async function handleCheckIn() {
-    if (checkedInToday) return
+    if (checkingIn) return
     if (!client?.id) { setCheckInMsg({ type: 'error', text: t('dashboard', 'common').errClientNotFound }); return }
     setCheckingIn(true)
     setCheckInMsg(null)
@@ -641,10 +641,10 @@ export default function ClientAppDashboard({ session, onLogout }) {
 
       if (!navigator.onLine) throw new Error('offline')
 
-      const { error } = await supabase.from('checkins').insert({ ...payload, notes: null })
+      const { data: inserted, error } = await supabase.from('checkins').insert({ ...payload, notes: null }).select().single()
       if (error) throw error
       setCheckInMsg({ type: 'success', text: t('dashboard', 'common').checkInSuccess })
-      fetchClientData()
+      if (inserted) setCheckIns(prev => [inserted, ...prev])
     } catch (err) {
       const c = t('dashboard', 'common')
       if (payload && isNetworkError(err)) {
@@ -680,7 +680,8 @@ export default function ClientAppDashboard({ session, onLogout }) {
       if (error) throw error
       if (!data || data.length === 0) throw new Error(t('dashboard', 'common').errCheckOutSave)
       setCheckOutMsg({ type: 'success', text: t('dashboard', 'common').checkOutSuccess })
-      fetchClientData()
+      const updated = data[0]
+      setCheckIns(prev => prev.map(ci => ci.id === updated.id ? updated : ci))
     } catch (err) {
       const c = t('dashboard', 'common')
       if (err.code === 1) setCheckOutMsg({ type: 'error', text: c.errLocationDenied })
@@ -1321,7 +1322,7 @@ export default function ClientAppDashboard({ session, onLogout }) {
             )}
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <div
-                onClick={handleCheckIn}
+                onClick={checkedInToday ? undefined : handleCheckIn}
                 style={{
                   marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 6,
                   background: checkedInToday ? 'rgba(76,175,125,0.2)' : 'rgba(255,255,255,0.15)',
@@ -1333,6 +1334,18 @@ export default function ClientAppDashboard({ session, onLogout }) {
               >
                 {checkingIn ? t('dashboard', 'home').gettingLocation : checkedInToday ? t('dashboard', 'home').checkedInTodayLabel(checkedInTime) : `${pop.checkInLabel} 📍`}
               </div>
+              {checkedInToday && !checkingIn && (
+                <div
+                  onClick={handleCheckIn}
+                  style={{
+                    marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 6,
+                    background: 'rgba(255,255,255,0.15)', border: `0.5px solid rgba(255,255,255,0.25)`,
+                    color: TEXT, fontSize: 12, padding: '7px 14px', borderRadius: 8, cursor: 'pointer',
+                  }}
+                >
+                  + Check In Again 📍
+                </div>
+              )}
               {syncedTodaysCheckin && (
                 <div
                   onClick={handleCheckOut}

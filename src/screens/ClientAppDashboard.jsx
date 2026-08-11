@@ -70,7 +70,7 @@ function StreakRing({ streak }) {
 }
 
 const NAV_ICONS = {
-  dashboard: '🏠', journey: '🧭', documents: '📁',
+  dashboard: '🏠', journey: '📖', documents: '📁',
   forms: '✍️', messages: '💬', courtdates: '🗓️', settings: '🐦‍🔥',
 }
 const NAV_KEY_MAP = { dashboard: 'home', journey: 'journey', documents: 'documents', forms: 'forms', messages: 'messages', courtdates: 'courtdates', settings: 'progress' }

@@ -69,6 +69,17 @@ function StreakRing({ streak }) {
   )
 }
 
+const BadgeIcon = ({ d, size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{d}</svg>
+)
+const MILESTONE_ICONS = {
+  checkin_streak_7: <><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></>,
+  checkin_streak_30: <><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></>,
+  checkin_streak_90: <><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></>,
+  checkin_streak_180: <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>,
+  checkin_streak_365: <><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></>,
+}
+
 const NAV_ICONS = {
   dashboard: '🏠', journey: '📖', documents: '📁',
   forms: '✍️', messages: '💬', courtdates: '🗓️', settings: '🐦‍🔥',
@@ -158,6 +169,7 @@ export default function ClientAppDashboard({ session, onLogout }) {
   const [journalDraft, setJournalDraft] = useState('')
   const [savingJournal, setSavingJournal] = useState(false)
   const [editingJournalId, setEditingJournalId] = useState(null)
+  const [expandedJournalIds, setExpandedJournalIds] = useState(new Set())
   const [courtDates, setCourtDates] = useState([])
   const [tasks, setTasks] = useState([])
   const [documents, setDocuments] = useState([])
@@ -497,6 +509,15 @@ export default function ClientAppDashboard({ session, onLogout }) {
     await supabase.from('client_journal_entries').delete().eq('id', id)
     if (editingJournalId === id) cancelJournalEdit()
     fetchClientData()
+  }
+
+  function toggleJournalEntry(id) {
+    setExpandedJournalIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
   }
 
   function openSignatureSlip(sig) {
@@ -1109,7 +1130,9 @@ export default function ClientAppDashboard({ session, onLogout }) {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10 }}>
                   {milestones.map(m => (
                     <div key={m.id} style={{ background: 'rgba(91,155,240,0.08)', border: `0.5px solid rgba(91,155,240,0.2)`, borderRadius: 8, padding: '12px 10px', textAlign: 'center' }}>
-                      <div style={{ fontSize: 22 }}>🏅</div>
+                      <div style={{ color: ACCENT, display: 'flex', justifyContent: 'center' }}>
+                        <BadgeIcon d={MILESTONE_ICONS[m.milestone_type] || MILESTONE_ICONS.checkin_streak_7} />
+                      </div>
                       <div style={{ fontSize: 11, color: TEXT, fontWeight: 500, marginTop: 6 }}>{m.title}</div>
                       <div style={{ fontSize: 10, color: TEXT_DIM, marginTop: 3 }}>{new Date(m.achieved_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
                     </div>
@@ -1176,18 +1199,28 @@ export default function ClientAppDashboard({ session, onLogout }) {
 
             {journalEntries.length > 0 && (
               <InnerCard>
-                {journalEntries.map((entry, i) => (
-                  <div key={entry.id} style={{ padding: '10px 0', borderBottom: i === journalEntries.length - 1 ? 'none' : `0.5px solid rgba(255,255,255,0.05)` }}>
-                    <div style={{ fontSize: 11, color: TEXT_DIM, marginBottom: 4 }}>
-                      {new Date(entry.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                {journalEntries.map((entry, i) => {
+                  const isOpen = expandedJournalIds.has(entry.id)
+                  return (
+                    <div key={entry.id} style={{ padding: '10px 0', borderBottom: i === journalEntries.length - 1 ? 'none' : `0.5px solid rgba(255,255,255,0.05)` }}>
+                      <div onClick={() => toggleJournalEntry(entry.id)} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}>
+                        <div style={{ fontSize: 12, color: TEXT_DIM }}>
+                          🔒 {new Date(entry.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </div>
+                        <div style={{ fontSize: 11, color: TEXT_DIM }}>{isOpen ? '▲ Hide' : '▼ Tap to view'}</div>
+                      </div>
+                      {isOpen && (
+                        <>
+                          <div style={{ fontSize: 13, color: TEXT, lineHeight: 1.6, whiteSpace: 'pre-wrap', marginTop: 8, marginBottom: 6 }}>{entry.content}</div>
+                          <div style={{ display: 'flex', gap: 14 }}>
+                            <div onClick={() => startEditingJournalEntry(entry)} style={{ fontSize: 11, color: ACCENT, cursor: 'pointer' }}>Edit</div>
+                            <div onClick={() => deleteJournalEntry(entry.id)} style={{ fontSize: 11, color: RED, cursor: 'pointer' }}>Delete</div>
+                          </div>
+                        </>
+                      )}
                     </div>
-                    <div style={{ fontSize: 13, color: TEXT, lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: 6 }}>{entry.content}</div>
-                    <div style={{ display: 'flex', gap: 14 }}>
-                      <div onClick={() => startEditingJournalEntry(entry)} style={{ fontSize: 11, color: ACCENT, cursor: 'pointer' }}>Edit</div>
-                      <div onClick={() => deleteJournalEntry(entry.id)} style={{ fontSize: 11, color: RED, cursor: 'pointer' }}>Delete</div>
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </InnerCard>
             )}
           </div>

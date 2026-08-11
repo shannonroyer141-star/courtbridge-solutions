@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
-import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
+import { GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 import { NotesWarning } from '../components/VictimInfoWarning';
 
 // calendar_events.event_type has a DB check constraint requiring these exact
@@ -16,14 +16,24 @@ const EVENT_TYPE_OPTIONS = [
 
 const EVENT_TYPE_LABELS = Object.fromEntries(EVENT_TYPE_OPTIONS.map(o => [o.value, o.label]));
 
+// Semantic colors stay constant across skins -- red always means "urgent/court",
+// so a skin only reskins the chrome (accent, background), never what a color means.
 const TYPE_COLORS = {
   'Court Date': RED,
   'Task': WARNING,
-  'Check-In Due': ACCENT,
+  'Check-In Due': '#5B9BF0',
   'Appointment': GREEN,
   'Reporting Due': WARNING,
-  'Program Review': ACCENT,
+  'Program Review': '#5B9BF0',
   'Other': '#7DA6E0',
+};
+const TYPE_PRIORITY = ['Court Date', 'Reporting Due', 'Task', 'Check-In Due', 'Program Review', 'Appointment', 'Other'];
+
+const SKINS = {
+  navy:     { name: 'Navy',     accent: '#5B9BF0', accentSoft: 'rgba(91,155,240,0.16)',  pageBg: 'linear-gradient(160deg, #1A2434 0%, #202D40 100%)', cardBg: '#212E42' },
+  forest:   { name: 'Forest',   accent: '#4CAF7D', accentSoft: 'rgba(76,175,125,0.16)',  pageBg: 'linear-gradient(160deg, #17241D 0%, #1D2E24 100%)', cardBg: '#1E2E26' },
+  sunset:   { name: 'Sunset',   accent: '#E0954F', accentSoft: 'rgba(224,149,79,0.16)',  pageBg: 'linear-gradient(160deg, #291D14 0%, #33251A 100%)', cardBg: '#2C2119' },
+  midnight: { name: 'Midnight', accent: '#9B7FE0', accentSoft: 'rgba(155,127,224,0.16)', pageBg: 'linear-gradient(160deg, #1C1830 0%, #251F3D 100%)', cardBg: '#221C38' },
 };
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -43,6 +53,7 @@ export default function Calendar() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
   const [width, setWidth] = useState(window.innerWidth);
+  const [skinKey, setSkinKey] = useState('navy');
 
   useEffect(() => { fetchAll(); }, []);
   useEffect(() => {
@@ -51,17 +62,26 @@ export default function Calendar() {
     return () => window.removeEventListener('resize', onResize);
   }, []);
   const isPhone = width < 640;
+  const skin = SKINS[skinKey] || SKINS.navy;
 
   async function fetchAll() {
     const { data: { user } } = await supabase.auth.getUser();
-    const [{ data: ev }, { data: cd }, { data: tk }] = await Promise.all([
+    const [{ data: ev }, { data: cd }, { data: tk }, { data: profile }] = await Promise.all([
       supabase.from('calendar_events').select('*').order('event_date', { ascending: true }),
       supabase.from('court_dates').select('*, clients(name)').order('hearing_date', { ascending: true }),
       supabase.from('tasks').select('*').eq('provider_id', user.id).order('due_date', { ascending: true }),
+      supabase.from('profiles').select('calendar_skin').eq('id', user.id).single(),
     ]);
     setManualEvents(ev || []);
     setCourtDates(cd || []);
     setTasks((tk || []).filter(t => t.due_date));
+    if (profile?.calendar_skin && SKINS[profile.calendar_skin]) setSkinKey(profile.calendar_skin);
+  }
+
+  async function changeSkin(key) {
+    setSkinKey(key);
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase.from('profiles').update({ calendar_skin: key }).eq('id', user.id);
   }
 
   async function handleSave() {
@@ -112,6 +132,15 @@ export default function Calendar() {
     });
   });
 
+  function primaryColorFor(items) {
+    if (!items || items.length === 0) return null;
+    for (const type of TYPE_PRIORITY) {
+      const hit = items.find(it => it.type === type);
+      if (hit) return TYPE_COLORS[type] || skin.accent;
+    }
+    return TYPE_COLORS[items[0].type] || skin.accent;
+  }
+
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
   const firstWeekday = new Date(year, month, 1).getDay();
@@ -131,24 +160,40 @@ export default function Calendar() {
   const selectedItems = itemsByDay[selectedDay] || [];
 
   const s = {
-    page: { padding: isPhone ? '20px 16px' : '30px', fontFamily: NAV_FONT },
-    header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 10 },
+    page: { padding: isPhone ? '20px 16px' : '30px', fontFamily: NAV_FONT, background: skin.pageBg, minHeight: '100%', margin: -1 * (isPhone ? 20 : 30), paddingTop: isPhone ? 20 : 30 },
+    header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 },
     title: { color: TEXT, margin: 0, fontSize: 22, fontWeight: 700 },
-    addBtn: { padding: '10px 18px', background: ACCENT, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 },
+    addBtn: { padding: '10px 18px', background: skin.accent, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 },
     layout: { display: 'grid', gridTemplateColumns: isPhone ? '1fr' : '1.4fr 1fr', gap: 20 },
-    calCard: { background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 10, padding: isPhone ? 12 : 18 },
-    monthNav: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
-    monthLabel: { color: TEXT, fontSize: 16, fontWeight: 600 },
-    navBtn: { background: 'none', border: `0.5px solid ${BORDER}`, color: TEXT_MUTED, borderRadius: 6, padding: '4px 10px', cursor: 'pointer', fontSize: 14 },
-    grid: { display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 },
-    weekdayCell: { textAlign: 'center', fontSize: 11, color: TEXT_DIM, fontWeight: 600, padding: '4px 0' },
-    card: { background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 10, padding: 18 },
+    calCard: { background: skin.cardBg, border: `0.5px solid ${BORDER}`, borderRadius: 14, padding: isPhone ? 12 : 20, boxShadow: '0 8px 24px rgba(0,0,0,0.18)' },
+    monthNav: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+    monthLabel: { color: TEXT, fontSize: 17, fontWeight: 700, letterSpacing: '-0.2px' },
+    navBtn: { background: 'rgba(255,255,255,0.06)', border: `0.5px solid ${BORDER}`, color: TEXT_MUTED, borderRadius: 8, padding: '5px 12px', cursor: 'pointer', fontSize: 14 },
+    grid: { display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 5 },
+    weekdayCell: { textAlign: 'center', fontSize: 11, color: TEXT_DIM, fontWeight: 700, padding: '4px 0', textTransform: 'uppercase', letterSpacing: '0.04em' },
+    card: { background: skin.cardBg, border: `0.5px solid ${BORDER}`, borderRadius: 14, padding: 20, boxShadow: '0 8px 24px rgba(0,0,0,0.18)' },
   };
 
   return (
     <div style={s.page}>
       <div style={s.header}>
-        <h1 style={s.title}>Calendar</h1>
+        <div>
+          <h1 style={s.title}>Calendar</h1>
+          <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+            {Object.entries(SKINS).map(([key, sk]) => (
+              <div
+                key={key}
+                onClick={() => changeSkin(key)}
+                title={sk.name}
+                style={{
+                  width: 20, height: 20, borderRadius: '50%', background: sk.accent, cursor: 'pointer',
+                  border: skinKey === key ? '2px solid white' : '2px solid transparent',
+                  boxShadow: skinKey === key ? `0 0 0 2px ${sk.accent}` : 'none',
+                }}
+              />
+            ))}
+          </div>
+        </div>
         <button style={s.addBtn} onClick={() => setShowForm(!showForm)}>+ Add Event</button>
       </div>
 
@@ -195,19 +240,21 @@ export default function Calendar() {
               const items = itemsByDay[key] || [];
               const isToday = key === todayKey;
               const isSelected = key === selectedDay;
+              const dayColor = primaryColorFor(items);
               return (
                 <div key={key} onClick={() => setSelectedDay(key)} style={{
-                  minHeight: isPhone ? 40 : 56, borderRadius: 8, padding: '4px 5px', cursor: 'pointer',
-                  background: isSelected ? 'rgba(91,155,240,0.18)' : isToday ? 'rgba(91,155,240,0.08)' : 'transparent',
-                  border: isSelected ? `1px solid ${ACCENT}` : '1px solid transparent',
+                  minHeight: isPhone ? 44 : 62, borderRadius: 10, padding: '6px 6px', cursor: 'pointer',
+                  background: isSelected ? skin.accentSoft : dayColor ? `${dayColor}14` : 'rgba(255,255,255,0.02)',
+                  border: isSelected ? `1.5px solid ${skin.accent}` : isToday ? `1px solid ${skin.accent}55` : '1px solid transparent',
+                  borderLeft: dayColor && !isSelected ? `3px solid ${dayColor}` : isSelected ? `1.5px solid ${skin.accent}` : '1px solid transparent',
+                  transition: 'background 0.12s ease',
                 }}>
-                  <div style={{ fontSize: 12, color: isToday ? ACCENT : TEXT, fontWeight: isToday ? 700 : 400 }}>{d}</div>
+                  <div style={{ fontSize: 12, color: isToday ? skin.accent : TEXT, fontWeight: isToday ? 800 : 500 }}>{d}</div>
                   {items.length > 0 && (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2, marginTop: 3 }}>
-                      {items.slice(0, 3).map((it, ii) => (
-                        <div key={ii} style={{ width: 5, height: 5, borderRadius: '50%', background: TYPE_COLORS[it.type] || TYPE_COLORS.Other }} />
-                      ))}
-                      {items.length > 3 && <div style={{ fontSize: 8, color: TEXT_DIM }}>+{items.length - 3}</div>}
+                    <div style={{ marginTop: 4 }}>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: dayColor, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {items.length === 1 ? items[0].type : `${items.length} items`}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -217,18 +264,24 @@ export default function Calendar() {
         </div>
 
         <div style={s.card}>
-          <div style={{ color: TEXT, fontSize: 15, fontWeight: 600, marginBottom: 4 }}>
+          <div style={{ color: TEXT, fontSize: 15, fontWeight: 700, marginBottom: 4 }}>
             {new Date(selectedDay + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </div>
           <div style={{ color: TEXT_DIM, fontSize: 12, marginBottom: 14 }}>{selectedItems.length} item{selectedItems.length === 1 ? '' : 's'}</div>
           {selectedItems.length === 0 ? (
-            <p style={{ color: TEXT_DIM, fontSize: 13 }}>Nothing scheduled this day.</p>
+            <div style={{ padding: '28px 10px', textAlign: 'center' }}>
+              <div style={{ fontSize: 28, marginBottom: 8, opacity: 0.5 }}>🗓️</div>
+              <p style={{ color: TEXT_DIM, fontSize: 13, margin: 0 }}>Nothing scheduled this day.</p>
+            </div>
           ) : (
             selectedItems.map((it, i) => (
-              <div key={i} style={{ display: 'flex', gap: 12, padding: '10px 0', borderBottom: i === selectedItems.length - 1 ? 'none' : `0.5px solid ${BORDER}` }}>
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: TYPE_COLORS[it.type] || TYPE_COLORS.Other, marginTop: 5, flexShrink: 0 }} />
+              <div key={i} style={{
+                display: 'flex', gap: 12, padding: '12px 12px', marginBottom: i === selectedItems.length - 1 ? 0 : 8,
+                borderRadius: 10, background: `${TYPE_COLORS[it.type] || skin.accent}0F`, border: `0.5px solid ${(TYPE_COLORS[it.type] || skin.accent)}33`,
+              }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: TYPE_COLORS[it.type] || skin.accent, marginTop: 5, flexShrink: 0 }} />
                 <div>
-                  <div style={{ color: TEXT, fontSize: 14, fontWeight: 500 }}>{it.title}</div>
+                  <div style={{ color: TEXT, fontSize: 14, fontWeight: 600 }}>{it.title}</div>
                   <div style={{ color: TEXT_DIM, fontSize: 12, marginTop: 2 }}>
                     {it.type}{it.time ? ` · ${it.time}` : ''}{it.sub ? ` · ${it.sub}` : ''}
                   </div>

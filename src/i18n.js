@@ -205,7 +205,7 @@ export const translations = {
         privacyBody: 'Your records are private — only you and your provider can see them, no one else. We do not sell or share your information with third parties. Location is only captured the moment you tap "Check In" or "Check Out" — two brief moments, not continuous tracking.',
         privacyContact: 'Questions or problems? Please contact',
         privacyContactBold: 'your provider',
-        privacyContactEnd: 'directly rather than CourtBridge Solutions.',
+        privacyContactEnd: 'directly.',
       },
       journey: {
         myPrograms: 'My Programs',
@@ -425,7 +425,7 @@ export const translations = {
         privacyBody: 'Tus registros son privados — solo tú y tu proveedor pueden verlos, nadie más. No vendemos ni compartimos tu información con terceros. La ubicación solo se captura en el momento en que presionas "Registrar entrada" o "Registrar salida" — dos momentos breves, no un rastreo continuo.',
         privacyContact: '¿Preguntas o problemas? Comunícate con',
         privacyContactBold: 'tu proveedor',
-        privacyContactEnd: 'directamente, en lugar de con CourtBridge Solutions.',
+        privacyContactEnd: 'directamente.',
       },
       journey: {
         myPrograms: 'Mis Programas',
@@ -645,7 +645,7 @@ export const translations = {
         privacyBody: 'Dosye ou yo prive — se sèlman ou menm ak founisè ou ki ka wè yo, pèsonn lòt. Nou pa vann oswa pataje enfòmasyon ou ak twazyèm pati. Kote ou ye sèlman kaptire nan moman ou peze "Antre" oswa "Sòti" — de moman kout, se pa yon swiv kontinyèl.',
         privacyContact: 'Kesyon oswa pwoblèm? Tanpri kontakte',
         privacyContactBold: 'founisè ou',
-        privacyContactEnd: 'dirèkteman olye de CourtBridge Solutions.',
+        privacyContactEnd: 'dirèkteman.',
       },
       journey: {
         myPrograms: 'Pwogram Mwen',

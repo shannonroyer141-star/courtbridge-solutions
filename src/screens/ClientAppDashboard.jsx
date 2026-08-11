@@ -481,18 +481,23 @@ export default function ClientAppDashboard({ session, onLogout }) {
   async function saveJournalEntry() {
     if (!journalDraft.trim() || !client) return
     setSavingJournal(true)
+    const content = journalDraft.trim()
     if (editingJournalId) {
+      const updated_at = new Date().toISOString()
       await supabase.from('client_journal_entries')
-        .update({ content: journalDraft.trim(), updated_at: new Date().toISOString() })
+        .update({ content, updated_at })
         .eq('id', editingJournalId)
+      setJournalEntries(prev => prev.map(e => e.id === editingJournalId ? { ...e, content, updated_at } : e))
     } else {
-      await supabase.from('client_journal_entries')
-        .insert({ client_id: client.id, content: journalDraft.trim() })
+      const { data } = await supabase.from('client_journal_entries')
+        .insert({ client_id: client.id, content })
+        .select()
+        .single()
+      if (data) setJournalEntries(prev => [data, ...prev])
     }
     setJournalDraft('')
     setEditingJournalId(null)
     setSavingJournal(false)
-    fetchClientData()
   }
 
   function startEditingJournalEntry(entry) {
@@ -508,7 +513,7 @@ export default function ClientAppDashboard({ session, onLogout }) {
   async function deleteJournalEntry(id) {
     await supabase.from('client_journal_entries').delete().eq('id', id)
     if (editingJournalId === id) cancelJournalEdit()
-    fetchClientData()
+    setJournalEntries(prev => prev.filter(e => e.id !== id))
   }
 
   function toggleJournalEntry(id) {

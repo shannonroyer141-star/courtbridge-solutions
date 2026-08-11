@@ -1334,18 +1334,6 @@ export default function ClientAppDashboard({ session, onLogout }) {
               >
                 {checkingIn ? t('dashboard', 'home').gettingLocation : checkedInToday ? t('dashboard', 'home').checkedInTodayLabel(checkedInTime) : `${pop.checkInLabel} 📍`}
               </div>
-              {checkedInToday && !checkingIn && (
-                <div
-                  onClick={handleCheckIn}
-                  style={{
-                    marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 6,
-                    background: 'rgba(255,255,255,0.15)', border: `0.5px solid rgba(255,255,255,0.25)`,
-                    color: TEXT, fontSize: 12, padding: '7px 14px', borderRadius: 8, cursor: 'pointer',
-                  }}
-                >
-                  + Check In Again 📍
-                </div>
-              )}
               {syncedTodaysCheckin && (
                 <div
                   onClick={handleCheckOut}
@@ -1359,6 +1347,18 @@ export default function ClientAppDashboard({ session, onLogout }) {
                   }}
                 >
                   {checkingOut ? t('dashboard', 'home').gettingLocation : checkedOutToday ? t('dashboard', 'home').checkedOutLabel(checkedOutTime) : `${t('dashboard', 'home').checkOutButton} 📍`}
+                </div>
+              )}
+              {checkedInToday && !checkingIn && (
+                <div
+                  onClick={handleCheckIn}
+                  style={{
+                    marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 6,
+                    background: 'rgba(255,255,255,0.15)', border: `0.5px solid rgba(255,255,255,0.25)`,
+                    color: TEXT, fontSize: 12, padding: '7px 14px', borderRadius: 8, cursor: 'pointer',
+                  }}
+                >
+                  + Check In Again 📍
                 </div>
               )}
             </div>

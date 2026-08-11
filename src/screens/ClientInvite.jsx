@@ -68,6 +68,13 @@ export default function ClientInvite() {
     setSaving(false);
   }
 
+  async function deleteInvite(id) {
+    setSaving(true);
+    await supabase.from('invites').delete().eq('id', id);
+    setSaving(false);
+    fetchInvites();
+  }
+
   async function resendInvite(invite) {
     setSaving(true);
     const { data: { session } } = await supabase.auth.getSession();
@@ -120,24 +127,32 @@ export default function ClientInvite() {
       ) : (
         <div>
           <h2 style={{ color: TEXT, marginBottom: 16, fontSize: 16 }}>Sent Invites</h2>
-          {invites.map(i => (
-            <div key={i.id} style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 10, padding: 16, marginBottom: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
-              <div>
-                <p style={{ margin: 0, fontWeight: 'bold', color: TEXT }}>{i.client_name}</p>
-                <p style={{ margin: '3px 0 0', fontSize: 13, color: TEXT_MUTED }}>{i.client_email}</p>
-                {i.program_type && <p style={{ margin: '3px 0 0', fontSize: 12, color: TEXT_DIM }}>{i.program_type}</p>}
-                <p style={{ margin: '3px 0 0', fontSize: 12, color: TEXT_DIM }}>Sent {new Date(i.created_at).toLocaleDateString()} • Expires {new Date(i.expires_at).toLocaleDateString()}</p>
+          {invites.map(i => {
+            const isExpired = new Date(i.expires_at) < new Date();
+            return (
+              <div key={i.id} style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 10, padding: 16, marginBottom: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
+                <div>
+                  <p style={{ margin: 0, fontWeight: 'bold', color: TEXT }}>{i.client_name}</p>
+                  <p style={{ margin: '3px 0 0', fontSize: 13, color: TEXT_MUTED }}>{i.client_email}</p>
+                  {i.program_type && <p style={{ margin: '3px 0 0', fontSize: 12, color: TEXT_DIM }}>{i.program_type}</p>}
+                  <p style={{ margin: '3px 0 0', fontSize: 12, color: TEXT_DIM }}>Sent {new Date(i.created_at).toLocaleDateString()} • Expires {new Date(i.expires_at).toLocaleDateString()}</p>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+                  <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 'bold', background: isExpired ? 'rgba(248,113,113,0.15)' : '#fff', color: isExpired ? '#F87171' : '#000' }}>
+                    {isExpired ? '⌛ Expired' : '⏳ Pending'}
+                  </span>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button onClick={() => resendInvite(i)} disabled={saving} style={{ padding: '5px 12px', background: 'rgba(255,255,255,0.04)', color: ACCENT, border: `0.5px solid ${ACCENT}`, borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
+                      Resend
+                    </button>
+                    <button onClick={() => deleteInvite(i.id)} disabled={saving} style={{ padding: '5px 12px', background: 'rgba(255,255,255,0.04)', color: '#F87171', border: '0.5px solid #F87171', borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
+                      Delete
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
-                <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 'bold', background: '#fff', color: '#000' }}>
-                  ⏳ Pending
-                </span>
-                <button onClick={() => resendInvite(i)} disabled={saving} style={{ padding: '5px 12px', background: 'rgba(255,255,255,0.04)', color: ACCENT, border: `0.5px solid ${ACCENT}`, borderRadius: 6, fontSize: 12, cursor: 'pointer' }}>
-                  Resend
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

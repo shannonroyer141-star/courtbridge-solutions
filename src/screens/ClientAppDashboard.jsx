@@ -70,10 +70,10 @@ function StreakRing({ streak }) {
 }
 
 const NAV_ICONS = {
-  dashboard: '🏠', checkin: '📍', journey: '🧭', documents: '📁',
+  dashboard: '🏠', journey: '🧭', documents: '📁',
   forms: '✍️', messages: '💬', courtdates: '🗓️', settings: '🐦‍🔥',
 }
-const NAV_KEY_MAP = { dashboard: 'home', checkin: 'checkin', journey: 'journey', documents: 'documents', forms: 'forms', messages: 'messages', courtdates: 'courtdates', settings: 'progress' }
+const NAV_KEY_MAP = { dashboard: 'home', journey: 'journey', documents: 'documents', forms: 'forms', messages: 'messages', courtdates: 'courtdates', settings: 'progress' }
 
 function buildNavItems(t) {
   return Object.keys(NAV_ICONS).map(id => ({ id, icon: NAV_ICONS[id], label: t('dashboard', 'nav')[NAV_KEY_MAP[id]] }))
@@ -485,6 +485,39 @@ export default function ClientAppDashboard({ session, onLogout }) {
 
   function compactDate(dateStr) {
     return dateStr.replaceAll('-', '')
+  }
+
+  function printProofOfCompliance() {
+    const win = window.open('', '_blank')
+    const programLabel = primaryProgram ? primaryProgram.order_name : ''
+    win.document.write(`
+      <html><head><title>Compliance Summary - ${escapeHtml(client?.name || '')}</title>
+      <style>
+        body { font-family: Georgia, serif; padding: 50px; max-width: 650px; margin: 0 auto; color: #1a1a2e; }
+        .header { border-bottom: 2px solid #1B3A6B; padding-bottom: 16px; margin-bottom: 24px; }
+        h1 { color: #1B3A6B; font-size: 20px; margin: 0 0 4px; }
+        .meta { color: #666; font-size: 13px; }
+        .stats { display: flex; gap: 24px; margin: 24px 0; }
+        .stat { flex: 1; border: 1px solid #ddd; border-radius: 8px; padding: 14px; text-align: center; }
+        .stat .value { font-size: 26px; font-weight: bold; color: #1B3A6B; }
+        .stat .label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+        .footer { margin-top: 40px; font-size: 11px; color: #999; }
+      </style>
+      </head><body>
+        <div class="header">
+          <h1>Compliance Summary</h1>
+          <div class="meta">${escapeHtml(client?.name || '')}${programLabel ? ' — ' + escapeHtml(programLabel) : ''}</div>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="value">${checkIns.length}</div><div class="label">Total Check-Ins</div></div>
+          <div class="stat"><div class="value">${streak}</div><div class="label">Current Streak</div></div>
+          <div class="stat"><div class="value">${complianceRate}%</div><div class="label">Compliance Rate</div></div>
+        </div>
+        <div class="footer">Generated ${new Date().toLocaleString()} — CourtBridge Solutions</div>
+      </body></html>
+    `)
+    win.document.close()
+    win.print()
   }
 
   function formatNoteDate(dateStr) {
@@ -901,6 +934,17 @@ export default function ClientAppDashboard({ session, onLogout }) {
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.55)', marginTop: 6 }}>{pT.percentThrough(primaryPct)}</div>
                 </div>
               )}
+            </div>
+
+            <div
+              onClick={printProofOfCompliance}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                background: 'rgba(91,155,240,0.12)', border: `0.5px solid ${ACCENT}`, borderRadius: 10,
+                padding: '12px 16px', marginBottom: 16, cursor: 'pointer', fontSize: 13.5, fontWeight: 600, color: ACCENT,
+              }}
+            >
+              🖨️ Print On The Go
             </div>
 
             <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>

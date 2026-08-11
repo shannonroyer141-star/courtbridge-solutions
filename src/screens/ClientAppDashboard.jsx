@@ -70,8 +70,8 @@ function StreakRing({ streak }) {
 }
 
 const NAV_ICONS = {
-  dashboard: '⊞', checkin: '📍', journey: '🏅', documents: '📄',
-  forms: '✍️', messages: '💬', courtdates: '📅', settings: '📊',
+  dashboard: '🏠', checkin: '✅', journey: '🧭', documents: '📁',
+  forms: '✍️', messages: '💬', courtdates: '🗓️', settings: '🐦‍🔥',
 }
 const NAV_KEY_MAP = { dashboard: 'home', checkin: 'checkin', journey: 'journey', documents: 'documents', forms: 'forms', messages: 'messages', courtdates: 'courtdates', settings: 'progress' }
 
@@ -1293,8 +1293,8 @@ export default function ClientAppDashboard({ session, onLogout }) {
           display: 'flex', alignItems: 'stretch', zIndex: 100,
         }}>
           {[
-            { id: 'dashboard', icon: '⊞', label: t('dashboard', 'nav').home },
-            { id: 'checkin',   icon: '📍', label: t('dashboard', 'nav').checkin },
+            { id: 'dashboard', icon: '🏠', label: t('dashboard', 'nav').home },
+            { id: 'checkin',   icon: '✅', label: t('dashboard', 'nav').checkin },
             { id: 'messages',  icon: '💬', label: t('dashboard', 'nav').messages },
             { id: 'more',      icon: '☰', label: t('dashboard', 'nav').more },
           ].map(({ id, icon, label }) => {

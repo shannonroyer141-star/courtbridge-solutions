@@ -23,19 +23,19 @@ Deno.serve(async (req: Request) => {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: `CourtBridge Solutions <${FROM_EMAIL}>`,
+        from: `InterventionConnect <${FROM_EMAIL}>`,
         to: [client_email],
-        subject: `${organization_name || 'Your Provider'} has invited you to CourtBridge Solutions`,
+        subject: `${organization_name || 'Your Provider'} has invited you to InterventionConnect`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <div style="border-left: 4px solid #1B3A6B; padding-left: 16px; margin-bottom: 24px;">
-              <h2 style="color: #1B3A6B; margin: 0;">CourtBridge Solutions</h2>
+              <h2 style="color: #1B3A6B; margin: 0;">InterventionConnect</h2>
               <p style="color: #666; margin: 4px 0 0; font-size: 13px;">Compliance Tracking Platform</p>
             </div>
             <h3 style="color: #333;">Hi ${client_name},</h3>
-            <p style="color: #444; line-height: 1.7;">You have been invited by <strong>${providerDisplayName}</strong> to use CourtBridge Solutions to track your compliance requirements${program_type ? ` for your <strong>${program_type}</strong> program` : ''}.</p>
+            <p style="color: #444; line-height: 1.7;">You have been invited by <strong>${providerDisplayName}</strong> to use InterventionConnect to track your compliance requirements${program_type ? ` for your <strong>${program_type}</strong> program` : ''}.</p>
             ${message ? `<p style="color: #444; line-height: 1.7; background: #f4f6f9; padding: 14px; border-radius: 8px;">${message}</p>` : ''}
-            <p style="color: #444; line-height: 1.7;">CourtBridge Solutions allows you to:</p>
+            <p style="color: #444; line-height: 1.7;">InterventionConnect allows you to:</p>
             <ul style="color: #444; line-height: 1.9;">
               <li>Check in from your phone with GPS verification</li>
               <li>Log required meetings and PO visits</li>
@@ -47,7 +47,7 @@ Deno.serve(async (req: Request) => {
             </div>
             <p style="color: #888; font-size: 13px;">This link was sent by ${organization_name || 'your provider'}. If you have questions, contact them directly.</p>
             <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #eee; font-size: 12px; color: #999;">
-              CourtBridge Solutions — Verified. Connected. Accountable.
+              InterventionConnect — Verified. Connected. Accountable.
             </div>
           </div>
         `,

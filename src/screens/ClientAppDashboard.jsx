@@ -154,6 +154,10 @@ export default function ClientAppDashboard({ session, onLogout }) {
   const [clientPrograms, setClientPrograms] = useState([])
   const [milestones, setMilestones] = useState([])
   const [progressNotes, setProgressNotes] = useState([])
+  const [journalEntries, setJournalEntries] = useState([])
+  const [journalDraft, setJournalDraft] = useState('')
+  const [savingJournal, setSavingJournal] = useState(false)
+  const [editingJournalId, setEditingJournalId] = useState(null)
   const [courtDates, setCourtDates] = useState([])
   const [tasks, setTasks] = useState([])
   const [documents, setDocuments] = useState([])
@@ -364,6 +368,13 @@ export default function ClientAppDashboard({ session, onLogout }) {
       .order('note_date', { ascending: false })
     setProgressNotes(notes || [])
 
+    const { data: journal } = await supabase
+      .from('client_journal_entries')
+      .select('*')
+      .eq('client_id', clientData.id)
+      .order('created_at', { ascending: false })
+    setJournalEntries(journal || [])
+
     const { data: existingMilestones } = await supabase
       .from('client_milestones')
       .select('*')
@@ -452,6 +463,39 @@ export default function ClientAppDashboard({ session, onLogout }) {
     setSigning(false)
     setSigningTemplate(null)
     setSignatureName('')
+    fetchClientData()
+  }
+
+  async function saveJournalEntry() {
+    if (!journalDraft.trim() || !client) return
+    setSavingJournal(true)
+    if (editingJournalId) {
+      await supabase.from('client_journal_entries')
+        .update({ content: journalDraft.trim(), updated_at: new Date().toISOString() })
+        .eq('id', editingJournalId)
+    } else {
+      await supabase.from('client_journal_entries')
+        .insert({ client_id: client.id, content: journalDraft.trim() })
+    }
+    setJournalDraft('')
+    setEditingJournalId(null)
+    setSavingJournal(false)
+    fetchClientData()
+  }
+
+  function startEditingJournalEntry(entry) {
+    setEditingJournalId(entry.id)
+    setJournalDraft(entry.content)
+  }
+
+  function cancelJournalEdit() {
+    setEditingJournalId(null)
+    setJournalDraft('')
+  }
+
+  async function deleteJournalEntry(id) {
+    await supabase.from('client_journal_entries').delete().eq('id', id)
+    if (editingJournalId === id) cancelJournalEdit()
     fetchClientData()
   }
 
@@ -1090,6 +1134,61 @@ export default function ClientAppDashboard({ session, onLogout }) {
                   ))}
                 </InnerCard>
               </>
+            )}
+
+            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: '16px 0 10px' }}>📖 My Thoughts</div>
+            <InnerCard style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 11, color: TEXT_DIM, marginBottom: 10, lineHeight: 1.5 }}>
+                A private space just for you. No one else can read this — not even your provider.
+              </div>
+              <textarea
+                value={journalDraft}
+                onChange={e => setJournalDraft(e.target.value)}
+                placeholder="Write whatever's on your mind..."
+                style={{
+                  width: '100%', minHeight: 90, padding: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`,
+                  boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT,
+                  fontSize: 13.5, resize: 'vertical', marginBottom: 10,
+                }}
+              />
+              <div style={{ display: 'flex', gap: 8 }}>
+                <div
+                  onClick={savingJournal ? undefined : saveJournalEntry}
+                  style={{
+                    flex: 1, textAlign: 'center', padding: '10px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                    cursor: journalDraft.trim() && !savingJournal ? 'pointer' : 'default',
+                    opacity: journalDraft.trim() && !savingJournal ? 1 : 0.5,
+                    background: ACCENT, color: '#fff',
+                  }}
+                >
+                  {savingJournal ? 'Saving...' : editingJournalId ? 'Save Changes' : 'Add Entry'}
+                </div>
+                {editingJournalId && (
+                  <div
+                    onClick={cancelJournalEdit}
+                    style={{ padding: '10px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', color: TEXT_MUTED, border: `0.5px solid ${BORDER}` }}
+                  >
+                    Cancel
+                  </div>
+                )}
+              </div>
+            </InnerCard>
+
+            {journalEntries.length > 0 && (
+              <InnerCard>
+                {journalEntries.map((entry, i) => (
+                  <div key={entry.id} style={{ padding: '10px 0', borderBottom: i === journalEntries.length - 1 ? 'none' : `0.5px solid rgba(255,255,255,0.05)` }}>
+                    <div style={{ fontSize: 11, color: TEXT_DIM, marginBottom: 4 }}>
+                      {new Date(entry.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </div>
+                    <div style={{ fontSize: 13, color: TEXT, lineHeight: 1.6, whiteSpace: 'pre-wrap', marginBottom: 6 }}>{entry.content}</div>
+                    <div style={{ display: 'flex', gap: 14 }}>
+                      <div onClick={() => startEditingJournalEntry(entry)} style={{ fontSize: 11, color: ACCENT, cursor: 'pointer' }}>Edit</div>
+                      <div onClick={() => deleteJournalEntry(entry.id)} style={{ fontSize: 11, color: RED, cursor: 'pointer' }}>Delete</div>
+                    </div>
+                  </div>
+                ))}
+              </InnerCard>
             )}
           </div>
           )

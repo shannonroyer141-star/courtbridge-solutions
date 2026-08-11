@@ -78,8 +78,8 @@ export default function SMSAlerts() {
       <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 25, marginBottom: 24 }}>
         <h2 style={{ color: TEXT, marginBottom: 16, fontSize: 16 }}>Send SMS</h2>
         <select value={form.client_id} onChange={e => setForm({...form, client_id: e.target.value})} style={inputStyle}>
-          <option value="">Select Client *</option>
-          {clients.map(c => <option key={c.id} value={c.id}>{c.name} {c.phone ? `— ${c.phone}` : '(no phone)'}</option>)}
+          <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select Client *</option>
+          {clients.map(c => <option key={c.id} value={c.id} style={{ background: '#1E2A3A', color: '#fff' }}>{c.name} {c.phone ? `— ${c.phone}` : '(no phone)'}</option>)}
         </select>
         {form.client_id && !client?.phone && (
           <div style={{ background: 'rgba(248,113,113,0.1)', borderRadius: 8, padding: 10, marginBottom: 12, fontSize: 13, color: RED }}>⚠️ This client has no phone number. Add it in their profile first.</div>

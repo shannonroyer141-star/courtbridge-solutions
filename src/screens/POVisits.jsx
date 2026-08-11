@@ -57,14 +57,14 @@ export default function POVisits() {
       {showForm && (
         <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 25, marginBottom: 20 }}>
           <select value={form.client_id} onChange={e => setForm({...form, client_id: e.target.value})} style={{ width: '100%', ...inputStyle }}>
-            <option value="">Select Client *</option>
-            {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select Client *</option>
+            {clients.map(c => <option key={c.id} value={c.id} style={{ background: '#1E2A3A', color: '#fff' }}>{c.name}</option>)}
           </select>
           <select value={form.status} onChange={e => setForm({...form, status: e.target.value})} style={{ width: '100%', ...inputStyle }}>
-            <option value="completed">Completed</option><option value="upcoming">Upcoming</option><option value="missed">Missed</option><option value="rescheduled">Rescheduled</option><option value="excused">Excused</option>
+            <option value="completed" style={{ background: '#1E2A3A', color: '#fff' }}>Completed</option><option value="upcoming" style={{ background: '#1E2A3A', color: '#fff' }}>Upcoming</option><option value="missed" style={{ background: '#1E2A3A', color: '#fff' }}>Missed</option><option value="rescheduled" style={{ background: '#1E2A3A', color: '#fff' }}>Rescheduled</option><option value="excused" style={{ background: '#1E2A3A', color: '#fff' }}>Excused</option>
           </select>
           <select value={form.visit_type} onChange={e => setForm({...form, visit_type: e.target.value})} style={{ width: '100%', ...inputStyle }}>
-            <option>In-Person</option><option>Phone Check-In</option><option>Virtual / Video</option><option>Home Visit</option><option>Office Visit</option>
+            <option style={{ background: '#1E2A3A', color: '#fff' }}>In-Person</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Phone Check-In</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Virtual / Video</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Home Visit</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Office Visit</option>
           </select>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <input type="date" value={form.visit_date} onChange={e => setForm({...form, visit_date: e.target.value})} style={{ flex: 1, minWidth: 140, ...inputStyle }} />

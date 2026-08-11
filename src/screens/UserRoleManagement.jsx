@@ -76,7 +76,7 @@ export default function UserRoleManagement({ session }) {
                 onChange={e => updateMember(m.id, { org_role: e.target.value })}
                 style={{ padding: '8px 10px', borderRadius: 6, border: `0.5px solid ${BORDER}`, background: CARD_BG, color: TEXT, fontSize: 13, fontFamily: NAV_FONT }}
               >
-                {ORG_ROLES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+                {ORG_ROLES.map(r => <option key={r.value} value={r.value} style={{ background: '#1E2A3A', color: '#fff' }}>{r.label}</option>)}
               </select>
 
               <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: TEXT_MUTED, cursor: m.is_founder ? 'default' : 'pointer' }}>

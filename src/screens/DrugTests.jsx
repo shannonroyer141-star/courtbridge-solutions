@@ -49,13 +49,13 @@ export default function DrugTests() {
       {showForm && (
         <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 25, marginBottom: 20 }}>
           <select value={form.client_id} onChange={e => setForm({...form, client_id: e.target.value})} style={inputStyle}>
-            <option value="">Select Client *</option>
-            {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select Client *</option>
+            {clients.map(c => <option key={c.id} value={c.id} style={{ background: '#1E2A3A', color: '#fff' }}>{c.name}</option>)}
           </select>
           <input type="date" value={form.test_date} onChange={e => setForm({...form, test_date: e.target.value})} style={inputStyle} />
           <select value={form.result} onChange={e => setForm({...form, result: e.target.value})} style={inputStyle}>
-            <option value="">Test Result *</option>
-            <option>Negative</option><option>Positive</option><option>Refused</option><option>No Show</option>
+            <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Test Result *</option>
+            <option style={{ background: '#1E2A3A', color: '#fff' }}>Negative</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Positive</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Refused</option><option style={{ background: '#1E2A3A', color: '#fff' }}>No Show</option>
           </select>
           <input placeholder="Substances tested" value={form.substances_tested} onChange={e => setForm({...form, substances_tested: e.target.value})} style={inputStyle} />
           {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}

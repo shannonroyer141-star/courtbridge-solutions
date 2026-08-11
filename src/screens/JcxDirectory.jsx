@@ -90,9 +90,9 @@ export default function JcxDirectory({ session, isOrgAdmin, isFounder }) {
             <input style={inputStyle} value={form.specialty_tags} onChange={e => setForm({ ...form, specialty_tags: e.target.value })} placeholder="Drug Court, BIP, Veterans Court" />
             <label style={labelStyle}>Capacity</label>
             <select style={inputStyle} value={form.capacity_status} onChange={e => setForm({ ...form, capacity_status: e.target.value })}>
-              <option value="accepting">Accepting Referrals</option>
-              <option value="limited">Limited Capacity</option>
-              <option value="full">At Capacity</option>
+              <option value="accepting" style={{ background: '#1E2A3A', color: '#fff' }}>Accepting Referrals</option>
+              <option value="limited" style={{ background: '#1E2A3A', color: '#fff' }}>Limited Capacity</option>
+              <option value="full" style={{ background: '#1E2A3A', color: '#fff' }}>At Capacity</option>
             </select>
             <label style={labelStyle}>Description</label>
             <textarea style={{ ...inputStyle, minHeight: 70 }} value={form.directory_description} onChange={e => setForm({ ...form, directory_description: e.target.value })} placeholder="Briefly describe your agency and who you serve" />

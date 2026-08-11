@@ -268,8 +268,8 @@ export default function ClientProfile({ clientId, onNavigate }) {
             <div style={{ display: 'flex', gap: 8, flexDirection: isPhone ? 'column' : 'row' }}>
               <select value={orderForm.order_type} onChange={e => setOrderForm({ ...orderForm, order_type: e.target.value })}
                 style={{ flex: 1, padding: 10, borderRadius: 6, border: `0.5px solid ${BORDER}`, fontSize: 13, background: CARD_BG, color: TEXT, fontFamily: NAV_FONT }}>
-                <option value="primary">Primary order</option>
-                <option value="accompanying">Accompanying order</option>
+                <option value="primary" style={{ background: '#1E2A3A', color: '#fff' }}>Primary order</option>
+                <option value="accompanying" style={{ background: '#1E2A3A', color: '#fff' }}>Accompanying order</option>
               </select>
               <input type="date" value={orderForm.start_date} onChange={e => setOrderForm({ ...orderForm, start_date: e.target.value })}
                 style={{ flex: 1, padding: 10, borderRadius: 6, border: `0.5px solid ${BORDER}`, fontSize: 13, background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT }} />

@@ -93,8 +93,8 @@ export default function ViolationReport() {
         <div style={{ background: CARD_BG, border: `2px solid ${RED}`, borderRadius: 12, padding: 25, marginBottom: 20 }}>
           <h2 style={{ color: RED, marginBottom: 16, fontSize: 16 }}>⚠️ New Violation Report</h2>
           <select value={form.client_id} onChange={e => setForm({...form, client_id: e.target.value})} style={inputStyle}>
-            <option value="">Select Client *</option>
-            {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select Client *</option>
+            {clients.map(c => <option key={c.id} value={c.id} style={{ background: '#1E2A3A', color: '#fff' }}>{c.name}</option>)}
           </select>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <div style={{ flex: 1, minWidth: 140 }}>
@@ -104,8 +104,8 @@ export default function ViolationReport() {
             <div style={{ flex: 1, minWidth: 140 }}>
               <label style={{ fontSize: 12, color: TEXT_MUTED, display: 'block', marginBottom: 4 }}>Violation Type</label>
               <select value={form.violation_type} onChange={e => setForm({...form, violation_type: e.target.value})} style={inputStyle}>
-                <option value="">Select *</option>
-                <option>Missed Check-Ins</option><option>Failed Drug Test</option><option>Missed PO Visit</option><option>Wrong Location</option><option>Missed Court Date</option><option>Multiple Violations</option>
+                <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select *</option>
+                <option style={{ background: '#1E2A3A', color: '#fff' }}>Missed Check-Ins</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Failed Drug Test</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Missed PO Visit</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Wrong Location</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Missed Court Date</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Multiple Violations</option>
               </select>
             </div>
           </div>

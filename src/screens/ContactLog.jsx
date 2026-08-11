@@ -50,16 +50,16 @@ export default function ContactLog() {
       {showForm && (
         <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 25, marginBottom: 20 }}>
           <select value={form.client_id} onChange={e => setForm({...form, client_id: e.target.value})} style={inputStyle}>
-            <option value="">Select Client *</option>
-            {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select Client *</option>
+            {clients.map(c => <option key={c.id} value={c.id} style={{ background: '#1E2A3A', color: '#fff' }}>{c.name}</option>)}
           </select>
           <input type="datetime-local" value={form.contact_date} onChange={e => setForm({...form, contact_date: e.target.value})} style={inputStyle} />
           <select value={form.contact_type} onChange={e => setForm({...form, contact_type: e.target.value})} style={inputStyle}>
-            <option value="">Contact Type *</option>
-            <option>Phone Call</option><option>In-Person Meeting</option><option>Email</option><option>Text Message</option><option>Court Appearance</option><option>Home Visit</option>
+            <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Contact Type *</option>
+            <option style={{ background: '#1E2A3A', color: '#fff' }}>Phone Call</option><option style={{ background: '#1E2A3A', color: '#fff' }}>In-Person Meeting</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Email</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Text Message</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Court Appearance</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Home Visit</option>
           </select>
           <select value={form.direction} onChange={e => setForm({...form, direction: e.target.value})} style={inputStyle}>
-            <option>Outbound</option><option>Inbound</option>
+            <option style={{ background: '#1E2A3A', color: '#fff' }}>Outbound</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Inbound</option>
           </select>
           <NotesWarning />
           <textarea placeholder="Summary *" value={form.summary} onChange={e => setForm({...form, summary: e.target.value})} style={{ ...inputStyle, minHeight: 80 }} />

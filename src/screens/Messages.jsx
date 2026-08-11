@@ -207,9 +207,9 @@ export default function Messages({ clientId }) {
           <label style={{ fontWeight: 'bold', color: TEXT_MUTED, fontSize: 13, display: 'block', marginBottom: 6 }}>Client</label>
           <select value={selectedClient} onChange={e => setSelectedClient(e.target.value)}
             style={{ width: '100%', padding: 12, marginBottom: 14, borderRadius: 8, border: `0.5px solid ${BORDER}`, fontSize: 14, background: CARD_BG, color: TEXT, fontFamily: NAV_FONT }}>
-            <option value="">Select Client *</option>
+            <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select Client *</option>
             {clients.map(c => (
-              <option key={c.id} value={c.id}>{c.name} {c.email ? `— ${c.email}` : '(no email)'}</option>
+              <option key={c.id} value={c.id} style={{ background: '#1E2A3A', color: '#fff' }}>{c.name} {c.email ? `— ${c.email}` : '(no email)'}</option>
             ))}
           </select>
 

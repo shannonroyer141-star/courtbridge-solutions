@@ -122,8 +122,8 @@ export default function Programs() {
         <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 25, marginBottom: 20 }}>
           <input placeholder="Program Name *" value={form.program_name} onChange={e => setForm({...form, program_name: e.target.value})} style={{ width: '100%', ...inputStyle }} />
           <select value={form.program_type} onChange={e => setForm({...form, program_type: e.target.value})} style={{ width: '100%', ...inputStyle }}>
-            <option value="">Program Type</option>
-            <option>BIP (Batterers Intervention)</option><option>DUI</option><option>Drug Court</option><option>Mental Health Court</option><option>Veterans Court</option><option>Anger Management</option><option>Substance Abuse</option><option>Specialty Court</option>
+            <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Program Type</option>
+            <option style={{ background: '#1E2A3A', color: '#fff' }}>BIP (Batterers Intervention)</option><option style={{ background: '#1E2A3A', color: '#fff' }}>DUI</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Drug Court</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Mental Health Court</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Veterans Court</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Anger Management</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Substance Abuse</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Specialty Court</option>
           </select>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <input placeholder="Duration (weeks)" value={form.duration_weeks} onChange={e => setForm({...form, duration_weeks: e.target.value})} style={{ flex: 1, minWidth: 140, ...inputStyle }} />

@@ -92,7 +92,7 @@ export default function JcxRecordsRequests({ session }) {
 
             <label style={fieldLabel}>Is there valid participant consent for this disclosure?</label>
             <select value={reviewFor(r.id).consentObtained} onChange={e => updateReview(r.id, { consentObtained: e.target.value })} style={fieldInput}>
-              <option value="">Select...</option><option value="yes">Yes</option><option value="no">No</option>
+              <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select...</option><option value="yes" style={{ background: '#1E2A3A', color: '#fff' }}>Yes</option><option value="no" style={{ background: '#1E2A3A', color: '#fff' }}>No</option>
             </select>
             {reviewFor(r.id).consentObtained === 'yes' && (
               <input placeholder="Reference (form, date signed, etc.)" value={reviewFor(r.id).consentDetails} onChange={e => updateReview(r.id, { consentDetails: e.target.value })} style={fieldInput} />
@@ -100,13 +100,13 @@ export default function JcxRecordsRequests({ session }) {
 
             <label style={fieldLabel}>Is there a qualifying court order or other legal authority?</label>
             <select value={reviewFor(r.id).legalAuthorityType} onChange={e => updateReview(r.id, { legalAuthorityType: e.target.value })} style={fieldInput}>
-              <option value="">Select...</option>
-              <option value="court_order">Court order</option>
-              <option value="subpoena">Subpoena</option>
-              <option value="statute">Statutory requirement</option>
-              <option value="participant_consent_only">Consent only, no separate legal order</option>
-              <option value="other">Other</option>
-              <option value="none">None</option>
+              <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select...</option>
+              <option value="court_order" style={{ background: '#1E2A3A', color: '#fff' }}>Court order</option>
+              <option value="subpoena" style={{ background: '#1E2A3A', color: '#fff' }}>Subpoena</option>
+              <option value="statute" style={{ background: '#1E2A3A', color: '#fff' }}>Statutory requirement</option>
+              <option value="participant_consent_only" style={{ background: '#1E2A3A', color: '#fff' }}>Consent only, no separate legal order</option>
+              <option value="other" style={{ background: '#1E2A3A', color: '#fff' }}>Other</option>
+              <option value="none" style={{ background: '#1E2A3A', color: '#fff' }}>None</option>
             </select>
             {reviewFor(r.id).legalAuthorityType && reviewFor(r.id).legalAuthorityType !== 'none' && (
               <input placeholder="Details (case/order number, date, etc.)" value={reviewFor(r.id).legalAuthorityDetails} onChange={e => updateReview(r.id, { legalAuthorityDetails: e.target.value })} style={fieldInput} />
@@ -114,7 +114,7 @@ export default function JcxRecordsRequests({ session }) {
 
             <label style={fieldLabel}>Does 42 CFR Part 2 apply to this participant's records?</label>
             <select value={reviewFor(r.id).part2Applies} onChange={e => updateReview(r.id, { part2Applies: e.target.value })} style={fieldInput}>
-              <option value="">Select...</option><option value="yes">Yes</option><option value="no">No</option>
+              <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select...</option><option value="yes" style={{ background: '#1E2A3A', color: '#fff' }}>Yes</option><option value="no" style={{ background: '#1E2A3A', color: '#fff' }}>No</option>
             </select>
 
             <label style={fieldLabel}>What is the minimum information that lawfully fulfills this request?</label>

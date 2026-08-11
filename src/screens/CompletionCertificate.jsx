@@ -390,8 +390,8 @@ export default function CompletionCertificate() {
         <div style={{ background: CARD_BG, border: `2px solid ${GREEN}`, borderRadius: 12, padding: 25, marginBottom: 20 }}>
           <h2 style={{ color: GREEN, marginBottom: 16, fontSize: 16 }}>🎓 Issue Completion Certificate</h2>
           <select value={form.client_id} onChange={e => setForm({...form, client_id: e.target.value})} style={inputStyle}>
-            <option value="">Select Client *</option>
-            {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select Client *</option>
+            {clients.map(c => <option key={c.id} value={c.id} style={{ background: '#1E2A3A', color: '#fff' }}>{c.name}</option>)}
           </select>
           <input placeholder="Program Name *" value={form.program_name} onChange={e => setForm({...form, program_name: e.target.value})} style={inputStyle} />
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>

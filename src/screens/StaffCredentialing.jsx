@@ -127,10 +127,10 @@ export default function StaffCredentialing() {
             <div>
               <label style={labelStyle}>Employment Status</label>
               <select value={form.employment_status} onChange={e => setForm({ ...form, employment_status: e.target.value })} style={inputStyle}>
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="on_leave">On Leave</option>
-                <option value="terminated">Terminated</option>
+                <option value="active" style={{ background: '#1E2A3A', color: '#fff' }}>Active</option>
+                <option value="inactive" style={{ background: '#1E2A3A', color: '#fff' }}>Inactive</option>
+                <option value="on_leave" style={{ background: '#1E2A3A', color: '#fff' }}>On Leave</option>
+                <option value="terminated" style={{ background: '#1E2A3A', color: '#fff' }}>Terminated</option>
               </select>
             </div>
             {field('hire_date', 'Hire Date', 'date')}

@@ -102,13 +102,13 @@ export default function VictimInfoReview() {
         <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 20, marginBottom: 20 }}>
           <p style={{ color: TEXT_DIM, fontSize: 12, marginBottom: 12 }}>Use this if a record needs to be restricted but doesn't have a flag button yet on its own screen.</p>
           <select value={manualForm.table_name} onChange={e => setManualForm({ ...manualForm, table_name: e.target.value })} style={inputStyle}>
-            <option value="">Table *</option>
-            {FLAGGABLE_TABLES.map(t => <option key={t} value={t}>{t}</option>)}
+            <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Table *</option>
+            {FLAGGABLE_TABLES.map(t => <option key={t} value={t} style={{ background: '#1E2A3A', color: '#fff' }}>{t}</option>)}
           </select>
           <input placeholder="Record ID (UUID) *" value={manualForm.record_id} onChange={e => setManualForm({ ...manualForm, record_id: e.target.value })} style={inputStyle} />
           <select value={manualForm.client_id} onChange={e => setManualForm({ ...manualForm, client_id: e.target.value })} style={inputStyle}>
-            <option value="">Client (optional)</option>
-            {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Client (optional)</option>
+            {clients.map(c => <option key={c.id} value={c.id} style={{ background: '#1E2A3A', color: '#fff' }}>{c.name}</option>)}
           </select>
           <textarea placeholder="Reason" value={manualForm.reason} onChange={e => setManualForm({ ...manualForm, reason: e.target.value })} style={{ ...inputStyle, minHeight: 60 }} />
           {manualError && <div style={{ color: RED, fontSize: 12.5, marginBottom: 10 }}>{manualError}</div>}

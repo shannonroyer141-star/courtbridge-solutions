@@ -88,15 +88,15 @@ export default function JcxReferrals({ session }) {
         <div style={{ background: CARD_BG, border: `0.5px solid ${ACCENT}`, borderRadius: 12, padding: 20, marginBottom: 20 }}>
           <label style={{ fontSize: 11, color: TEXT_MUTED, textTransform: 'uppercase', display: 'block', marginBottom: 5 }}>Refer To *</label>
           <select style={inputStyle} value={form.to_org_id} onChange={e => setForm({ ...form, to_org_id: e.target.value })}>
-            <option value="">Select agency from directory...</option>
-            {directoryOrgs.map(o => <option key={o.id} value={o.id}>{o.organization_name}</option>)}
+            <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select agency from directory...</option>
+            {directoryOrgs.map(o => <option key={o.id} value={o.id} style={{ background: '#1E2A3A', color: '#fff' }}>{o.organization_name}</option>)}
           </select>
           {directoryOrgs.length === 0 && <div style={{ fontSize: 12, color: TEXT_DIM, marginTop: -8, marginBottom: 12 }}>No other agencies are in the directory yet — check the Agency Directory tab.</div>}
 
           <label style={{ fontSize: 11, color: TEXT_MUTED, textTransform: 'uppercase', display: 'block', marginBottom: 5 }}>Client</label>
           <select style={inputStyle} value={form.client_id} onChange={e => pickClient(e.target.value)}>
-            <option value="">Select one of your clients (optional)...</option>
-            {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select one of your clients (optional)...</option>
+            {clients.map(c => <option key={c.id} value={c.id} style={{ background: '#1E2A3A', color: '#fff' }}>{c.name}</option>)}
           </select>
           <input style={inputStyle} placeholder="Client Name *" value={form.client_name} onChange={e => setForm({ ...form, client_name: e.target.value })} />
           <input style={inputStyle} placeholder="Client Contact (phone/email)" value={form.client_contact} onChange={e => setForm({ ...form, client_contact: e.target.value })} />

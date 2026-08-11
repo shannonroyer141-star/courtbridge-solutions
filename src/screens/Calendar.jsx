@@ -205,8 +205,8 @@ export default function Calendar() {
             style={{ width: '100%', padding: 12, marginBottom: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT, colorScheme: 'dark' }} />
           <select value={form.event_type} onChange={e => setForm({ ...form, event_type: e.target.value })}
             style={{ width: '100%', padding: 12, marginBottom: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, background: 'rgba(255,255,255,0.04)', color: TEXT }}>
-            <option value="">Select Type</option>
-            {EVENT_TYPE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select Type</option>
+            {EVENT_TYPE_OPTIONS.map(o => <option key={o.value} value={o.value} style={{ background: '#1E2A3A', color: '#fff' }}>{o.label}</option>)}
           </select>
           <input placeholder="Client Name (optional)" value={form.client_name} onChange={e => setForm({ ...form, client_name: e.target.value })}
             style={{ width: '100%', padding: 12, marginBottom: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT }} />

@@ -229,8 +229,8 @@ export default function CourtReporting() {
           <div style={{ flex: 1, minWidth: 220 }}>
             <Field label="Client">
               <select value={clientId} onChange={e => setClientId(e.target.value)} style={inputStyle}>
-                <option value="">Select a client...</option>
-                {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select a client...</option>
+                {clients.map(c => <option key={c.id} value={c.id} style={{ background: '#1E2A3A', color: '#fff' }}>{c.name}</option>)}
               </select>
             </Field>
           </div>
@@ -277,7 +277,7 @@ export default function CourtReporting() {
                   <Field label="Units of Service"><input style={inputStyle} value={recordForm.units} onChange={e => setRecordForm({ ...recordForm, units: e.target.value })} placeholder="e.g. 1" /></Field>
                   <Field label="Attendance Status">
                     <select style={inputStyle} value={recordForm.attendance_status} onChange={e => setRecordForm({ ...recordForm, attendance_status: e.target.value })}>
-                      <option value="attended">Attended</option><option value="missed">Missed</option><option value="excused">Excused</option><option value="rescheduled">Rescheduled</option>
+                      <option value="attended" style={{ background: '#1E2A3A', color: '#fff' }}>Attended</option><option value="missed" style={{ background: '#1E2A3A', color: '#fff' }}>Missed</option><option value="excused" style={{ background: '#1E2A3A', color: '#fff' }}>Excused</option><option value="rescheduled" style={{ background: '#1E2A3A', color: '#fff' }}>Rescheduled</option>
                     </select>
                   </Field>
                 </div>
@@ -286,7 +286,7 @@ export default function CourtReporting() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0 16px' }}>
                   <Field label="Compliance Decision">
                     <select style={inputStyle} value={recordForm.compliance_status} onChange={e => setRecordForm({ ...recordForm, compliance_status: e.target.value })}>
-                      <option value="pending_review">Pending Review</option><option value="compliant">Compliant</option><option value="noncompliant">Noncompliant</option>
+                      <option value="pending_review" style={{ background: '#1E2A3A', color: '#fff' }}>Pending Review</option><option value="compliant" style={{ background: '#1E2A3A', color: '#fff' }}>Compliant</option><option value="noncompliant" style={{ background: '#1E2A3A', color: '#fff' }}>Noncompliant</option>
                     </select>
                   </Field>
                   <Field label="Reason (if noncompliant)"><input style={inputStyle} value={recordForm.reason_noncompliance} onChange={e => setRecordForm({ ...recordForm, reason_noncompliance: e.target.value })} /></Field>
@@ -325,19 +325,19 @@ export default function CourtReporting() {
               <>
                 <Field label="Court Order">
                   <select style={inputStyle} value={exitProgramId} onChange={e => setExitProgramId(e.target.value)}>
-                    {programs.map(p => <option key={p.id} value={p.id}>{p.order_name} ({p.status})</option>)}
+                    {programs.map(p => <option key={p.id} value={p.id} style={{ background: '#1E2A3A', color: '#fff' }}>{p.order_name} ({p.status})</option>)}
                   </select>
                 </Field>
                 {exitForm && <>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '0 16px' }}>
                     <Field label="Court / Program Type">
                       <select style={inputStyle} value={exitForm.court_program_type} onChange={e => setExitForm({ ...exitForm, court_program_type: e.target.value })}>
-                        <option value="">Select...</option>
-                        <option value="drug_court">Drug Court</option>
-                        <option value="mental_health_court">Mental Health Court</option>
-                        <option value="veterans_treatment_court">Veterans Treatment Court</option>
-                        <option value="early_childhood_court">Early Childhood Court</option>
-                        <option value="other">Other</option>
+                        <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select...</option>
+                        <option value="drug_court" style={{ background: '#1E2A3A', color: '#fff' }}>Drug Court</option>
+                        <option value="mental_health_court" style={{ background: '#1E2A3A', color: '#fff' }}>Mental Health Court</option>
+                        <option value="veterans_treatment_court" style={{ background: '#1E2A3A', color: '#fff' }}>Veterans Treatment Court</option>
+                        <option value="early_childhood_court" style={{ background: '#1E2A3A', color: '#fff' }}>Early Childhood Court</option>
+                        <option value="other" style={{ background: '#1E2A3A', color: '#fff' }}>Other</option>
                       </select>
                     </Field>
                     <Field label="Reason for Failure to Complete (if applicable)"><input style={inputStyle} value={exitForm.termination_reason} onChange={e => setExitForm({ ...exitForm, termination_reason: e.target.value })} /></Field>

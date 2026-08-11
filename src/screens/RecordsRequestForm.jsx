@@ -84,8 +84,8 @@ export default function RecordsRequestForm() {
         <div style={{ fontSize: 13, fontWeight: 700, color: ACCENT, margin: '16px 0 14px' }}>What You Need</div>
         <label style={labelStyle}>Which agency are you requesting from? *</label>
         <select style={inputStyle} value={form.target_org_id} onChange={e => update('target_org_id', e.target.value)}>
-          <option value="">Select agency...</option>
-          {orgs.map(o => <option key={o.id} value={o.id}>{o.organization_name}</option>)}
+          <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select agency...</option>
+          {orgs.map(o => <option key={o.id} value={o.id} style={{ background: '#1E2A3A', color: '#fff' }}>{o.organization_name}</option>)}
         </select>
         {orgs.length === 0 && <div style={{ fontSize: 12, color: TEXT_DIM, marginTop: -10, marginBottom: 14 }}>No agencies are listed yet. Contact them directly.</div>}
         <label style={labelStyle}>Client / Participant Name *</label>

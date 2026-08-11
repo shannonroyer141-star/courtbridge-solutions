@@ -106,8 +106,8 @@ export default function SendEnrollmentLink({ providerId, onClose, onSuccess }) {
                 <>
                   <label style={lbl}>Link to One of Your Programs (recommended)</label>
                   <select style={sel} value={form.program_id} onChange={e => selectMyProgram(e.target.value)}>
-                    <option value="">Not linked — describe manually below</option>
-                    {myPrograms.map(p => <option key={p.id} value={p.id}>{p.program_name || p.name}</option>)}
+                    <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Not linked — describe manually below</option>
+                    {myPrograms.map(p => <option key={p.id} value={p.id} style={{ background: '#1E2A3A', color: '#fff' }}>{p.program_name || p.name}</option>)}
                   </select>
                   {form.program_id && (
                     <div style={{ fontSize: 12, color: GREEN, marginTop: -8, marginBottom: 14 }}>✓ This client's progress will track automatically against this program once they enroll.</div>
@@ -116,18 +116,18 @@ export default function SendEnrollmentLink({ providerId, onClose, onSuccess }) {
               )}
               <label style={lbl}>Program Type *</label>
               <select style={sel} value={form.program_type} onChange={e => update('program_type', e.target.value)}>
-                <option value="">Select program type...</option>
-                {PROGRAM_TYPES.map(p => <option key={p} value={p}>{p}</option>)}
+                <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select program type...</option>
+                {PROGRAM_TYPES.map(p => <option key={p} value={p} style={{ background: '#1E2A3A', color: '#fff' }}>{p}</option>)}
               </select>
               <label style={lbl}>Enrollment Type *</label>
               <select style={sel} value={form.enrollment_type} onChange={e => update('enrollment_type', e.target.value)}>
-                {ENROLLMENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+                {ENROLLMENT_TYPES.map(t => <option key={t.value} value={t.value} style={{ background: '#1E2A3A', color: '#fff' }}>{t.label}</option>)}
               </select>
               <label style={lbl}>Case / Docket Number</label>
               <input style={inp} value={form.case_number} onChange={e => update('case_number', e.target.value)} placeholder="Leave blank if not applicable" />
               <label style={lbl}>Starting Phase</label>
               <select style={sel} value={form.program_phase} onChange={e => update('program_phase', e.target.value)}>
-                {PHASES.map(p => <option key={p} value={p}>{p}</option>)}
+                {PHASES.map(p => <option key={p} value={p} style={{ background: '#1E2A3A', color: '#fff' }}>{p}</option>)}
               </select>
               <label style={lbl}>Program Reporting Requirements *</label>
               <textarea style={ta} value={form.reporting_requirements} onChange={e => update('reporting_requirements', e.target.value)} placeholder="e.g. Attend group sessions 3 times per week. Report to program office every Monday." />

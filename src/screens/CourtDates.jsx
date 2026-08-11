@@ -54,12 +54,12 @@ export default function CourtDates() {
       {showForm && (
         <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 25, marginBottom: 20 }}>
           <select value={form.client_id} onChange={e => setForm({...form, client_id: e.target.value})} style={{ width: '100%', ...inputStyle }}>
-            <option value="">Select Client *</option>
-            {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select Client *</option>
+            {clients.map(c => <option key={c.id} value={c.id} style={{ background: '#1E2A3A', color: '#fff' }}>{c.name}</option>)}
           </select>
           <select value={form.hearing_type} onChange={e => setForm({...form, hearing_type: e.target.value})} style={{ width: '100%', ...inputStyle }}>
-            <option value="">Hearing Type *</option>
-            <option>Status Hearing</option><option>Review Hearing</option><option>Disposition Hearing</option><option>Arraignment</option><option>Sentencing</option><option>Violation of Probation</option><option>Drug Court Review</option><option>Dependency Hearing</option><option>Permanency Hearing</option><option>Other</option>
+            <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Hearing Type *</option>
+            <option style={{ background: '#1E2A3A', color: '#fff' }}>Status Hearing</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Review Hearing</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Disposition Hearing</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Arraignment</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Sentencing</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Violation of Probation</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Drug Court Review</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Dependency Hearing</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Permanency Hearing</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Other</option>
           </select>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <input type="date" value={form.hearing_date} onChange={e => setForm({...form, hearing_date: e.target.value})} style={{ flex: 1, minWidth: 140, ...inputStyle }} />

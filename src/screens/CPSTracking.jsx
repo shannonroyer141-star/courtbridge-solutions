@@ -61,18 +61,18 @@ export default function CPSTracking() {
       {showForm && (
         <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 25, marginBottom: 20 }}>
           <select value={form.client_id} onChange={e => setForm({...form, client_id: e.target.value})} style={{ width: '100%', ...inputStyle }}>
-            <option value="">Select Client *</option>
-            {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select Client *</option>
+            {clients.map(c => <option key={c.id} value={c.id} style={{ background: '#1E2A3A', color: '#fff' }}>{c.name}</option>)}
           </select>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <input placeholder="CPS Case Number" value={form.case_number} onChange={e => setForm({...form, case_number: e.target.value})} style={{ flex: 2, minWidth: 160, ...inputStyle }} />
             <select value={form.agency} onChange={e => setForm({...form, agency: e.target.value})} style={{ flex: 1, minWidth: 100, ...inputStyle }}>
-              <option>DCF</option><option>CPS</option><option>DCFS</option><option>Other</option>
+              <option style={{ background: '#1E2A3A', color: '#fff' }}>DCF</option><option style={{ background: '#1E2A3A', color: '#fff' }}>CPS</option><option style={{ background: '#1E2A3A', color: '#fff' }}>DCFS</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Other</option>
             </select>
           </div>
           <select value={form.case_type} onChange={e => setForm({...form, case_type: e.target.value})} style={{ width: '100%', ...inputStyle }}>
-            <option value="">Case Type *</option>
-            <option>Dependency</option><option>Neglect</option><option>Abuse</option><option>Domestic Violence</option><option>Substance Abuse Related</option><option>Voluntary Services</option><option>Prevention Services</option>
+            <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Case Type *</option>
+            <option style={{ background: '#1E2A3A', color: '#fff' }}>Dependency</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Neglect</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Abuse</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Domestic Violence</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Substance Abuse Related</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Voluntary Services</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Prevention Services</option>
           </select>
           <input placeholder="Children Involved" value={form.children_involved} onChange={e => setForm({...form, children_involved: e.target.value})} style={{ width: '100%', ...inputStyle }} />
           <input placeholder="Case Worker Name" value={form.case_worker_name} onChange={e => setForm({...form, case_worker_name: e.target.value})} style={{ width: '100%', ...inputStyle }} />

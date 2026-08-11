@@ -946,8 +946,8 @@ export default function ClientAppDashboard({ session, onLogout }) {
                   onChange={e => setUploadDocType(e.target.value)}
                   style={{ width: '100%', padding: 12, marginBottom: 10, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT, fontSize: 13.5 }}
                 >
-                  <option value="">Document Type *</option>
-                  {CLIENT_DOC_TYPES.map(dt => <option key={dt} value={dt}>{dt}</option>)}
+                  <option value="" style={{ background: DARK_BG, color: TEXT }}>Document Type *</option>
+                  {CLIENT_DOC_TYPES.map(dt => <option key={dt} value={dt} style={{ background: DARK_BG, color: TEXT }}>{dt}</option>)}
                 </select>
                 <NotesWarning />
                 <textarea

@@ -56,14 +56,14 @@ export default function Tasks() {
       {showForm && (
         <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 25, marginBottom: 20 }}>
           <select value={form.client_id} onChange={e => setForm({...form, client_id: e.target.value})} style={inputStyle}>
-            <option value="">Select Client *</option>
-            {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+            <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select Client *</option>
+            {clients.map(c => <option key={c.id} value={c.id} style={{ background: '#1E2A3A', color: '#fff' }}>{c.name}</option>)}
           </select>
           <input placeholder="Task Title *" value={form.title} onChange={e => setForm({...form, title: e.target.value})} style={inputStyle} />
           <input placeholder="Assigned To" value={form.assigned_to} onChange={e => setForm({...form, assigned_to: e.target.value})} style={inputStyle} />
           <input type="date" value={form.due_date} onChange={e => setForm({...form, due_date: e.target.value})} style={inputStyle} />
           <select value={form.priority} onChange={e => setForm({...form, priority: e.target.value})} style={{ ...inputStyle, marginBottom: 15 }}>
-            <option>High</option><option>Medium</option><option>Low</option>
+            <option style={{ background: '#1E2A3A', color: '#fff' }}>High</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Medium</option><option style={{ background: '#1E2A3A', color: '#fff' }}>Low</option>
           </select>
           {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}
           <button onClick={handleSave} disabled={saving || !form.title || !form.client_id} style={{ padding: '12px 25px', background: GREEN, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 15 }}>{saving ? 'Saving...' : 'Save Task'}</button>

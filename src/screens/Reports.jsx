@@ -56,8 +56,8 @@ export default function Reports() {
       <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 25, marginBottom: 20 }}>
         <select value={selectedClient} onChange={e => setSelectedClient(e.target.value)}
           style={{ width: '100%', padding: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, fontSize: 16, marginBottom: 15, background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT }}>
-          <option value="">-- Select a client --</option>
-          {clients.map(c => <option key={c.id} value={c.id}>{c.name || c.client_name}</option>)}
+          <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>-- Select a client --</option>
+          {clients.map(c => <option key={c.id} value={c.id} style={{ background: '#1E2A3A', color: '#fff' }}>{c.name || c.client_name}</option>)}
         </select>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           <button onClick={fetchCheckins} style={{ padding: '12px 25px', background: ACCENT, color: 'white', border: 'none', borderRadius: 8, fontSize: 16, cursor: 'pointer' }}>Load Report</button>

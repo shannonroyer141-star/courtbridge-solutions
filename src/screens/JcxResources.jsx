@@ -65,7 +65,7 @@ export default function JcxResources({ session }) {
         <div style={{ background: CARD_BG, border: `0.5px solid ${GREEN}`, borderRadius: 12, padding: 20, marginBottom: 20 }}>
           <input style={inputStyle} placeholder="Resource Name *" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
           <select style={inputStyle} value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
-            {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.icon} {c.label}</option>)}
+            {CATEGORIES.map(c => <option key={c.value} value={c.value} style={{ background: '#1E2A3A', color: '#fff' }}>{c.icon} {c.label}</option>)}
           </select>
           <textarea style={{ ...inputStyle, minHeight: 60 }} placeholder="Description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
           <div style={{ display: 'flex', gap: 10 }}>

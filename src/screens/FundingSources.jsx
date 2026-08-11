@@ -119,8 +119,8 @@ export default function FundingSources() {
             <div>
               <label style={labelStyle}>Funding Type</label>
               <select value={form.funding_type} onChange={e => setForm({ ...form, funding_type: e.target.value })} style={inputStyle}>
-                <option value="">Select type</option>
-                {FUNDING_TYPES.map(t => <option key={t}>{t}</option>)}
+                <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select type</option>
+                {FUNDING_TYPES.map(t => <option key={t} style={{ background: '#1E2A3A', color: '#fff' }}>{t}</option>)}
               </select>
             </div>
             <div>
@@ -142,8 +142,8 @@ export default function FundingSources() {
             <div>
               <label style={labelStyle}>Reporting Frequency</label>
               <select value={form.reporting_frequency} onChange={e => setForm({ ...form, reporting_frequency: e.target.value })} style={inputStyle}>
-                <option value="">Select frequency</option>
-                {REPORTING_FREQUENCIES.map(f => <option key={f}>{f}</option>)}
+                <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select frequency</option>
+                {REPORTING_FREQUENCIES.map(f => <option key={f} style={{ background: '#1E2A3A', color: '#fff' }}>{f}</option>)}
               </select>
             </div>
             <div>
@@ -153,9 +153,9 @@ export default function FundingSources() {
             <div>
               <label style={labelStyle}>Status</label>
               <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} style={inputStyle}>
-                <option value="active">Active</option>
-                <option value="closed">Closed</option>
-                <option value="pending">Pending</option>
+                <option value="active" style={{ background: '#1E2A3A', color: '#fff' }}>Active</option>
+                <option value="closed" style={{ background: '#1E2A3A', color: '#fff' }}>Closed</option>
+                <option value="pending" style={{ background: '#1E2A3A', color: '#fff' }}>Pending</option>
               </select>
             </div>
           </div>

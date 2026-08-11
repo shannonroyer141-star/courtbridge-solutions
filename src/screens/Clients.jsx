@@ -119,11 +119,11 @@ export default function Clients({ session, onNavigate }) {
           onChange={e => setFilter(e.target.value)}
           style={{ padding: '10px 14px', border: `0.5px solid ${BORDER}`, borderRadius: 8, fontSize: 14, background: CARD_BG, color: TEXT, cursor: 'pointer', fontFamily: NAV_FONT, outline: 'none' }}
         >
-          <option value="all">All Clients</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-          <option value="graduated">Graduated</option>
-          <option value="terminated">Terminated</option>
+          <option value="all" style={{ background: '#1E2A3A', color: '#fff' }}>All Clients</option>
+          <option value="active" style={{ background: '#1E2A3A', color: '#fff' }}>Active</option>
+          <option value="inactive" style={{ background: '#1E2A3A', color: '#fff' }}>Inactive</option>
+          <option value="graduated" style={{ background: '#1E2A3A', color: '#fff' }}>Graduated</option>
+          <option value="terminated" style={{ background: '#1E2A3A', color: '#fff' }}>Terminated</option>
         </select>
       </div>
 
@@ -231,11 +231,11 @@ export default function Clients({ session, onNavigate }) {
                     disabled={savingFreq}
                     style={{ padding: '8px 12px', borderRadius: 8, border: `0.5px solid ${BORDER}`, fontSize: 13, background: CARD_BG, color: TEXT, cursor: 'pointer', fontFamily: NAV_FONT }}
                   >
-                    <option value={1}>Every day</option>
-                    <option value={2}>Every 2 days</option>
-                    <option value={3}>Every 3 days</option>
-                    <option value={7}>Once a week</option>
-                    <option value={14}>Every 2 weeks</option>
+                    <option value={1} style={{ background: '#1E2A3A', color: '#fff' }}>Every day</option>
+                    <option value={2} style={{ background: '#1E2A3A', color: '#fff' }}>Every 2 days</option>
+                    <option value={3} style={{ background: '#1E2A3A', color: '#fff' }}>Every 3 days</option>
+                    <option value={7} style={{ background: '#1E2A3A', color: '#fff' }}>Once a week</option>
+                    <option value={14} style={{ background: '#1E2A3A', color: '#fff' }}>Every 2 weeks</option>
                   </select>
                   {savingFreq && <span style={{ fontSize: 12, color: TEXT_MUTED }}>Saving...</span>}
                 </div>

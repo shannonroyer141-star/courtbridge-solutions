@@ -107,8 +107,8 @@ export default function ComplianceRequirements() {
             <div>
               <label style={labelStyle}>Requirement Type</label>
               <select value={form.requirement_type} onChange={e => setForm({ ...form, requirement_type: e.target.value })} style={inputStyle}>
-                <option value="">Select type</option>
-                {REQUIREMENT_TYPES.map(t => <option key={t}>{t}</option>)}
+                <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select type</option>
+                {REQUIREMENT_TYPES.map(t => <option key={t} style={{ background: '#1E2A3A', color: '#fff' }}>{t}</option>)}
               </select>
             </div>
             <div>
@@ -130,9 +130,9 @@ export default function ComplianceRequirements() {
             <div>
               <label style={labelStyle}>Status</label>
               <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} style={inputStyle}>
-                <option value="current">Current</option>
-                <option value="pending_renewal">Pending Renewal</option>
-                <option value="expired">Expired</option>
+                <option value="current" style={{ background: '#1E2A3A', color: '#fff' }}>Current</option>
+                <option value="pending_renewal" style={{ background: '#1E2A3A', color: '#fff' }}>Pending Renewal</option>
+                <option value="expired" style={{ background: '#1E2A3A', color: '#fff' }}>Expired</option>
               </select>
             </div>
           </div>

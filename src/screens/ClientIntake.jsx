@@ -77,18 +77,18 @@ export default function ClientIntake({ session }) {
         <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 24 }}>
           <label style={lbl}>Program Type *</label>
           <select style={sel} value={form.program_type} onChange={e => update('program_type', e.target.value)}>
-            <option value="">Select program type...</option>
-            {PROGRAM_TYPES.map(p => <option key={p} value={p}>{p}</option>)}
+            <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select program type...</option>
+            {PROGRAM_TYPES.map(p => <option key={p} value={p} style={{ background: '#1E2A3A', color: '#fff' }}>{p}</option>)}
           </select>
           <label style={lbl}>Enrollment Type *</label>
           <select style={sel} value={form.enrollment_type} onChange={e => update('enrollment_type', e.target.value)}>
-            {ENROLLMENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+            {ENROLLMENT_TYPES.map(t => <option key={t.value} value={t.value} style={{ background: '#1E2A3A', color: '#fff' }}>{t.label}</option>)}
           </select>
           <label style={lbl}>Case / Docket Number</label>
           <input style={inp} value={form.case_number} onChange={e => update('case_number', e.target.value)} placeholder="Leave blank if not applicable" />
           <label style={lbl}>Starting Phase</label>
           <select style={sel} value={form.program_phase} onChange={e => update('program_phase', e.target.value)}>
-            {PHASES.map(p => <option key={p} value={p}>{p}</option>)}
+            {PHASES.map(p => <option key={p} value={p} style={{ background: '#1E2A3A', color: '#fff' }}>{p}</option>)}
           </select>
           <label style={lbl}>Program Reporting Requirements *</label>
           <NotesWarning />

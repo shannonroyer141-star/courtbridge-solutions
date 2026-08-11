@@ -70,7 +70,7 @@ export default function Forms() {
         <div style={{ background: CARD_BG, border: `1px solid ${ACCENT}`, borderRadius: 12, padding: 25, marginBottom: 20 }}>
           <input placeholder="Form title (e.g. Release of Information)" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} style={inputStyle} />
           <select value={form.form_type} onChange={e => setForm({ ...form, form_type: e.target.value })} style={inputStyle}>
-            {FORM_TYPES.map(t => <option key={t}>{t}</option>)}
+            {FORM_TYPES.map(t => <option key={t} style={{ background: '#1E2A3A', color: '#fff' }}>{t}</option>)}
           </select>
           <textarea placeholder="Full form text the client will read and sign..." value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} style={{ ...inputStyle, minHeight: 160 }} />
           <div style={{ background: 'rgba(61,111,168,0.12)', border: `0.5px solid ${WARNING}`, borderRadius: 8, padding: '10px 14px', marginBottom: 14, fontSize: 12, color: WARNING }}>

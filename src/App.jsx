@@ -103,6 +103,7 @@ export default function App() {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(null);
   const [loginLoading, setLoginLoading] = useState(false);
+  const [showAccountMenu, setShowAccountMenu] = useState(false);
 
   useEffect(() => {
     if (isEnrollRoute || isSandboxRoute || isSignupRoute || isSignupSuccessRoute || isRecordsRequestRoute) { setLoading(false); return; }
@@ -642,16 +643,38 @@ export default function App() {
           )}
         </div>
 
-        <div style={{ padding: '10px 12px 12px', borderTop: `0.5px solid ${BORDER}` }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 4px', marginBottom: 2 }}>
+        <div style={{ padding: '10px 12px 12px', borderTop: `0.5px solid ${BORDER}`, position: 'relative' }}>
+          <div onClick={() => setShowAccountMenu(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 4px', cursor: 'pointer', borderRadius: 5 }}>
             <div style={{ width: 26, height: 26, borderRadius: '50%', background: BLUE, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
               {userInitial}
             </div>
             <span style={{ fontSize: 12, color: TEXT_MUTED, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{userEmail}</span>
           </div>
-          <div onClick={handleLogout} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 4px', fontSize: 12, color: TEXT_MUTED, cursor: 'pointer', borderRadius: 5, fontFamily: NAV_FONT }}>
-            <Ic d={ICONS.logout} size={13} /><span>Sign out</span>
-          </div>
+
+          {showAccountMenu && (
+            <>
+              <div onClick={(e) => { e.stopPropagation(); setShowAccountMenu(false) }} style={{ position: 'fixed', inset: 0, zIndex: 200 }} />
+              <div style={{
+                position: 'absolute', bottom: '100%', left: 12, right: 12, marginBottom: 6,
+                background: CARD_BG, border: `0.5px solid ${BORDER}`,
+                borderRadius: 10, boxShadow: '0 4px 20px rgba(0,0,0,0.4)', zIndex: 201, overflow: 'hidden',
+              }}>
+                <div
+                  onClick={(e) => { e.stopPropagation(); setShowAccountMenu(false); navTo('settings') }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', fontSize: 12, color: TEXT, cursor: 'pointer', fontFamily: NAV_FONT }}
+                >
+                  My Preferences
+                </div>
+                <div style={{ borderTop: `0.5px solid ${BORDER}` }} />
+                <div
+                  onClick={(e) => { e.stopPropagation(); setShowAccountMenu(false); handleLogout() }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', fontSize: 12, color: TEXT_MUTED, cursor: 'pointer', fontFamily: NAV_FONT }}
+                >
+                  <Ic d={ICONS.logout} size={13} /><span>Sign out</span>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 

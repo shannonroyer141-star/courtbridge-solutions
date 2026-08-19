@@ -204,6 +204,7 @@ export default function ClientAppDashboard({ session, onLogout }) {
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768)
   const [sidebarExpanded, setSidebarExpanded] = useState(false)
   const [showMoreMenu, setShowMoreMenu] = useState(false)
+  const [showAccountMenu, setShowAccountMenu] = useState(false)
   const [showLabels, setShowLabels] = useState(false)
   const [hoveredNavItem, setHoveredNavItem] = useState(null)
   const [lang, setLang] = useState('en')
@@ -887,14 +888,16 @@ export default function ClientAppDashboard({ session, onLogout }) {
           </div>
 
           {/* User footer */}
-          <div style={{
-            borderTop: `0.5px solid rgba(255,255,255,0.06)`,
-            padding: '14px 0',
-            display: 'flex', alignItems: 'center',
-            justifyContent: showLabels ? 'flex-start' : 'center',
-            paddingLeft: showLabels ? 14 : 0,
-            gap: 10, flexShrink: 0,
-          }}>
+          <div
+            onClick={() => setShowAccountMenu(v => !v)}
+            style={{
+              borderTop: `0.5px solid rgba(255,255,255,0.06)`,
+              padding: '14px 0',
+              display: 'flex', alignItems: 'center',
+              justifyContent: showLabels ? 'flex-start' : 'center',
+              paddingLeft: showLabels ? 14 : 0,
+              gap: 10, flexShrink: 0, cursor: 'pointer', position: 'relative',
+            }}>
             <div style={{
               width: 30, height: 30, borderRadius: '50%', background: BLUE,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -905,8 +908,32 @@ export default function ClientAppDashboard({ session, onLogout }) {
             {showLabels && (
               <div style={{ overflow: 'hidden' }}>
                 <div style={{ fontSize: 12, color: TEXT, whiteSpace: 'nowrap' }}>{firstName}</div>
-                <div onClick={onLogout} style={{ fontSize: 11, color: TEXT_MUTED, cursor: 'pointer', marginTop: 2 }}>{t('dashboard', 'nav').signOut}</div>
               </div>
+            )}
+
+            {showAccountMenu && (
+              <>
+                <div onClick={(e) => { e.stopPropagation(); setShowAccountMenu(false) }} style={{ position: 'fixed', inset: 0, zIndex: 200 }} />
+                <div style={{
+                  position: 'absolute', bottom: '100%', left: showLabels ? 14 : '100%', marginBottom: 6,
+                  width: 170, background: SIDEBAR_BG, border: `0.5px solid rgba(255,255,255,0.1)`,
+                  borderRadius: 10, boxShadow: '0 4px 20px rgba(0,0,0,0.4)', zIndex: 201, overflow: 'hidden',
+                }}>
+                  <div
+                    onClick={(e) => { e.stopPropagation(); setShowAccountMenu(false); setActiveTab('settings') }}
+                    style={{ padding: '10px 14px', fontSize: 13, color: TEXT, cursor: 'pointer' }}
+                  >
+                    Settings
+                  </div>
+                  <div style={{ borderTop: `0.5px solid rgba(255,255,255,0.08)` }} />
+                  <div
+                    onClick={(e) => { e.stopPropagation(); setShowAccountMenu(false); onLogout() }}
+                    style={{ padding: '10px 14px', fontSize: 13, color: TEXT_MUTED, cursor: 'pointer' }}
+                  >
+                    {t('dashboard', 'nav').signOut}
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </div>

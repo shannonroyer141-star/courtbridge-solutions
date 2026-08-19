@@ -26,7 +26,6 @@ Went from 87 errors/18 warnings down to 19 errors/18 warnings. Fixed: ~15 unused
 ~~Shannon flagged 7/28 that the certificate designs weren't good~~ — **done 8/7**, 8 new landscape templates.
 
 ## 🧹 Still open
-- `ClientOnboarding.jsx`: waiver and SMS-consent text still marked `⚠ Placeholder — needs legal review before use` — tracked until legal review happens.
 - **SOP**: real content now drafted (8/10) — still needs Shannon's review/sign-off.
 - The `resources` table RLS scoping question above.
 

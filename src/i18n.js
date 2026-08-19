@@ -7,10 +7,6 @@ export const LANGUAGES = {
 // First pass, machine-quality translations for es/ht. Flagged for a native-speaker
 // review pass before relying on this for real clients (same caution as Legal.md) —
 // this touches legal consent language and safety instructions.
-//
-// waiverBody and smsBody (onboarding section, all 3 languages) are draft consent
-// language, not yet reviewed by an attorney -- same caution as Legal.md. Don't
-// remove this comment until that review has actually happened.
 export const translations = {
   en: {
     onboarding: {

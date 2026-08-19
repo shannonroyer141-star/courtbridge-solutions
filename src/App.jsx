@@ -609,17 +609,6 @@ export default function App() {
               <div style={subSubItem('programs')} onClick={() => navTo('programs')}>Programs</div>
               <div style={subSubItem('compliancechart')} onClick={() => navTo('compliancechart')}>Compliance Chart</div>
             </>}
-
-            <div style={subGroupRow('personal')} onClick={() => toggleMenu('personal')}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Ic d={ICONS.wellness} size={12} /><span>Personal</span>
-              </div>
-              <Ic d={expandedMenus.personal ? ICONS.chevronDown : ICONS.chevronRight} size={11} />
-            </div>
-            {expandedMenus.personal && <>
-              <div style={subSubItem('settings')} onClick={() => navTo('settings')}>My Preferences</div>
-              <div style={subSubItem('affirmations')} onClick={() => navTo('affirmations')}>Wellness</div>
-            </>}
           </>}
 
           <div style={divider} />
@@ -664,6 +653,12 @@ export default function App() {
                   style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', fontSize: 12, color: TEXT, cursor: 'pointer', fontFamily: NAV_FONT }}
                 >
                   My Preferences
+                </div>
+                <div
+                  onClick={(e) => { e.stopPropagation(); setShowAccountMenu(false); navTo('affirmations') }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', fontSize: 12, color: TEXT, cursor: 'pointer', fontFamily: NAV_FONT }}
+                >
+                  Wellness
                 </div>
                 <div style={{ borderTop: `0.5px solid ${BORDER}` }} />
                 <div

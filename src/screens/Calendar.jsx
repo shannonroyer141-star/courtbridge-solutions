@@ -38,6 +38,17 @@ const SKINS = {
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+// No saved provider preference yet -- default to a skin that rotates with
+// the season instead of always starting on navy, so the calendar looks
+// different throughout the year unless someone locks in a favorite.
+const SEASONAL_SKIN_BY_MONTH = [
+  'midnight', 'midnight', 'forest', 'forest', 'forest', 'sunset',
+  'sunset', 'sunset', 'navy', 'navy', 'navy', 'midnight',
+];
+function seasonalSkinKey() {
+  return SEASONAL_SKIN_BY_MONTH[new Date().getMonth()];
+}
+
 function dateKey(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
@@ -53,7 +64,7 @@ export default function Calendar() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
   const [width, setWidth] = useState(window.innerWidth);
-  const [skinKey, setSkinKey] = useState('navy');
+  const [skinKey, setSkinKey] = useState(seasonalSkinKey());
 
   useEffect(() => { fetchAll(); }, []);
   useEffect(() => {

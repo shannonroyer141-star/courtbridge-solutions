@@ -91,6 +91,10 @@ export default function App() {
   const [accountStatus, setAccountStatus] = useState('active');
   const [activeClientId, setActiveClientId] = useState(null);
   const [cameFromWidget, setCameFromWidget] = useState(false);
+  const [isImpersonating, setIsImpersonating] = useState(false);
+  const [impersonatingClientName, setImpersonatingClientName] = useState('');
+  const [founderSessionBackup, setFounderSessionBackup] = useState(null);
+  const [impersonateError, setImpersonateError] = useState(null);
 
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 768px)');
@@ -156,6 +160,35 @@ export default function App() {
 
   async function handleLogout() {
     await supabase.auth.signOut();
+    setActiveScreen('dashboard');
+  }
+
+  async function startImpersonation(client) {
+    setImpersonateError(null);
+    const { data: { session: currentSession } } = await supabase.auth.getSession();
+    if (!currentSession) return;
+
+    const { data, error } = await supabase.functions.invoke('impersonate-client', { body: { client_id: client.id } });
+    if (error || !data?.success) {
+      setImpersonateError(data?.error || error?.message || 'Could not switch into that client\'s view.');
+      return;
+    }
+
+    const { error: otpError } = await supabase.auth.verifyOtp({ email: data.email, token: data.token_hash, type: 'magiclink' });
+    if (otpError) { setImpersonateError(otpError.message); return; }
+
+    setFounderSessionBackup({ access_token: currentSession.access_token, refresh_token: currentSession.refresh_token });
+    setIsImpersonating(true);
+    setImpersonatingClientName(data.client_name || client.name);
+    setActiveScreen('dashboard');
+  }
+
+  async function exitImpersonation() {
+    if (!founderSessionBackup) return;
+    await supabase.auth.setSession({ access_token: founderSessionBackup.access_token, refresh_token: founderSessionBackup.refresh_token });
+    setFounderSessionBackup(null);
+    setIsImpersonating(false);
+    setImpersonatingClientName('');
     setActiveScreen('dashboard');
   }
 
@@ -282,6 +315,15 @@ export default function App() {
   if (role === 'client') {
     return (
       <div style={{ fontFamily: NAV_FONT }}>
+        {isImpersonating && (
+          <div style={{
+            position: 'sticky', top: 0, zIndex: 500, background: '#1B3A6B', color: '#fff',
+            padding: '8px 16px', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
+          }}>
+            <span>Viewing as {impersonatingClientName}</span>
+            <span onClick={exitImpersonation} style={{ textDecoration: 'underline', cursor: 'pointer', fontWeight: 600 }}>Exit client view</span>
+          </div>
+        )}
         {activeScreen === 'dashboard' && <ClientAppDashboard session={session} onLogout={handleLogout} onNavigate={navTo} />}
         {activeScreen === 'checkin' && <CheckIn session={session} onBack={() => navTo('dashboard')} />}
       </div>
@@ -329,7 +371,7 @@ export default function App() {
       case 'mapview': return <MapView session={session} />;
       case 'meetinglog': return <MeetingLog session={session} />;
       case 'orgadmin': return <OrgAdmin session={session} />;
-      case 'clientprofile': return <ClientProfile session={session} clientId={activeClientId} onNavigate={navTo} />;
+      case 'clientprofile': return <ClientProfile session={session} clientId={activeClientId} onNavigate={navTo} isFounder={isFounder} onImpersonate={startImpersonation} impersonateError={impersonateError} />;
       case 'messages': return <Messages session={session} clientId={activeClientId} />;
       case 'clientinvite': return <ClientInvite session={session} />;
       case 'violationreport': return <ViolationReport session={session} />;

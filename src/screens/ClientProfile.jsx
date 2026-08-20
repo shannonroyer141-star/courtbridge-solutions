@@ -4,7 +4,7 @@ import { syncClientBilling } from '../billing';
 import { CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 import { NotesWarning, FlagRestrictedButton } from '../components/VictimInfoWarning';
 
-export default function ClientProfile({ clientId, onNavigate }) {
+export default function ClientProfile({ clientId, onNavigate, isFounder, onImpersonate, impersonateError }) {
   const [client, setClient] = useState(null);
   const [checkIns, setCheckIns] = useState([]);
   const [courtDates, setCourtDates] = useState([]);
@@ -211,17 +211,25 @@ export default function ClientProfile({ clientId, onNavigate }) {
       {actionError && (
         <div style={{ background: 'rgba(248,113,113,0.1)', border: `0.5px solid ${RED}`, borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 13, color: RED }}>{actionError}</div>
       )}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
         <div style={{ width: 56, height: 56, borderRadius: '50%', background: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 22, fontWeight: 'bold', flexShrink: 0 }}>
           {(client.name || client.email || '?')[0].toUpperCase()}
         </div>
-        <div>
+        <div style={{ flex: 1 }}>
           <h2 style={{ margin: 0, fontSize: 22, color: TEXT }}>{client.name || client.email}</h2>
           <span style={{ background: getStatusColor(client.status), color: 'white', padding: '2px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, textTransform: 'uppercase' }}>
             {client.status || 'Pending'}
           </span>
         </div>
+        {isFounder && onImpersonate && (
+          <button onClick={() => onImpersonate(client)} style={{ padding: '8px 16px', background: 'rgba(91,155,240,0.12)', border: `0.5px solid ${ACCENT}`, color: ACCENT, borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+            Log In As This Client
+          </button>
+        )}
       </div>
+      {impersonateError && (
+        <div style={{ background: 'rgba(248,113,113,0.1)', border: `0.5px solid ${RED}`, borderRadius: 8, padding: 12, marginBottom: 16, fontSize: 13, color: RED }}>{impersonateError}</div>
+      )}
 
       <div style={cardStyle}>
         <h3 style={{ margin: '0 0 12px', color: TEXT, fontSize: 15 }}>Status</h3>

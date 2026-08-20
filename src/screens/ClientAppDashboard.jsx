@@ -96,6 +96,8 @@ const LINE_ICONS = {
   court:      <><path d="M12 2 3 7v2h18V7z"/><path d="M5 9v9M9 9v9M15 9v9M19 9v9"/><path d="M3 21h18"/></>,
   task:       <><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></>,
   note:       <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></>,
+  download:   <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></>,
+  eye:        <><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></>,
 }
 const Ic = ({ d, size = 17 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{d}</svg>
@@ -653,6 +655,19 @@ export default function ClientAppDashboard({ session, onLogout }) {
     window.open(data.signedUrl, '_blank')
   }
 
+  async function downloadDocument(doc) {
+    const { data, error } = await supabase.storage.from('documents').download(doc.file_url)
+    if (error || !data) return
+    const blobUrl = URL.createObjectURL(data)
+    const a = document.createElement('a')
+    a.href = blobUrl
+    a.download = doc.file_name
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(blobUrl)
+  }
+
   async function handleClientUpload() {
     if (!uploadFile || !uploadDocType || !client) { setUploadStatus('Please choose a document type and a file.'); return }
     if (!uploadVictimConfirmed) { setUploadStatus('Please confirm this document does not contain victim-identifying information before uploading.'); return }
@@ -1026,7 +1041,7 @@ export default function ClientAppDashboard({ session, onLogout }) {
                     background: GREEN, color: '#fff',
                   }}
                 >
-                  {uploading ? 'Uploading...' : '⬆️ Upload Document'}
+                  {uploading ? 'Uploading...' : 'Upload Document'}
                 </div>
               </InnerCard>
             )}
@@ -1036,17 +1051,24 @@ export default function ClientAppDashboard({ session, onLogout }) {
                 <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>{t('dashboard', 'documents').empty}</div>
               ) : (
                 documents.map((d, i) => (
-                  <div key={d.id} onClick={() => viewDocument(d)} style={{
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer',
+                  <div key={d.id} style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                     padding: '10px 0', borderBottom: i === documents.length - 1 ? 'none' : `0.5px solid rgba(255,255,255,0.05)`,
                   }}>
-                    <div>
+                    <div style={{ cursor: 'pointer', flex: 1, minWidth: 0 }} onClick={() => viewDocument(d)}>
                       <div style={{ fontSize: 13, color: TEXT }}>{d.file_name}</div>
                       <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 2 }}>
                         {d.document_type} · {new Date(d.uploaded_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </div>
                     </div>
-                    <div style={{ fontSize: 11, color: ACCENT, fontWeight: 600 }}>{t('dashboard', 'documents').view}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0, marginLeft: 10 }}>
+                      <div onClick={() => viewDocument(d)} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: ACCENT, fontWeight: 600, cursor: 'pointer' }}>
+                        <Ic d={LINE_ICONS.eye} size={14} />{t('dashboard', 'documents').view}
+                      </div>
+                      <div onClick={() => downloadDocument(d)} style={{ display: 'flex', alignItems: 'center', color: TEXT_MUTED, cursor: 'pointer' }}>
+                        <Ic d={LINE_ICONS.download} size={15} />
+                      </div>
+                    </div>
                   </div>
                 ))
               )}

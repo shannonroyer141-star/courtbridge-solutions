@@ -1,30 +1,83 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
+import { createStaffInvite, validateStaffInvite, ORG_ROLES } from '../staffInvite';
 import { CARD_BG, ACCENT, GREEN, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 
-const ORG_ROLES = [
-  { value: 'admin', label: 'Admin — full org access' },
-  { value: 'case_manager', label: 'Case Manager' },
-  { value: 'front_desk', label: 'Front Desk / Intake' },
-  { value: 'provider', label: 'Provider (default)' },
-];
+const emptyInviteForm = () => ({ full_name: '', email: '', org_role: 'provider', is_org_admin: false });
 
 export default function UserRoleManagement({ session }) {
   const [members, setMembers] = useState([]);
+  const [pendingInvites, setPendingInvites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState(null);
   const [error, setError] = useState(null);
+  const [myOrg, setMyOrg] = useState(null);
+  const [showInviteForm, setShowInviteForm] = useState(false);
+  const [inviteForm, setInviteForm] = useState(emptyInviteForm());
+  const [sendingInvite, setSendingInvite] = useState(false);
+  const [inviteError, setInviteError] = useState(null);
+  const [inviteLink, setInviteLink] = useState(null);
 
   async function fetchMembers() {
     setLoading(true);
     setError(null);
+    const { data: myProfile } = await supabase.from('profiles').select('organization_id').eq('id', session.user.id).single();
+    setMyOrg(myProfile?.organization_id || null);
+
     const { data, error: err } = await supabase.from('profiles').select('*').order('created_at', { ascending: true });
     if (err) { setError('Could not load staff: ' + err.message); setLoading(false); return; }
     setMembers(data || []);
+
+    if (myProfile?.organization_id) {
+      const { data: invites } = await supabase.from('staff_invites').select('*')
+        .eq('organization_id', myProfile.organization_id).eq('accepted', false)
+        .order('created_at', { ascending: false });
+      setPendingInvites(invites || []);
+    }
     setLoading(false);
   }
 
   useEffect(() => { fetchMembers(); }, []);
+
+  function updateInviteForm(field, value) { setInviteForm(prev => ({ ...prev, [field]: value })); setInviteError(null); }
+
+  async function sendStaffInvite() {
+    const validationError = validateStaffInvite(inviteForm);
+    if (validationError) { setInviteError(validationError); return; }
+    setSendingInvite(true);
+    setInviteError(null);
+    setInviteLink(null);
+
+    const { link, invite, error: createError } = await createStaffInvite(myOrg, session.user.id, inviteForm);
+    if (createError || !invite) { setInviteError('Could not create invite: ' + (createError?.message || 'unknown error')); setSendingInvite(false); return; }
+
+    const { data: myProfile } = await supabase.from('profiles').select('full_name, email, organization_name').eq('id', session.user.id).single();
+    const { data: org } = await supabase.from('organizations').select('organization_name').eq('id', myOrg).single();
+
+    const { error: fnError } = await supabase.functions.invoke('send-staff-invite', {
+      body: {
+        staff_email: invite.email,
+        staff_name: invite.full_name,
+        invited_by_name: myProfile?.full_name || myProfile?.email,
+        organization_name: org?.organization_name || myProfile?.organization_name,
+        invite_token: invite.token,
+        org_role_label: ORG_ROLES.find(r => r.value === invite.org_role)?.label.split(' — ')[0],
+      },
+    });
+    if (fnError) { setInviteError('Invite created, but the email failed to send. Share this link directly instead: ' + link); }
+
+    setInviteLink(link);
+    setInviteForm(emptyInviteForm());
+    setSendingInvite(false);
+    fetchMembers();
+  }
+
+  async function revokeInvite(id) {
+    setSavingId(id);
+    await supabase.from('staff_invites').delete().eq('id', id);
+    setPendingInvites(prev => prev.filter(i => i.id !== id));
+    setSavingId(null);
+  }
 
   async function updateMember(id, changes) {
     setSavingId(id);
@@ -45,10 +98,92 @@ export default function UserRoleManagement({ session }) {
 
   return (
     <div style={{ padding: 30, maxWidth: 820, fontFamily: NAV_FONT }}>
-      <h1 style={{ color: TEXT, margin: '0 0 4px' }}>User &amp; Role Management</h1>
-      <p style={{ color: TEXT_MUTED, marginTop: 0, marginBottom: 24, fontSize: 14 }}>
-        Manage who on your team has admin access. There's no self-service "invite staff" flow yet — for now, have a new staff member create a regular account, then promote them here.
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, marginBottom: 4, flexWrap: 'wrap' }}>
+        <h1 style={{ color: TEXT, margin: 0 }}>User &amp; Role Management</h1>
+        <button
+          onClick={() => { setShowInviteForm(v => !v); setInviteLink(null); setInviteError(null); }}
+          style={{ padding: '9px 16px', background: ACCENT, color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: NAV_FONT }}
+        >
+          {showInviteForm ? 'Cancel' : '+ Invite Staff Member'}
+        </button>
+      </div>
+      <p style={{ color: TEXT_MUTED, marginTop: 4, marginBottom: 24, fontSize: 14 }}>
+        Manage who on your team has admin access, and invite new team members directly.
       </p>
+
+      {showInviteForm && (
+        <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 20, marginBottom: 20 }}>
+          {inviteError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{inviteError}</div>}
+          {inviteLink && (
+            <div style={{ background: 'rgba(76,175,125,0.1)', border: `0.5px solid ${GREEN}`, borderRadius: 8, padding: 12, marginBottom: 14, fontSize: 13, color: GREEN }}>
+              Invite sent. If you ever need to share it directly instead: <span style={{ wordBreak: 'break-all', color: TEXT }}>{inviteLink}</span>
+            </div>
+          )}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+            <div>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: TEXT_MUTED, marginBottom: 6 }}>Full Name</label>
+              <input
+                value={inviteForm.full_name}
+                onChange={e => updateInviteForm('full_name', e.target.value)}
+                placeholder="Jane Smith"
+                style={{ width: '100%', padding: '9px 12px', borderRadius: 6, border: `0.5px solid ${BORDER}`, background: 'rgba(255,255,255,0.04)', color: TEXT, fontSize: 13, fontFamily: NAV_FONT, boxSizing: 'border-box' }}
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: TEXT_MUTED, marginBottom: 6 }}>Email</label>
+              <input
+                value={inviteForm.email}
+                onChange={e => updateInviteForm('email', e.target.value)}
+                placeholder="jane@yourorg.org"
+                style={{ width: '100%', padding: '9px 12px', borderRadius: 6, border: `0.5px solid ${BORDER}`, background: 'rgba(255,255,255,0.04)', color: TEXT, fontSize: 13, fontFamily: NAV_FONT, boxSizing: 'border-box' }}
+              />
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap', marginBottom: 16 }}>
+            <select
+              value={inviteForm.org_role}
+              onChange={e => updateInviteForm('org_role', e.target.value)}
+              style={{ padding: '8px 10px', borderRadius: 6, border: `0.5px solid ${BORDER}`, background: CARD_BG, color: TEXT, fontSize: 13, fontFamily: NAV_FONT }}
+            >
+              {ORG_ROLES.map(r => <option key={r.value} value={r.value} style={{ background: '#1E2A3A', color: '#fff' }}>{r.label}</option>)}
+            </select>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: TEXT_MUTED, cursor: 'pointer' }}>
+              <input type="checkbox" checked={inviteForm.is_org_admin} onChange={e => updateInviteForm('is_org_admin', e.target.checked)} />
+              Org Admin
+            </label>
+          </div>
+          <button
+            onClick={sendStaffInvite}
+            disabled={sendingInvite}
+            style={{ padding: '10px 18px', background: sendingInvite ? 'rgba(255,255,255,0.08)' : GREEN, color: sendingInvite ? TEXT_DIM : '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: sendingInvite ? 'default' : 'pointer', fontFamily: NAV_FONT }}
+          >
+            {sendingInvite ? 'Sending...' : 'Send Invite'}
+          </button>
+        </div>
+      )}
+
+      {pendingInvites.length > 0 && (
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: TEXT_MUTED, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 8 }}>Pending Invites</div>
+          <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, overflow: 'hidden' }}>
+            {pendingInvites.map((inv, i) => (
+              <div key={inv.id} style={{ padding: '14px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap', borderBottom: i === pendingInvites.length - 1 ? 'none' : `0.5px solid ${BORDER}` }}>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: TEXT }}>{inv.full_name || inv.email}</div>
+                  <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 2 }}>{inv.email} · {ORG_ROLES.find(r => r.value === inv.org_role)?.label.split(' — ')[0] || inv.org_role}</div>
+                </div>
+                <button
+                  onClick={() => revokeInvite(inv.id)}
+                  disabled={savingId === inv.id}
+                  style={{ padding: '6px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 700, background: 'rgba(248,113,113,0.12)', color: RED }}
+                >
+                  Revoke
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {error && <div style={{ color: RED, fontSize: 13, marginBottom: 16 }}>{error}</div>}
 

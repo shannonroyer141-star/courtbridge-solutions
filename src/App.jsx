@@ -3,6 +3,7 @@ import { supabase } from './supabase';
 import ProviderDashboard from './screens/ProviderDashboard';
 import ClientAppDashboard from './screens/ClientAppDashboard';
 import ClientOnboarding from './screens/ClientOnboarding';
+import StaffOnboarding from './screens/StaffOnboarding';
 import SandboxApp from './demo/SandboxApp';
 import SelfServeSignup from './screens/SelfServeSignup';
 import SignupSuccess from './screens/SignupSuccess';
@@ -63,6 +64,8 @@ const isSandboxRoute = window.location.pathname === '/sandbox';
 const isSignupRoute = window.location.pathname === '/signup';
 const isSignupSuccessRoute = window.location.pathname === '/signup/success';
 const isRecordsRequestRoute = window.location.pathname === '/request-records';
+const isJoinStaffRoute = window.location.pathname === '/join-staff' &&
+  new URLSearchParams(window.location.search).has('token');
 
 const Ic = ({ d, size = 14 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
@@ -110,7 +113,7 @@ export default function App() {
   const [showAccountMenu, setShowAccountMenu] = useState(false);
 
   useEffect(() => {
-    if (isEnrollRoute || isSandboxRoute || isSignupRoute || isSignupSuccessRoute || isRecordsRequestRoute) { setLoading(false); return; }
+    if (isEnrollRoute || isSandboxRoute || isSignupRoute || isSignupSuccessRoute || isRecordsRequestRoute || isJoinStaffRoute) { setLoading(false); return; }
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session) fetchRole(session.user.id);
@@ -224,6 +227,7 @@ export default function App() {
   }
 
   if (isEnrollRoute) return <ClientOnboarding />;
+  if (isJoinStaffRoute) return <StaffOnboarding />;
 
   if (isSandboxRoute) return <SandboxApp />;
 

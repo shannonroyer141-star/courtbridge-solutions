@@ -174,7 +174,7 @@ export default function App() {
       return;
     }
 
-    const { error: otpError } = await supabase.auth.verifyOtp({ token_hash: data.token_hash, type: 'email' });
+    const { error: otpError } = await supabase.auth.verifyOtp({ token_hash: data.token_hash, type: 'recovery' });
     if (otpError) { setImpersonateError(otpError.message); return; }
 
     setFounderSessionBackup({ access_token: currentSession.access_token, refresh_token: currentSession.refresh_token });

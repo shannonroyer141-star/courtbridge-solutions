@@ -437,52 +437,42 @@ export default function ProviderDashboard({ onNavigate }) {
         />
       </div>
 
-      <div style={{ ...S.threeCol, gridTemplateColumns: isTablet ? '1fr' : '1.2fr 1fr 1fr' }}>
+      <div style={{ ...S.twoCol, gridTemplateColumns: isPhone ? '1fr' : '1fr 1fr' }}>
         <div style={S.card}>
           <div style={S.cardHeader}>
-            <div style={{ ...S.cardDot, background: ACCENT }} />
-            <h3 style={S.cardTitle}>Last Known Locations</h3>
-          </div>
-          <div style={S.mapCard}>
-            <MapContainer center={DEFAULT_CENTER} zoom={DEFAULT_ZOOM} style={{ height: '100%', width: '100%' }} scrollWheelZoom={false}>
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              <FitToMarkers points={mapPoints} />
-              {mapPoints.map(ci => (
-                <Marker key={ci.id} position={[ci.latitude, ci.longitude]}>
-                  <Popup><strong>{ci.clients?.name || 'Unknown client'}</strong></Popup>
-                </Marker>
-              ))}
-            </MapContainer>
-          </div>
-          {onNavigate && <div style={S.footerLink} onClick={() => onNavigate('mapview')}>View full map →</div>}
-        </div>
-
-        <div style={S.card}>
-          <div style={S.cardHeader}>
-            <div style={{ ...S.cardDot, background: urgentMessages.length > 0 ? RED : GREEN }} />
-            <h3 style={S.cardTitle}>Urgent Messages</h3>
+            <div style={{ ...S.cardDot, background: (urgentMessages.length > 0 || missedClients.length > 0) ? RED : GREEN }} />
+            <h3 style={S.cardTitle}>Needs Attention</h3>
           </div>
           <div style={S.cardBody}>
-            {urgentMessages.length === 0 ? (
+            {urgentMessages.length === 0 && missedClients.length === 0 ? (
               <div style={S.emptyState}>
                 <div style={S.emptyIcon}>✓</div>
-                <p style={S.emptyText}>No unresolved urgent messages</p>
+                <p style={S.emptyText}>All clients checked in, no urgent messages</p>
               </div>
             ) : (
-              urgentMessages.map(m => (
-                <div key={m.id} style={{ ...S.urgentRow, cursor: onNavigate ? 'pointer' : 'default' }}
-                  onClick={() => onNavigate && onNavigate('clientprofile', m.client_id)}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={S.listName}>{m.clients?.name || 'Unknown'}</div>
-                    <span style={S.urgentBadge}>Urgent</span>
+              <>
+                {urgentMessages.map(m => (
+                  <div key={m.id} style={{ ...S.urgentRow, cursor: onNavigate ? 'pointer' : 'default' }}
+                    onClick={() => onNavigate && onNavigate('clientprofile', m.client_id)}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={S.listName}>{m.clients?.name || 'Unknown'}</div>
+                      <span style={S.urgentBadge}>Urgent</span>
+                    </div>
+                    <div style={S.urgentSnippet}>{m.body}</div>
+                    <button style={{ ...S.linkBtn, marginTop: '4px' }} onClick={e => { e.stopPropagation(); goToClient(m.client_id); }}>Reply →</button>
                   </div>
-                  <div style={S.urgentSnippet}>{m.body}</div>
-                  <button style={{ ...S.linkBtn, marginTop: '4px' }} onClick={e => { e.stopPropagation(); goToClient(m.client_id); }}>Reply →</button>
-                </div>
-              ))
+                ))}
+                {missedClients.map(client => (
+                  <div key={client.id} style={{ ...S.listRow, cursor: onNavigate ? 'pointer' : 'default' }}
+                    onClick={() => onNavigate && onNavigate('clientprofile', client.id)}>
+                    <div>
+                      <div style={S.listName}>{client.name}</div>
+                      <div style={S.listSubAlert}>No check-in today</div>
+                    </div>
+                    <button style={S.contactBtn} onClick={e => { e.stopPropagation(); goToClient(client.id); }}>Contact</button>
+                  </div>
+                ))}
+              </>
             )}
           </div>
         </div>
@@ -505,63 +495,6 @@ export default function ProviderDashboard({ onNavigate }) {
                   <div style={S.listSub}>
                     {item.date ? new Date(item.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
                   </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div style={{ ...S.twoCol, gridTemplateColumns: isPhone ? '1fr' : '1fr 1fr' }}>
-        <div style={S.card}>
-          <div style={S.cardHeader}>
-            <div style={{ ...S.cardDot, background: stats.missedLast24 > 0 ? RED : GREEN }} />
-            <h3 style={S.cardTitle}>Needs Attention</h3>
-          </div>
-          <div style={S.cardBody}>
-            {missedClients.length === 0 ? (
-              <div style={S.emptyState}>
-                <div style={S.emptyIcon}>✓</div>
-                <p style={S.emptyText}>All clients checked in today</p>
-              </div>
-            ) : (
-              missedClients.map(client => (
-                <div key={client.id} style={{ ...S.listRow, cursor: onNavigate ? 'pointer' : 'default' }}
-                  onClick={() => onNavigate && onNavigate('clientprofile', client.id)}>
-                  <div>
-                    <div style={S.listName}>{client.name}</div>
-                    <div style={S.listSubAlert}>No check-in today</div>
-                  </div>
-                  <button style={S.contactBtn} onClick={e => { e.stopPropagation(); goToClient(client.id); }}>Contact</button>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        <div style={S.card}>
-          <div style={S.cardHeader}>
-            <div style={S.cardDot} />
-            <h3 style={S.cardTitle}>Recent Check-Ins</h3>
-          </div>
-          <div style={S.cardBody}>
-            {recentActivity.length === 0 ? (
-              <div style={S.emptyState}>
-                <p style={S.emptyText}>No recent check-ins</p>
-              </div>
-            ) : (
-              recentActivity.map(ci => (
-                <div key={ci.id} style={{ ...S.listRow, cursor: onNavigate ? 'pointer' : 'default' }}
-                  onClick={() => onNavigate && onNavigate('clientprofile', ci.client_id)}>
-                  <div>
-                    <div style={S.listName}>{ci.clients?.name || 'Unknown'}</div>
-                    <div style={S.listSub}>
-                      {new Date(ci.checked_in_at).toLocaleString('en-US', {
-                        month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
-                      })}
-                    </div>
-                  </div>
-                  <span style={S.badgeGreen}>Present</span>
                 </div>
               ))
             )}

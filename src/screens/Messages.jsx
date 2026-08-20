@@ -7,7 +7,7 @@ const TEMPLATES = {
   missed_checkin: {
     label: '⚠️ Missed Check-In',
     subject: 'Important: Missed Check-In Notice',
-    body: `Hi [CLIENT NAME],\n\nThis is a reminder that you missed your required check-in on [DATE]. Please check in as soon as possible to stay in compliance with your court-ordered requirements.\n\nIf you are having technical issues with the app, please contact us immediately at [PHONE].\n\nFailure to check in may be reported to your probation officer or the court.\n\nPlease take action today.\n\nCourtBridge Solutions`
+    body: `Hi [CLIENT NAME],\n\nThis is a reminder that you missed your required check-in on [DATE]. Please check in as soon as possible to stay in compliance with your court-ordered requirements.\n\nIf you are having technical issues with the app, please contact us immediately at [PHONE].\n\nFailure to check in may be reported to [REPORTED TO].\n\nPlease take action today.\n\nCourtBridge Solutions`
   },
   upcoming_court: {
     label: '⚖️ Upcoming Court Date',
@@ -22,7 +22,7 @@ const TEMPLATES = {
   compliance_warning: {
     label: '🚨 Compliance Warning',
     subject: 'Compliance Warning — Action Required',
-    body: `Hi [CLIENT NAME],\n\nWe are reaching out because your compliance record shows you are falling behind on your required check-ins.\n\nRequired check-ins missed: [NUMBER]\nLast check-in: [DATE]\n\nYou must take immediate action to get back on track. Please check in today and contact us to discuss your situation.\n\nThis information may be shared with your probation officer or the court if compliance does not improve.\n\nCourtBridge Solutions`
+    body: `Hi [CLIENT NAME],\n\nWe are reaching out because your compliance record shows you are falling behind on your required check-ins.\n\nRequired check-ins missed: [NUMBER]\nLast check-in: [DATE]\n\nYou must take immediate action to get back on track. Please check in today and contact us to discuss your situation.\n\nThis information may be shared with [REPORTED TO] if compliance does not improve.\n\nCourtBridge Solutions`
   },
   general: {
     label: '✉️ General Message',
@@ -30,6 +30,14 @@ const TEMPLATES = {
     body: ''
   }
 };
+
+const REPORTED_TO_OPTIONS = [
+  'your probation officer or the court',
+  'your probation officer',
+  'the court',
+  'your case manager',
+  'the referring agency',
+];
 
 export default function Messages({ clientId }) {
   const [messages, setMessages] = useState([]);
@@ -39,6 +47,7 @@ export default function Messages({ clientId }) {
   const [template, setTemplate] = useState('general');
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
+  const [reportedTo, setReportedTo] = useState(REPORTED_TO_OPTIONS[0]);
   const [sending, setSending] = useState(false);
   const [status, setStatus] = useState('');
   const [activeThreadClientId, setActiveThreadClientId] = useState(clientId || null);
@@ -60,12 +69,87 @@ export default function Messages({ clientId }) {
 
   const isPhone = width < 640;
 
-  useEffect(() => {
-    if (template !== 'general') {
-      setSubject(TEMPLATES[template].subject);
-      setBody(TEMPLATES[template].body);
+  function formatDate(d) {
+    if (!d) return null;
+    return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  }
+
+  function formatTime(t) {
+    if (!t) return null;
+    const [h, m] = t.split(':');
+    const hour = parseInt(h, 10);
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+    return `${hour12}:${m} ${period}`;
+  }
+
+  async function fetchTemplateFields(clientIdForTemplate, templateKey) {
+    const today = new Date().toISOString().slice(0, 10);
+    const fields = {};
+
+    if (templateKey === 'missed_checkin') {
+      fields['[DATE]'] = formatDate(today);
+      const { data: org } = await supabase.from('organizations').select('phone').single();
+      if (org?.phone) fields['[PHONE]'] = org.phone;
     }
+
+    if (templateKey === 'upcoming_court') {
+      const { data } = await supabase.from('court_dates').select('hearing_date, hearing_time, court_name, courtroom')
+        .eq('client_id', clientIdForTemplate).gte('hearing_date', today).order('hearing_date').limit(1).maybeSingle();
+      if (data) {
+        if (data.hearing_date) fields['[DATE]'] = formatDate(data.hearing_date);
+        if (data.hearing_time) fields['[TIME]'] = formatTime(data.hearing_time);
+        if (data.court_name) fields['[COURT NAME]'] = data.court_name;
+        if (data.courtroom) fields['[COURTROOM]'] = data.courtroom;
+      }
+    }
+
+    if (templateKey === 'upcoming_po') {
+      const { data } = await supabase.from('po_visits').select('visit_date, visit_time, po_name, location')
+        .eq('client_id', clientIdForTemplate).gte('visit_date', today).order('visit_date').limit(1).maybeSingle();
+      if (data) {
+        if (data.visit_date) fields['[DATE]'] = formatDate(data.visit_date);
+        if (data.visit_time) fields['[TIME]'] = formatTime(data.visit_time);
+        if (data.po_name) fields['[PO NAME]'] = data.po_name;
+        if (data.location) fields['[LOCATION]'] = data.location;
+      }
+    }
+
+    if (templateKey === 'compliance_warning') {
+      const { data } = await supabase.from('checkins').select('checked_in_at')
+        .eq('client_id', clientIdForTemplate).order('checked_in_at', { ascending: false }).limit(1).maybeSingle();
+      if (data?.checked_in_at) fields['[DATE]'] = formatDate(data.checked_in_at.slice(0, 10));
+    }
+
+    return fields;
+  }
+
+  useEffect(() => {
+    if (template === 'general') return;
+    let cancelled = false;
+    async function fill() {
+      const clientName = clients.find(c => c.id === selectedClient)?.name;
+      setSubject(TEMPLATES[template].subject);
+      let filledBody = TEMPLATES[template].body;
+      if (clientName) filledBody = filledBody.replaceAll('[CLIENT NAME]', clientName);
+      filledBody = filledBody.replaceAll('[REPORTED TO]', reportedTo);
+      if (selectedClient) {
+        const fields = await fetchTemplateFields(selectedClient, template);
+        for (const [placeholder, value] of Object.entries(fields)) {
+          filledBody = filledBody.replaceAll(placeholder, value);
+        }
+      }
+      if (!cancelled) setBody(filledBody);
+    }
+    fill();
+    return () => { cancelled = true };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [template]);
+
+  function handleReportedToChange(value) {
+    setBody(prev => prev.includes(reportedTo) ? prev.replace(reportedTo, value) : prev);
+    setReportedTo(value);
+  }
 
   async function fetchClients() {
     const { data } = await supabase.from('clients').select('id, name, email').order('name');
@@ -228,6 +312,16 @@ export default function Messages({ clientId }) {
               </button>
             ))}
           </div>
+
+          {(template === 'missed_checkin' || template === 'compliance_warning') && (
+            <>
+              <label style={{ fontWeight: 'bold', color: TEXT_MUTED, fontSize: 13, display: 'block', marginBottom: 6 }}>Reported to</label>
+              <select value={reportedTo} onChange={e => handleReportedToChange(e.target.value)}
+                style={{ width: '100%', padding: 12, marginBottom: 14, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', fontSize: 14, background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT }}>
+                {REPORTED_TO_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+              </select>
+            </>
+          )}
 
           <label style={{ fontWeight: 'bold', color: TEXT_MUTED, fontSize: 13, display: 'block', marginBottom: 6 }}>Subject</label>
           <input placeholder="Subject *" value={subject} onChange={e => setSubject(e.target.value)}

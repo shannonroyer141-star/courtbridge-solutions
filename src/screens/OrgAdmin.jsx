@@ -109,6 +109,11 @@ export default function OrgAdmin({ session }) {
   const [itContactEmail, setItContactEmail] = useState('')
   const [savingItContact, setSavingItContact] = useState(false)
   const [itContactError, setItContactError] = useState(null)
+  const [org, setOrg] = useState(null)
+  const [brandColor, setBrandColor] = useState('#5B9BF0')
+  const [uploadingLogo, setUploadingLogo] = useState(false)
+  const [brandingError, setBrandingError] = useState(null)
+  const [brandingSaved, setBrandingSaved] = useState(false)
 
   useEffect(() => {
     function onResize() { setWidth(window.innerWidth) }
@@ -124,10 +129,43 @@ export default function OrgAdmin({ session }) {
     setProfile(data)
     setItContactName(data?.it_contact_name || '')
     setItContactEmail(data?.it_contact_email || '')
+    if (data?.organization_id) {
+      const { data: orgData } = await supabase.from('organizations').select('*').eq('id', data.organization_id).single()
+      setOrg(orgData)
+      if (orgData?.brand_color) setBrandColor(orgData.brand_color)
+    }
     setLoading(false)
   }
 
   useEffect(() => { fetchProfile() }, [])
+
+  async function uploadLogo(file) {
+    if (!org?.id) return
+    setUploadingLogo(true)
+    setBrandingError(null)
+    const ext = file.name.split('.').pop()
+    const path = `${org.id}/logo.${ext}`
+    const { error: uploadError } = await supabase.storage.from('org-branding').upload(path, file, { upsert: true })
+    if (uploadError) { setBrandingError('Could not upload logo: ' + uploadError.message); setUploadingLogo(false); return }
+    const { data: urlData } = supabase.storage.from('org-branding').getPublicUrl(path)
+    const logoUrl = `${urlData.publicUrl}?t=${Date.now()}`
+    const { error: saveError } = await supabase.from('organizations').update({ logo_url: logoUrl }).eq('id', org.id)
+    if (saveError) { setBrandingError('Logo uploaded but could not save: ' + saveError.message); setUploadingLogo(false); return }
+    setOrg(prev => ({ ...prev, logo_url: logoUrl }))
+    setUploadingLogo(false)
+    setBrandingSaved(true)
+    setTimeout(() => setBrandingSaved(false), 2500)
+  }
+
+  async function saveBrandColor() {
+    if (!org?.id) return
+    setBrandingError(null)
+    const { error } = await supabase.from('organizations').update({ brand_color: brandColor }).eq('id', org.id)
+    if (error) { setBrandingError('Could not save color: ' + error.message); return }
+    setOrg(prev => ({ ...prev, brand_color: brandColor }))
+    setBrandingSaved(true)
+    setTimeout(() => setBrandingSaved(false), 2500)
+  }
 
   async function saveItContact() {
     setSavingItContact(true)
@@ -181,6 +219,50 @@ export default function OrgAdmin({ session }) {
         <div style={{ marginTop: 8, fontSize: 12, color: TEXT_DIM }}>
           To update these details, contact IT or use Settings.
         </div>
+      </div>
+
+      {/* CUSTOM BRANDING */}
+      <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 24, marginBottom: 32 }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: TEXT, marginBottom: 4 }}>Custom Branding</div>
+        {!loading && !org?.branding_enabled ? (
+          <>
+            <p style={{ fontSize: 13, color: TEXT_MUTED, lineHeight: 1.6, marginTop: 8, marginBottom: 14 }}>
+              Add your organization's own logo to Completion Certificates. This is a paid add-on to your plan.
+            </p>
+            <a href="mailto:info@courtbridgesolutions.com?subject=Add%20Custom%20Branding" style={{ display: 'inline-block', padding: '9px 16px', background: ACCENT, color: '#fff', borderRadius: 8, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+              Contact Us to Add Branding
+            </a>
+          </>
+        ) : !loading && org?.branding_enabled ? (
+          <>
+            <p style={{ fontSize: 13, color: TEXT_MUTED, lineHeight: 1.6, marginTop: 8, marginBottom: 18 }}>
+              Your logo appears on every Completion Certificate you issue.
+            </p>
+            {brandingError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{brandingError}</div>}
+            {brandingSaved && <div style={{ color: GREEN, fontSize: 13, marginBottom: 12 }}>Saved.</div>}
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 18, flexWrap: 'wrap' }}>
+              <div style={{ width: 72, height: 72, borderRadius: 10, background: 'rgba(255,255,255,0.04)', border: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+                {org.logo_url ? <img src={org.logo_url} alt="Your logo" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} /> : <span style={{ fontSize: 11, color: TEXT_DIM }}>No logo</span>}
+              </div>
+              <div>
+                <label style={{ display: 'inline-block', padding: '8px 14px', background: 'rgba(255,255,255,0.06)', border: `0.5px solid ${BORDER}`, borderRadius: 8, fontSize: 12, fontWeight: 700, color: TEXT, cursor: uploadingLogo ? 'default' : 'pointer' }}>
+                  {uploadingLogo ? 'Uploading...' : (org.logo_url ? 'Replace Logo' : 'Upload Logo')}
+                  <input type="file" accept="image/png,image/jpeg,image/svg+xml" style={{ display: 'none' }} disabled={uploadingLogo}
+                    onChange={e => e.target.files[0] && uploadLogo(e.target.files[0])} />
+                </label>
+                <div style={{ fontSize: 11, color: TEXT_DIM, marginTop: 6 }}>PNG, JPG, or SVG — a transparent background works best.</div>
+              </div>
+            </div>
+
+            <div style={{ fontSize: 11, fontWeight: 700, color: TEXT_DIM, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Brand Color</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <input type="color" value={brandColor} onChange={e => setBrandColor(e.target.value)} style={{ width: 40, height: 32, padding: 0, border: `0.5px solid ${BORDER}`, borderRadius: 6, cursor: 'pointer', background: 'transparent' }} />
+              <span style={{ fontSize: 13, color: TEXT_MUTED }}>{brandColor}</span>
+              <button onClick={saveBrandColor} style={{ padding: '7px 14px', background: ACCENT, color: '#fff', border: 'none', borderRadius: 6, fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Save Color</button>
+            </div>
+          </>
+        ) : null}
       </div>
 
       {/* DATA SECURITY & PRIVACY */}

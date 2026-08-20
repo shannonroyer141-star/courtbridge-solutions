@@ -306,6 +306,7 @@ export default function CompletionCertificate() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [orgLogoUrl, setOrgLogoUrl] = useState(null);
   const [form, setForm] = useState({ client_id: '', program_name: '', completion_date: new Date().toISOString().split('T')[0], total_sessions: '', total_checkins: '', template: 'navy_classic' });
   const [previewKey, setPreviewKey] = useState(null);
 
@@ -315,6 +316,15 @@ export default function CompletionCertificate() {
     const { data: { user } } = await supabase.auth.getUser();
     const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
     if (data) setProfile(data);
+    if (data?.organization_id) {
+      const { data: org } = await supabase.from('organizations').select('branding_enabled, logo_url').eq('id', data.organization_id).single();
+      if (org?.branding_enabled && org?.logo_url) setOrgLogoUrl(org.logo_url);
+    }
+  }
+
+  function withLogo(html) {
+    if (!orgLogoUrl) return html;
+    return html.replace('<body>', `<body><img src="${escapeHtml(orgLogoUrl)}" style="position:absolute;top:0.35in;left:0.35in;max-height:0.65in;max-width:1.8in;object-fit:contain;z-index:10;" />`);
   }
 
   async function fetchCertificates() {
@@ -346,12 +356,12 @@ export default function CompletionCertificate() {
 
   function sampleHtml(templateKey) {
     const tpl = TEMPLATES[templateKey] || TEMPLATES.navy_classic;
-    return `<html><head><title>Preview</title></head>${tpl.body(
+    return withLogo(`<html><head><title>Preview</title></head>${tpl.body(
       'Jordan Michaels', 'Batterers Intervention Program (BIP)', 'July 27, 2026',
       'Total Sessions Completed: 26', 'Total Check-Ins: 180',
       profile?.contact_name || 'Provider Name', profile?.organization_name || 'Your Agency',
       new Date().toLocaleDateString(), 'CB-88431902'
-    )}</html>`;
+    )}</html>`);
   }
 
   function printCertificate(cert) {
@@ -367,11 +377,11 @@ export default function CompletionCertificate() {
     const certNum = escapeHtml(cert.certificate_number);
 
     const win = window.open('', '_blank');
-    win.document.write(`
+    win.document.write(withLogo(`
       <html><head><title>Completion Certificate</title></head>
       ${tpl.body(name, program, dateStr, sessionsLine, checkinsLine, contactName, orgName, issuedStr, certNum)}
       </html>
-    `);
+    `));
     win.document.close();
     win.print();
   }

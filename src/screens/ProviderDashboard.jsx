@@ -302,6 +302,14 @@ export default function ProviderDashboard({ onNavigate }) {
   const [upcoming, setUpcoming] = useState([]);
   const [loading, setLoading] = useState(true);
   const [width, setWidth] = useState(window.innerWidth);
+  const [providerName, setProviderName] = useState('');
+
+  function getGreeting() {
+    const h = new Date().getHours();
+    if (h < 12) return 'Good morning';
+    if (h < 18) return 'Good afternoon';
+    return 'Good evening';
+  }
 
   useEffect(() => {
     function onResize() { setWidth(window.innerWidth); }
@@ -319,6 +327,9 @@ export default function ProviderDashboard({ onNavigate }) {
   async function fetchDashboardData() {
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
+
+    const { data: profile } = await supabase.from('profiles').select('full_name, email').eq('id', user.id).single();
+    setProviderName((profile?.full_name || profile?.email || '').split(' ')[0].split('@')[0]);
 
     const { data: clients } = await supabase.from('clients').select('*').eq('provider_id', user.id);
     const activeClients = clients?.length || 0;
@@ -398,10 +409,59 @@ export default function ProviderDashboard({ onNavigate }) {
   return (
     <div style={{ ...S.page, padding: isPhone ? '20px 16px' : S.page.padding }}>
       <div style={S.header}>
-        <h1 style={S.headerTitle}>Provider Dashboard</h1>
+        <h1 style={S.headerTitle}>{getGreeting()}{providerName ? `, ${providerName}` : ''}</h1>
         <p style={S.headerDate}>
           {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
+      </div>
+
+      {stats.activeClients === 0 ? (
+        <div style={S.card}>
+          <div style={S.cardHeader}>
+            <div style={S.cardDot} />
+            <h3 style={S.cardTitle}>Let's get you started</h3>
+          </div>
+          <div style={{ padding: '8px 4px 0', fontSize: '13px', color: TEXT_MUTED, lineHeight: 1.6 }}>
+            Welcome to a new way of staying organized and effective for the clients and specialty courts you serve.
+          </div>
+          <div style={{ padding: '14px 4px 0', fontSize: '12px', fontWeight: '600', color: TEXT, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            What's here for you
+          </div>
+          <ul style={{ margin: '8px 0 0', padding: '0 0 0 18px', fontSize: '13px', color: TEXT_MUTED, lineHeight: 1.9 }}>
+            <li>A real-time dashboard of client activity, alerts, and check-ins</li>
+            <li>Two-way messaging with urgent alerts sent straight to your phone</li>
+            <li>Court-ready compliance reports, generated in one click</li>
+            <li>Your own Provider Guide and SOP reference, anytime you need it</li>
+          </ul>
+          <div style={{ padding: '14px 4px 0', fontSize: '13px', color: TEXT_MUTED, lineHeight: 1.6 }}>
+            Feel free to look around and get familiar with things. Now you're ready to roll this out to your clients.
+          </div>
+          {onNavigate && (
+            <button style={{ ...S.contactBtn, marginTop: '14px', padding: '10px 18px', fontSize: '13px' }} onClick={() => onNavigate('clientintake')}>
+              Enroll Your First Client
+            </button>
+          )}
+        </div>
+      ) : (
+      <>
+      <div style={{ ...S.complianceCard, cursor: onNavigate ? 'pointer' : 'default' }} onClick={() => onNavigate && onNavigate('compliancechart')}>
+        <div style={S.cardHeader}>
+          <div style={S.cardDot} />
+          <h3 style={S.cardTitle}>Weekly Check-In Rate</h3>
+        </div>
+        <div style={S.complianceRow}>
+          <div style={S.progressTrack}>
+            <div style={{
+              width: `${complianceRate}%`,
+              background: progressColor,
+              height: '100%',
+              borderRadius: '6px',
+              transition: 'width 0.6s ease',
+            }} />
+          </div>
+          <div style={{ ...S.compliancePct, color: progressColor }}>{complianceRate}%</div>
+        </div>
+        <p style={S.complianceSub}>Based on check-ins over the last 7 days across all active clients</p>
       </div>
 
       <div style={{ ...S.statGrid, gridTemplateColumns: isPhone ? '1fr 1fr' : isTablet ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)' }}>
@@ -501,26 +561,8 @@ export default function ProviderDashboard({ onNavigate }) {
           </div>
         </div>
       </div>
-
-      <div style={{ ...S.complianceCard, cursor: onNavigate ? 'pointer' : 'default' }} onClick={() => onNavigate && onNavigate('compliancechart')}>
-        <div style={S.cardHeader}>
-          <div style={S.cardDot} />
-          <h3 style={S.cardTitle}>Weekly Compliance Rate</h3>
-        </div>
-        <div style={S.complianceRow}>
-          <div style={S.progressTrack}>
-            <div style={{
-              width: `${complianceRate}%`,
-              background: progressColor,
-              height: '100%',
-              borderRadius: '6px',
-              transition: 'width 0.6s ease',
-            }} />
-          </div>
-          <div style={{ ...S.compliancePct, color: progressColor }}>{complianceRate}%</div>
-        </div>
-        <p style={S.complianceSub}>Based on check-ins over the last 7 days across all active clients</p>
-      </div>
+      </>
+      )}
     </div>
   );
 }

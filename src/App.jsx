@@ -221,7 +221,7 @@ export default function App() {
               Specialty Court Compliance Platform
             </div>
             <div style={{ fontSize: 34, fontWeight: 800, lineHeight: 1.25, marginBottom: 4 }}>
-              InterventionConnect
+              InterventionConnect<span style={{ fontSize: '0.5em', verticalAlign: 'super' }}>™</span>
             </div>
             <div style={{ fontSize: 13, fontWeight: 600, color: '#8FB4E0', marginBottom: 20 }}>
               Powered by CourtBridge Solutions
@@ -249,7 +249,7 @@ export default function App() {
         <div style={{ width: '100%', maxWidth: 380 }}>
           {!isDesktop && (
             <div style={{ textAlign: 'center', marginBottom: 28 }}>
-              <div style={{ color: TEXT, fontSize: 22, fontWeight: 800 }}>InterventionConnect</div>
+              <div style={{ color: TEXT, fontSize: 22, fontWeight: 800 }}>InterventionConnect<span style={{ fontSize: '0.5em', verticalAlign: 'super' }}>™</span></div>
               <div style={{ color: TEXT_MUTED, fontSize: 12, fontWeight: 700, letterSpacing: '0.04em', marginTop: 4 }}>Powered by CourtBridge Solutions</div>
             </div>
           )}

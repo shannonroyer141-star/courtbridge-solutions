@@ -1651,7 +1651,7 @@ function FirstTimeWelcome({ name, lang, onDone }) {
   const isLast = step === steps.length - 1
   return (
     <div style={{ minHeight: '100vh', background: DARK_BG, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 24px', fontFamily: NAV_FONT }}>
-      <div style={{ fontSize: 15, fontWeight: 500, color: TEXT, marginBottom: 4 }}>InterventionConnect</div>
+      <div style={{ fontSize: 15, fontWeight: 500, color: TEXT, marginBottom: 4 }}>InterventionConnect<span style={{ fontSize: '0.6em', verticalAlign: 'super' }}>™</span></div>
       <div style={{ fontSize: 12, color: TEXT_MUTED, marginBottom: 40 }}>{w.portalSubtitle}</div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 32 }}>
         {steps.map((_, i) => (

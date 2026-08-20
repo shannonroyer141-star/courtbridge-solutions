@@ -82,9 +82,27 @@ const MILESTONE_ICONS = {
   checkin_streak_365: <><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></>,
 }
 
+const LINE_ICONS = {
+  dashboard:  <><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>,
+  journey:    <><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></>,
+  documents:  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>,
+  forms:      <><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z"/></>,
+  messages:   <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/>,
+  courtdates: <><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></>,
+  settings:   <><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></>,
+  checkin:    <><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></>,
+  more:       <><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></>,
+  printer:    <><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></>,
+  court:      <><path d="M12 2 3 7v2h18V7z"/><path d="M5 9v9M9 9v9M15 9v9M19 9v9"/><path d="M3 21h18"/></>,
+  task:       <><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></>,
+  note:       <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></>,
+}
+const Ic = ({ d, size = 17 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{d}</svg>
+)
 const NAV_ICONS = {
-  dashboard: '🏠', journey: '📖', documents: '📁',
-  forms: '✍️', messages: '💬', courtdates: '🗓️', settings: '🐦‍🔥',
+  dashboard: <Ic d={LINE_ICONS.dashboard} />, journey: <Ic d={LINE_ICONS.journey} />, documents: <Ic d={LINE_ICONS.documents} />,
+  forms: <Ic d={LINE_ICONS.forms} />, messages: <Ic d={LINE_ICONS.messages} />, courtdates: <Ic d={LINE_ICONS.courtdates} />, settings: <Ic d={LINE_ICONS.settings} />,
 }
 const NAV_KEY_MAP = { dashboard: 'home', journey: 'journey', documents: 'documents', forms: 'forms', messages: 'messages', courtdates: 'courtdates', settings: 'progress' }
 
@@ -655,7 +673,7 @@ export default function ClientAppDashboard({ session, onLogout }) {
       }]).select().single()
       if (insertError) throw insertError
 
-      setUploadStatus('✅ Document uploaded successfully!')
+      setUploadStatus('Document uploaded successfully!')
       setUploadFile(null); setUploadDocType(''); setUploadNotes(''); setUploadVictimConfirmed(false)
       setShowUploadForm(false)
       if (inserted) setDocuments(prev => [inserted, ...prev])
@@ -823,7 +841,7 @@ export default function ClientAppDashboard({ session, onLogout }) {
   if (client && (client.status === 'terminated' || client.status === 'inactive')) return (
     <div style={{ minHeight: '100vh', background: DARK_BG, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, fontFamily: NAV_FONT }}>
       <div style={{ textAlign: 'center', maxWidth: 380 }}>
-        <div style={{ fontSize: 40, marginBottom: 16 }}>📋</div>
+        <div style={{ color: TEXT_MUTED, marginBottom: 16, display: 'flex', justifyContent: 'center' }}><Ic d={LINE_ICONS.task} size={40} /></div>
         <div style={{ fontSize: 19, fontWeight: 600, color: TEXT, marginBottom: 10 }}>{t('dashboard', 'common').statusChangedTitle}</div>
         <div style={{ fontSize: 14, color: TEXT_MUTED, lineHeight: 1.6, marginBottom: 20 }}>
           {t('dashboard', 'common').statusChangedBody(t('dashboard', 'statusLabel')[client.status] || client.status)}
@@ -966,7 +984,7 @@ export default function ClientAppDashboard({ session, onLogout }) {
             {showUploadForm && (
               <InnerCard style={{ marginBottom: 16 }}>
                 {uploadStatus && (
-                  <div style={{ fontSize: 12, color: uploadStatus.includes('✅') ? GREEN : RED, marginBottom: 10 }}>{uploadStatus}</div>
+                  <div style={{ fontSize: 12, color: uploadStatus.includes('successfully') ? GREEN : RED, marginBottom: 10 }}>{uploadStatus}</div>
                 )}
                 <select
                   value={uploadDocType}
@@ -990,9 +1008,12 @@ export default function ClientAppDashboard({ session, onLogout }) {
                 >
                   <input id="client-file-input" type="file" style={{ display: 'none' }} accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" onChange={e => setUploadFile(e.target.files[0])} />
                   {uploadFile ? (
-                    <div style={{ color: ACCENT, fontWeight: 600, fontSize: 13 }}>📎 {uploadFile.name}</div>
+                    <div style={{ color: ACCENT, fontWeight: 600, fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}><Ic d={LINE_ICONS.documents} size={14} />{uploadFile.name}</div>
                   ) : (
-                    <div style={{ color: TEXT_MUTED, fontSize: 13 }}>📁 Tap to select a file<div style={{ color: TEXT_DIM, fontSize: 11, marginTop: 2 }}>PDF, JPG, PNG, DOC — max 10MB</div></div>
+                    <div style={{ color: TEXT_MUTED, fontSize: 13 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}><Ic d={LINE_ICONS.documents} size={14} />Tap to select a file</div>
+                      <div style={{ color: TEXT_DIM, fontSize: 11, marginTop: 2 }}>PDF, JPG, PNG, DOC — max 10MB</div>
+                    </div>
                   )}
                 </div>
                 <UploadConfirmCheckbox checked={uploadVictimConfirmed} onChange={setUploadVictimConfirmed} />
@@ -1137,7 +1158,7 @@ export default function ClientAppDashboard({ session, onLogout }) {
                 padding: '12px 16px', marginBottom: 16, cursor: 'pointer', fontSize: 13.5, fontWeight: 600, color: ACCENT,
               }}
             >
-              🖨️ Print On The Go
+              <Ic d={LINE_ICONS.printer} size={16} /> Print On The Go
             </div>
 
             <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>
@@ -1236,7 +1257,7 @@ export default function ClientAppDashboard({ session, onLogout }) {
                         {notesForProgram.map((n, ni) => (
                           <div key={n.id} onClick={() => openNotePdf(n)} style={{ cursor: 'pointer' }}>
                             <ListRow
-                              icon="📝" iconBg="rgba(91,155,240,0.15)" iconColor={ACCENT}
+                              icon={<Ic d={LINE_ICONS.note} size={13} />} iconBg="rgba(91,155,240,0.15)" iconColor={ACCENT}
                               title={formatNoteDate(n.note_date)}
                               badgeText={jT.viewArrow} badgeColor={ACCENT} badgeBg="rgba(91,155,240,0.1)"
                               last={ni === notesForProgram.length - 1}
@@ -1276,7 +1297,7 @@ export default function ClientAppDashboard({ session, onLogout }) {
                   {progressNotes.filter(n => !n.client_program_id).map((n, i, arr) => (
                     <div key={n.id} onClick={() => openNotePdf(n)} style={{ cursor: 'pointer' }}>
                       <ListRow
-                        icon="📝" iconBg="rgba(91,155,240,0.15)" iconColor={ACCENT}
+                        icon={<Ic d={LINE_ICONS.note} size={13} />} iconBg="rgba(91,155,240,0.15)" iconColor={ACCENT}
                         title={formatNoteDate(n.note_date)}
                         badgeText={jT.viewArrow} badgeColor={ACCENT} badgeBg="rgba(91,155,240,0.1)"
                         last={i === arr.length - 1}
@@ -1287,7 +1308,7 @@ export default function ClientAppDashboard({ session, onLogout }) {
               </>
             )}
 
-            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: '16px 0 10px' }}>📖 My Thoughts</div>
+            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, margin: '16px 0 10px', display: 'flex', alignItems: 'center', gap: 6 }}><Ic d={LINE_ICONS.journey} size={14} /> My Thoughts</div>
             <InnerCard style={{ marginBottom: 16 }}>
               <div style={{ fontSize: 11, color: TEXT_DIM, marginBottom: 10, lineHeight: 1.5 }}>
                 A private space just for you. No one else can read this — not even your provider.
@@ -1454,7 +1475,7 @@ export default function ClientAppDashboard({ session, onLogout }) {
                   opacity: checkingIn ? 0.7 : 1,
                 }}
               >
-                {checkingIn ? t('dashboard', 'home').gettingLocation : checkedInToday ? t('dashboard', 'home').checkedInTodayLabel(checkedInTime) : `${pop.checkInLabel} 📍`}
+                {checkingIn ? t('dashboard', 'home').gettingLocation : checkedInToday ? t('dashboard', 'home').checkedInTodayLabel(checkedInTime) : <>{pop.checkInLabel} <Ic d={LINE_ICONS.checkin} size={13} /></>}
               </div>
               {syncedTodaysCheckin && (
                 <div
@@ -1468,7 +1489,7 @@ export default function ClientAppDashboard({ session, onLogout }) {
                     opacity: checkingOut ? 0.7 : 1,
                   }}
                 >
-                  {checkingOut ? t('dashboard', 'home').gettingLocation : checkedOutToday ? t('dashboard', 'home').checkedOutLabel(checkedOutTime) : `${t('dashboard', 'home').checkOutButton} 📍`}
+                  {checkingOut ? t('dashboard', 'home').gettingLocation : checkedOutToday ? t('dashboard', 'home').checkedOutLabel(checkedOutTime) : <>{t('dashboard', 'home').checkOutButton} <Ic d={LINE_ICONS.checkin} size={13} /></>}
                 </div>
               )}
               {checkedInToday && !checkingIn && (
@@ -1480,7 +1501,7 @@ export default function ClientAppDashboard({ session, onLogout }) {
                     color: TEXT, fontSize: 12, padding: '7px 14px', borderRadius: 8, cursor: 'pointer',
                   }}
                 >
-                  + Check In Again 📍
+                  + Check In Again <Ic d={LINE_ICONS.checkin} size={13} />
                 </div>
               )}
             </div>
@@ -1525,7 +1546,7 @@ export default function ClientAppDashboard({ session, onLogout }) {
               {courtDates.slice(0, 3).map((cd, i) => (
                 <ListRow
                   key={cd.id}
-                  icon="⚖️"
+                  icon={<Ic d={LINE_ICONS.court} size={13} />}
                   iconBg="rgba(200,80,0,0.12)"
                   iconColor={WARNING}
                   title={cd.hearing_type || t('dashboard', 'home').courtAppearance}
@@ -1539,7 +1560,7 @@ export default function ClientAppDashboard({ session, onLogout }) {
               {tasks.slice(0, 3).map((t2, i) => (
                 <ListRow
                   key={t2.id}
-                  icon="📋"
+                  icon={<Ic d={LINE_ICONS.task} size={13} />}
                   iconBg="rgba(91,155,240,0.12)"
                   iconColor={ACCENT}
                   title={t2.title}
@@ -1609,10 +1630,10 @@ export default function ClientAppDashboard({ session, onLogout }) {
           display: 'flex', alignItems: 'stretch', zIndex: 100,
         }}>
           {[
-            { id: 'dashboard', icon: '🏠', label: t('dashboard', 'nav').home },
-            { id: 'checkin',   icon: '📍', label: t('dashboard', 'nav').checkin },
-            { id: 'messages',  icon: '💬', label: t('dashboard', 'nav').messages },
-            { id: 'more',      icon: '☰', label: t('dashboard', 'nav').more },
+            { id: 'dashboard', icon: <Ic d={LINE_ICONS.dashboard} />, label: t('dashboard', 'nav').home },
+            { id: 'checkin',   icon: <Ic d={LINE_ICONS.checkin} />, label: t('dashboard', 'nav').checkin },
+            { id: 'messages',  icon: <Ic d={LINE_ICONS.messages} />, label: t('dashboard', 'nav').messages },
+            { id: 'more',      icon: <Ic d={LINE_ICONS.more} />, label: t('dashboard', 'nav').more },
           ].map(({ id, icon, label }) => {
             const active = id === 'more' ? showMoreMenu : (activeTab === id && !showMoreMenu)
             const handleTap = () => {

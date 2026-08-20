@@ -240,7 +240,8 @@ export default function ClientAppDashboard({ session, onLogout }) {
 
   useEffect(() => {
     fetchClientData()
-    setAffirmationIndex(Math.floor(Date.now() / 86400000) % 5)
+    const now = new Date()
+    setAffirmationIndex((now.getFullYear() * 12 + now.getMonth()) % 5)
   }, [])
 
   useEffect(() => {
@@ -1452,12 +1453,6 @@ export default function ClientAppDashboard({ session, onLogout }) {
         })()}
 
         {activeTab === 'dashboard' && <>
-        {/* Affirmation */}
-        <div style={{ margin: '14px 22px 0', background: CARD_BG, borderRadius: 8, padding: '13px 14px', border: `0.5px solid rgba(91,155,240,0.15)` }}>
-          <div style={{ fontSize: 10, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>{t('dashboard', 'home').affirmationLabel}</div>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5, fontStyle: 'italic' }}>"{affirmation}"</div>
-        </div>
-
         {pendingFormsCount > 0 && (
           <div onClick={() => setActiveTab('forms')} style={{ margin: '16px 22px 0', background: 'rgba(61,111,168,0.1)', border: `0.5px solid rgba(61,111,168,0.3)`, borderRadius: 10, padding: '12px 16px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ fontSize: 13, color: TEXT }}>
@@ -1619,6 +1614,34 @@ export default function ClientAppDashboard({ session, onLogout }) {
           </div>
         </div>
         </>}
+
+        {activeTab === 'courtdates' && (
+          <div style={{ margin: '16px 22px', paddingBottom: isMobile ? 80 : 20 }}>
+            <div style={{ background: CARD_BG, borderRadius: 8, padding: '13px 14px', border: `0.5px solid rgba(91,155,240,0.15)`, marginBottom: 16 }}>
+              <div style={{ fontSize: 10, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 5 }}>{t('dashboard', 'home').affirmationLabel}</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5, fontStyle: 'italic' }}>"{affirmation}"</div>
+            </div>
+
+            <div style={{ fontSize: 13, fontWeight: 500, color: TEXT, marginBottom: 10 }}>{t('dashboard', 'nav').courtdates}</div>
+            <InnerCard>
+              {courtDates.length === 0 ? (
+                <div style={{ fontSize: 12, color: TEXT_DIM, padding: '4px 0' }}>{t('dashboard', 'home').nothingUpcoming}</div>
+              ) : (
+                courtDates.map((cd, i) => (
+                  <ListRow
+                    key={cd.id}
+                    icon={<Ic d={LINE_ICONS.court} size={13} />}
+                    iconBg="rgba(200,80,0,0.12)"
+                    iconColor={WARNING}
+                    title={cd.hearing_type || t('dashboard', 'home').courtAppearance}
+                    meta={`${new Date(cd.hearing_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · ${cd.court_name || t('dashboard', 'home').locationTBD}`}
+                    last={i === courtDates.length - 1}
+                  />
+                ))
+              )}
+            </InnerCard>
+          </div>
+        )}
       </div>
 
       {/* MORE MENU — mobile only, overlay listing tabs that don't fit the bottom bar */}

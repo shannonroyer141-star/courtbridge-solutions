@@ -1,4 +1,4 @@
-<!-- Backup mirror of the live founder_docs.sop row. The app reads from Supabase, not this file — edit in-app (Founder Docs screen), then re-sync here. Last synced 2026-08-06. -->
+<!-- Backup mirror of the live founder_docs.sop row. The app reads from Supabase, not this file — edit in-app (Founder Docs screen), then re-sync here. Last synced 2026-08-20. -->
 
 # Standard Operating Procedures
 DRAFT, review before relying on this
@@ -54,3 +54,10 @@ DRAFT, review before relying on this
    - When a court, PO, or other agency requests records through Justice Collaboration > Records Requests, CourtBridge never decides on its own. Approving requires an org admin or founder to answer, in writing, on that request: is there valid participant consent, is there a qualifying court order or other legal authority, does 42 CFR Part 2 apply, and what is the minimum information that actually needs to go out (often narrower than what was asked for).
    - The Approve button will not work until every question is answered and you've personally attested you are authorized to make the call. This is enforced by the database, not just the screen -- there is no way to approve a request without it.
    - Ordinary staff can no longer approve/deny these requests, only org admins and founders, since this is a legal disclosure decision, not routine data entry.
+
+12. BOOKING A CALL WITH SHANNON (WEBSITE)
+   - The "Book a Call" buttons on the marketing site (hero and Beta section) link to a real Google Calendar appointment schedule under courtbridgesolutions@gmail.com, titled "Program Navigator" -- that's just the display name, not a separate team member. It's still Shannon's real calendar.
+   - Availability is set to Shannon's actual open hours around her day job (evenings/weekends) -- set directly in Google Calendar, not hardcoded anywhere in the app or site.
+   - When someone books: it lands on the calendar automatically, with an email notification to courtbridgesolutions@gmail.com. Google Calendar typically also adds a video call link automatically.
+   - Rescheduling or canceling: handled like any normal calendar event -- the other person is notified automatically.
+   - To change the available hours or call length later: open the same "Program Navigator" appointment schedule in Google Calendar and edit it directly. The public booking link itself (calendar.app.google/PKALAgedHnzGVF237) does not change when availability is edited.

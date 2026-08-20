@@ -7,7 +7,7 @@
   <!-- SEO PRIMARY -->
   <title>CourtBridge Solutions | Specialty Court Compliance Tracking Software</title>
   <meta name="description" content="CourtBridge Solutions is a purpose-built compliance tracking platform for specialty court programs — drug courts, DUI courts, mental health courts, BIP, and more. GPS-verified check-ins, real-time alerts, and court-ready reporting."/>
-  <meta name="keywords" content="specialty court compliance software, drug court software, BIP compliance tracking, domestic violence intervention program software, DUI court software, mental health court software, GPS check-in verification, court compliance platform, specialty court technology, Florida SB 820 compliance"/>
+  <meta name="keywords" content="specialty court compliance software, drug court software, BIP compliance tracking, domestic violence intervention program software, DUI court software, mental health court software, GPS check-in verification, court compliance platform, specialty court technology"/>
   <meta name="author" content="CourtBridge Solutions LLC"/>
   <meta name="robots" content="index, follow"/>
   <link rel="canonical" href="https://courtbridgesolutions.com"/>
@@ -167,7 +167,7 @@
 
     /* PLATFORM */
     #providers { background: var(--bg-section); }
-    .features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 3rem; }
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3rem; }
     .feature-item { padding: 2rem; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); transition: border-color 0.2s; }
     .feature-item:hover { border-color: var(--accent); }
     .feature-num { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.12em; color: var(--accent); margin-bottom: 0.75rem; }
@@ -211,9 +211,6 @@
     .legis-stat { text-align: center; padding: 1.5rem 1rem; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); }
     .legis-stat-num { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--white); display: block; margin-bottom: 0.25rem; }
     .legis-stat-label { font-size: 0.78rem; color: var(--text-light); line-height: 1.4; }
-    .legis-sb820 { grid-column: span 2; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 12px; padding: 1.5rem 2rem; margin-top: 1.25rem; }
-    .legis-sb820 h3 { font-weight: 600; font-size: 0.9rem; color: var(--white); margin-bottom: 0.5rem; }
-    .legis-sb820 p { font-size: 0.9375rem; color: var(--text-light); line-height: 1.6; }
 
 
     /* DEMO */
@@ -275,7 +272,6 @@
       .pilot-inner { grid-template-columns: 1fr; gap: 2rem; padding: 3rem 2rem; }
       .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
       .legis-grid { grid-template-columns: 1fr; }
-      .legis-sb820 { grid-column: span 1; }
       .contact-grid { grid-template-columns: 1fr; gap: 2.5rem; }
       .form-row { grid-template-columns: 1fr; }
       .footer-inner { grid-template-columns: 1fr; gap: 2rem; }
@@ -343,8 +339,8 @@
         </div>
       </div>
       <div class="hero-pilot-badge">
-        <strong>Now Accepting Pilot Partners</strong>
-        <p>Two provider spots available — 30-day working pilot, not a demo.</p>
+        <strong>Now Accepting Beta Testers</strong>
+        <p>Two provider spots available — 30-day beta partnership, not a demo.</p>
       </div>
     </div>
   </div>
@@ -443,7 +439,7 @@
       <div class="feature-item">
         <div class="feature-num">03 — Enrollment</div>
         <h3>Client Enrollment by Link</h3>
-        <p>Send a secure enrollment link via SMS or email. Clients complete onboarding from their phone in minutes — no app store required.</p>
+        <p>Send a secure enrollment link via SMS or email. Clients complete onboarding from their phone in minutes and land in <strong>InterventionConnect™</strong> — their own portal, from their provider. No app store required.</p>
       </div>
       <div class="feature-item">
         <div class="feature-num">04 — Dashboard</div>
@@ -458,7 +454,22 @@
       <div class="feature-item">
         <div class="feature-num">06 — Access</div>
         <h3>Role-Based Access</h3>
-        <p>Separate portals for providers and clients. Phase 1 is zero-PHI architecture — everyone sees exactly what they need, nothing more.</p>
+        <p>Separate portals for providers and clients. Zero-PHI architecture — everyone sees exactly what they need, nothing more.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-num">07 — Messaging</div>
+        <h3>Two-Way Messaging</h3>
+        <p>Providers and clients message directly in-app. A client can flag a message urgent — it pings the provider's phone immediately, no waiting for the next check-in or court date.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-num">08 — Progress</div>
+        <h3>Client Journey &amp; Achievements</h3>
+        <p>Court-order progress tracking with milestones clients actually see and earn — not just a record kept on them. Completions auto-generate a real certificate.</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-num">09 — Collaboration</div>
+        <h3>Justice Collaboration Exchange</h3>
+        <p>A cross-agency directory and resource marketplace, plus a request-and-approve model for records disclosure — courts and other agencies request access, your org decides, every decision logged.</p>
       </div>
     </div>
   </div>
@@ -468,8 +479,8 @@
 <section id="pilot">
   <div class="pilot-inner">
     <div class="pilot-left">
-      <h2>Join the 30-Day Pilot Program.</h2>
-      <p>We're inviting two providers to participate in a private working pilot — not a demo. You get full access, hands-on support, and a direct role in shaping the platform.</p>
+      <h2>Join the 30-Day Beta Program.</h2>
+      <p>We're inviting two providers to participate in a private beta test — not a demo. You get full access, hands-on support, and a direct role in shaping the platform.</p>
       <ul class="pilot-checks">
         <li>Full platform access</li>
         <li>Hands-on onboarding support</li>
@@ -481,7 +492,7 @@
       <p class="pilot-trigger">Is your team:</p>
       <h3>Ready to stop tracking compliance manually?</h3>
       <p>If you're chasing down check-ins, managing documentation by hand, or struggling to keep records organized for reporting — CourtBridge is built for you.</p>
-      <a href="#contact" class="btn-primary" style="display:block;text-align:center;">Contact Us About the Pilot</a>
+      <a href="#contact" class="btn-primary" style="display:block;text-align:center;">Contact Us About Beta Testing</a>
     </div>
   </div>
 </section>
@@ -534,11 +545,6 @@
           <div class="legis-stat"><span class="legis-stat-num">1989</span><div class="legis-stat-label">Florida created the first drug court in the nation</div></div>
           <div class="legis-stat"><span class="legis-stat-num">4,276</span><div class="legis-stat-label">Specialty courts nationwide as of 2024</div></div>
           <div class="legis-stat"><span class="legis-stat-num">100K+</span><div class="legis-stat-label">Participants served annually nationwide</div></div>
-          <div class="legis-stat"><span class="legis-stat-num">July 1</span><div class="legis-stat-label">Florida SB 820 effective date, 2026</div></div>
-        </div>
-        <div class="legis-sb820">
-          <h3>Florida SB 820 — New Reporting Requirements</h3>
-          <p>Starting July 1, 2026, Florida's Office of the State Courts Administrator must report more detailed treatment-compliance, program-completion, and offense data to the Legislature for drug courts, mental health courts, veterans treatment courts, and early childhood courts. The law doesn't put that requirement on individual providers directly — but courts will need cleaner data from the providers they work with to meet it. CourtBridge Solutions was built to capture the compliance and completion side of that data, ahead of when it's needed: the Florida Supreme Court has directed a uniform statewide reporting format to be finalized by March 2028, and CourtBridge already has the fields in place today.</p>
         </div>
       </div>
     </div>
@@ -548,8 +554,9 @@
 <!-- DEMO -->
 <section id="demo">
   <div class="demo-inner">
-    <p class="section-eyebrow" style="text-align:center;">Live Sandbox</p>
-    <h2>See CourtBridge in Action.</h2>
+    <p class="section-eyebrow" style="text-align:center;">The Platform</p>
+    <h2>Meet InterventionConnect™.</h2>
+    <p>CourtBridge Solutions builds the platform. <strong>InterventionConnect™</strong> is what your team and your clients actually log into every day — one home for providers, one for clients, both from the same provider relationship.</p>
     <p>Try our live sandbox demo — no login required. Walk through the full flow: provider enrolls a client, client checks in with GPS verification, compliance data is captured automatically.</p>
     <a href="https://app.courtbridgesolutions.com/sandbox" class="btn-primary" style="display:inline-block;">Try the Demo</a>
     <p class="demo-url">app.courtbridgesolutions.com/sandbox</p>
@@ -605,7 +612,7 @@
   <div class="footer-inner">
     <div class="footer-brand">
       <img src="cb-logo-solutions.png" alt="CourtBridge Solutions" style="height:32px;width:auto;object-fit:contain;"/>
-      <p>Purpose-built compliance software for specialty court programs. Verified. Connected. Accountable.</p>
+      <p>Purpose-built compliance software for specialty court programs — home of InterventionConnect™, our provider and client platform. Verified. Connected. Accountable.</p>
     </div>
     <div>
       <h4>Platform</h4>
@@ -620,7 +627,7 @@
       <h4>Company</h4>
       <ul>
         <li><a href="#about">About</a></li>
-        <li><a href="#pilot">Pilot Program</a></li>
+        <li><a href="#pilot">Beta Program</a></li>
         <li><a href="#contact">Contact</a></li>
         <li><a href="mailto:info@courtbridgesolutions.com">Email Us</a></li>
       </ul>

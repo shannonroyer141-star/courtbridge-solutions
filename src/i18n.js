@@ -101,10 +101,10 @@ export const translations = {
       statusLabel: { terminated: 'terminated', inactive: 'inactive' },
       welcome: {
         portalSubtitle: 'My portal',
-        tagline: 'InterventionConnect · Turning participation into proof',
+        tagline: 'InterventionConnect · Your journey, documented',
         back: 'Back',
         steps: [
-          { title: (name) => `Welcome to InterventionConnect, ${name}`, body: "Here's what's waiting for you: check in from your phone, message your provider directly, upload documents, see your upcoming court dates, track your progress, and much more — all in one place.", cta: 'Get Started' },
+          { title: (name) => `Welcome to InterventionConnect, ${name}`, body: "This is your new journey app. Here's what's waiting for you: check in from your phone, message your provider directly, upload documents, see your upcoming court dates, track your progress, and much more — all in one place.", cta: 'Get Started' },
           { title: 'Daily Check-Ins', body: 'Your program requires regular check-ins. Use the Check In Now button on your dashboard — your location is captured and recorded automatically.', cta: 'Next' },
           { title: 'Your Schedule', body: 'Important dates, upcoming appointments, and tasks assigned by your provider will appear right on your dashboard so nothing slips through the cracks.', cta: 'Next' },
           { title: 'Your record speaks for itself', body: 'Every check-in you complete is timestamped, GPS-verified, and saved. When it matters most — in court, with your officer, with your provider — your compliance is already documented.', cta: 'Go to My Dashboard' },
@@ -321,10 +321,10 @@ export const translations = {
       statusLabel: { terminated: 'terminada', inactive: 'inactiva' },
       welcome: {
         portalSubtitle: 'Mi portal',
-        tagline: 'InterventionConnect · Convirtiendo la participación en prueba',
+        tagline: 'InterventionConnect · Tu trayectoria, documentada',
         back: 'Atrás',
         steps: [
-          { title: (name) => `Bienvenido/a a InterventionConnect, ${name}`, body: 'Esto es lo que te espera: registra tu entrada desde tu teléfono, envía mensajes directamente a tu proveedor, sube documentos, consulta tus próximas fechas de corte, sigue tu progreso y mucho más — todo en un solo lugar.', cta: 'Comenzar' },
+          { title: (name) => `Bienvenido/a a InterventionConnect, ${name}`, body: 'Esta es tu nueva aplicación de trayectoria. Esto es lo que te espera: registra tu entrada desde tu teléfono, envía mensajes directamente a tu proveedor, sube documentos, consulta tus próximas fechas de corte, sigue tu progreso y mucho más — todo en un solo lugar.', cta: 'Comenzar' },
           { title: 'Registros de entrada diarios', body: 'Tu programa requiere registros de entrada regulares. Usa el botón "Registrar entrada" en tu panel — tu ubicación se captura y registra automáticamente.', cta: 'Siguiente' },
           { title: 'Tu horario', body: 'Las fechas importantes, las próximas citas y las tareas asignadas por tu proveedor aparecerán directamente en tu panel para que nada se te escape.', cta: 'Siguiente' },
           { title: 'Tu historial habla por sí solo', body: 'Cada registro de entrada que completas queda con fecha y hora, verificado por GPS y guardado. Cuando más importa — en la corte, con tu oficial, con tu proveedor — tu cumplimiento ya está documentado.', cta: 'Ir a mi panel' },
@@ -541,10 +541,10 @@ export const translations = {
       statusLabel: { terminated: 'sispann', inactive: 'inaktif' },
       welcome: {
         portalSubtitle: 'Pòtal mwen',
-        tagline: 'InterventionConnect · Fè patisipasyon vin prèv',
+        tagline: 'InterventionConnect · Vwayaj ou, dokimante',
         back: 'Retounen',
         steps: [
-          { title: (name) => `Byenveni nan InterventionConnect, ${name}`, body: 'Men sa k ap tann ou: fè check-in ak telefòn ou, voye mesaj dirèkteman bay founisè ou, telechaje dokiman, gade dat tribinal ki ap vini yo, swiv pwogrè ou, ak anpil lòt bagay — tout nan yon sèl kote.', cta: 'Kòmanse' },
+          { title: (name) => `Byenveni nan InterventionConnect, ${name}`, body: 'Sa se nouvo aplikasyon vwayaj ou. Men sa k ap tann ou: fè check-in ak telefòn ou, voye mesaj dirèkteman bay founisè ou, telechaje dokiman, gade dat tribinal ki ap vini yo, swiv pwogrè ou, ak anpil lòt bagay — tout nan yon sèl kote.', cta: 'Kòmanse' },
           { title: 'Chèk-in Chak Jou', body: 'Pwogram ou mande chèk-in regilyèman. Sèvi ak bouton "Antre Kounye a" sou tablo ou — kote ou ye kaptire epi anrejistre otomatikman.', cta: 'Swivan' },
           { title: 'Orè Ou', body: 'Dat enpòtan, randevou k ap vini, ak tach founisè ou bay ap parèt dirèkteman sou tablo ou pou anyen pa pase antre miray.', cta: 'Swivan' },
           { title: 'Dosye ou pale pou tèt li', body: 'Chak chèk-in ou fè gen dat/lè, verifye ak GPS, e sove. Lè sa konte plis — nan tribinal, ak ofisye ou, ak founisè ou — konfòmite ou deja dokimante.', cta: 'Ale nan Tablo Mwen' },

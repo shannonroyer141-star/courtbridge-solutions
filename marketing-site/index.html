@@ -221,7 +221,6 @@
     .demo-url { font-family: 'DM Mono', monospace; font-size: 0.82rem; color: var(--text-muted); margin-top: 1rem; }
 
     /* CONTACT */
-    #contact { background: var(--bg-section); }
     .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
     .contact-info h3 { font-family: 'DM Serif Display', serif; font-size: 1.5rem; color: var(--white); margin-bottom: 1rem; }
     .contact-info p { font-size: 0.95rem; color: var(--text-light); line-height: 1.7; margin-bottom: 1.5rem; }
@@ -290,7 +289,7 @@
     <li><a href="#serves">Who We Serve</a></li>
     <li><a href="#providers">Platform</a></li>
     <li><a href="#about">About</a></li>
-    <li><a href="#contact">Contact</a></li>
+    <li><a href="https://calendar.app.google/PKALAgedHnzGVF237" target="_blank" rel="noopener">Contact</a></li>
     <li><a href="https://app.courtbridgesolutions.com" class="nav-cta">Log In</a></li>
   </ul>
   <div class="nav-hamburger" onclick="toggleMenu()">
@@ -302,7 +301,7 @@
   <a href="#serves" onclick="toggleMenu()">Who We Serve</a>
   <a href="#providers" onclick="toggleMenu()">Platform</a>
   <a href="#about" onclick="toggleMenu()">About</a>
-  <a href="#contact" onclick="toggleMenu()">Contact</a>
+  <a href="https://calendar.app.google/PKALAgedHnzGVF237" target="_blank" rel="noopener" onclick="toggleMenu()">Contact</a>
   <a href="https://app.courtbridgesolutions.com">Log In</a>
 </div>
 
@@ -564,50 +563,6 @@
   </div>
 </section>
 
-<!-- CONTACT -->
-<section id="contact">
-  <div class="section-inner">
-    <div class="contact-grid">
-      <div class="contact-info">
-        <p class="section-eyebrow">Get in Touch</p>
-        <h2 class="section-headline">Let's talk about your program.</h2>
-        <p>We're accepting early provider partners now. If you run a specialty court program — drug court, DUI court, mental health court, domestic violence intervention, or similar — we'd love to connect.</p>
-        <p>Fill out the form and we'll be in touch within one business day.</p>
-        <a href="mailto:info@courtbridgesolutions.com" class="contact-detail">info@courtbridgesolutions.com</a>
-        <div style="margin-top:1.5rem;font-size:0.85rem;color:var(--text-muted);">CourtBridge Solutions LLC<br/>Lakewood Ranch, FL<br/>Serving Florida · Ohio · Nationwide</div>
-      </div>
-      <div>
-        <div class="contact-form" id="contactForm">
-          <div class="form-row">
-            <div class="form-group"><label>First Name</label><input type="text" id="fname" placeholder="Jane"/></div>
-            <div class="form-group"><label>Last Name</label><input type="text" id="lname" placeholder="Smith"/></div>
-          </div>
-          <div class="form-group"><label>Email</label><input type="email" id="email" placeholder="jane@yourprogram.org"/></div>
-          <div class="form-group"><label>Organization / Program Name</label><input type="text" id="org" placeholder="Suncoast Drug Court"/></div>
-          <div class="form-group">
-            <label>Program Type</label>
-            <select id="programType">
-              <option value="">Select one...</option>
-              <option>Drug Court</option>
-              <option>DUI / DWI Court</option>
-              <option>Mental Health Court</option>
-              <option>Domestic Violence Intervention (BIP)</option>
-              <option>Veterans Treatment Court</option>
-              <option>Other Specialty Court</option>
-            </select>
-          </div>
-          <div class="form-group"><label>Tell us about your program</label><textarea id="message" placeholder="How many clients do you serve? What's your biggest compliance challenge right now?"></textarea></div>
-          <button class="form-submit" id="formSubmitBtn" onclick="submitForm()">Send Message</button>
-        </div>
-        <div class="form-success" id="formSuccess">
-          <strong>Thank you for your interest.</strong><br/>A member of our team will follow up directly once a beta spot becomes available.
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-
 <!-- FOOTER -->
 <footer>
   <div class="footer-inner">
@@ -629,7 +584,7 @@
       <ul>
         <li><a href="#about">About</a></li>
         <li><a href="#pilot">Beta Program</a></li>
-        <li><a href="#contact">Contact</a></li>
+        <li><a href="https://calendar.app.google/PKALAgedHnzGVF237" target="_blank" rel="noopener">Contact</a></li>
         <li><a href="mailto:info@courtbridgesolutions.com">Email Us</a></li>
       </ul>
     </div>
@@ -650,48 +605,6 @@
 <script>
   function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
   window.addEventListener('scroll', () => document.getElementById('mobileMenu').classList.remove('open'));
-  function submitForm() {
-    const fname = document.getElementById('fname').value;
-    const lname = document.getElementById('lname').value;
-    const email = document.getElementById('email').value;
-    const org = document.getElementById('org').value;
-    const programType = document.getElementById('programType').value;
-    const message = document.getElementById('message').value;
-    if (!fname || !email) { alert('Please fill in your name and email.'); return; }
-
-    const btn = document.getElementById('formSubmitBtn');
-    btn.disabled = true;
-    btn.textContent = 'Sending...';
-
-    const formData = new FormData();
-    formData.append('First Name', fname);
-    formData.append('Last Name', lname);
-    formData.append('Email', email);
-    formData.append('Organization', org);
-    formData.append('Program Type', programType);
-    formData.append('Message', message);
-
-    fetch('https://formspree.io/f/mojogkgz', {
-      method: 'POST',
-      headers: { 'Accept': 'application/json' },
-      body: formData
-    })
-    .then(response => {
-      if (response.ok) {
-        document.getElementById('contactForm').style.display = 'none';
-        document.getElementById('formSuccess').style.display = 'block';
-      } else {
-        alert('Something went wrong sending your message. Please email info@courtbridgesolutions.com directly.');
-        btn.disabled = false;
-        btn.textContent = 'Send Message';
-      }
-    })
-    .catch(() => {
-      alert('Something went wrong sending your message. Please email info@courtbridgesolutions.com directly.');
-      btn.disabled = false;
-      btn.textContent = 'Send Message';
-    });
-  }
 </script>
 <script>
 window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };

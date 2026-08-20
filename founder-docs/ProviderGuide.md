@@ -1,4 +1,4 @@
-<!-- Backup mirror of the live founder_docs.provider_guide row. The app reads from Supabase, not this file — edit in-app (Founder Docs screen), then re-sync here. Last synced 2026-07-30. -->
+<!-- Backup mirror of the live founder_docs.provider_guide row. The app reads from Supabase, not this file — edit in-app (Founder Docs screen), then re-sync here. Last synced 2026-08-20. -->
 
 # Provider Guide
 DRAFT, review before relying on this
@@ -10,6 +10,7 @@ DASHBOARD — your daily snapshot: active clients, checked-in-today count, misse
 CLIENTS — full participant list, enroll new clients (Client Intake), and open a client's full profile for detail and history. The client app supports English, Spanish, and Haitian Creole -- a client picks their language during enrollment and can change it anytime from their own My Progress tab; nothing for you to configure. (Added 2026-07-30, machine-translated first pass -- flag anything a client says reads oddly.) Click "View Full Profile & Journey" on any client to reach:
   - JOURNEY — track each client's actual court orders (a client can have several running at once, e.g. a primary program plus an accompanying CPS requirement), each with a start date and progress bar. "Mark Complete" is a manual action (the court/PO decides, not the software) that awards an achievement badge and auto-generates a Completion Certificate with a real check-in count.
   - PROGRESS NOTES — short, plain-language session recaps you write for the client to read (separate from Case/Clinical Notes — never put clinical/diagnostic content here). Each note has a "Share with client" toggle; unshared notes are enforced private at the database level, not just hidden in the UI.
+  - CLIENT ACCOUNT ACCESS — providers cannot log into or view a client's account directly. Clients also have a private journal ("My Thoughts") under My Journey that is never visible to you or anyone else at your organization -- that's a deliberate privacy commitment, not a missing feature. If your organization ever wants a provider-facing way to help a stuck client, that would need to be a separate, narrower tool that explicitly excludes private content -- not full account access.
   - SIGNED FORMS — any forms that client has electronically signed (see Forms & Signatures below).
   - STATUS — Mark Inactive / Terminate (soft only — nothing is ever deleted, all history stays intact) and Reactivate for a returning client, which only asks you to confirm/update their address and phone rather than redoing full intake.
 

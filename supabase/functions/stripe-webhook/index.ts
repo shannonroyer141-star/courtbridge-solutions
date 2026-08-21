@@ -26,6 +26,29 @@ async function stripePost(path: string, secretKey: string, params: URLSearchPara
   return { ok: res.ok, data: await res.json() };
 }
 
+// Best-effort notification to Shannon. Never throws -- a notification
+// failure must never mask or interrupt the actual signup flow above it.
+async function notifyFounder(subject: string, body: string) {
+  try {
+    const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+    const FROM_EMAIL = Deno.env.get('FROM_EMAIL') || 'noreply@interventionconnect.com';
+    if (!RESEND_API_KEY) { console.error('notifyFounder: RESEND_API_KEY not configured, skipping'); return; }
+
+    await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: `CourtBridge Solutions <${FROM_EMAIL}>`,
+        to: ['info@courtbridgesolutions.com'],
+        subject,
+        html: `<div style="font-family: Arial, sans-serif; font-size: 14px; color: #333; white-space: pre-line;">${body}</div>`,
+      }),
+    });
+  } catch (err) {
+    console.error('notifyFounder failed', err);
+  }
+}
+
 async function verifyStripeSignature(rawBody: string, sigHeader: string, secret: string): Promise<boolean> {
   const parts = Object.fromEntries(sigHeader.split(',').map(p => p.split('=')));
   const timestamp = parts['t'];
@@ -104,6 +127,10 @@ Deno.serve(async (req: Request) => {
 
       if (orgError || !org) {
         console.error('Failed to create organization', orgError);
+        await notifyFounder(
+          'URGENT: Stripe payment succeeded but signup failed',
+          `Stripe charged ${admin_email} (org: "${org_name}") and the payment succeeded, but creating their organization record FAILED.\n\nThis customer paid and has no working account. Needs manual follow-up.\n\nStripe customer: ${session.customer}\nStripe subscription: ${session.subscription}\nError: ${orgError?.message || 'unknown'}`
+        );
         return new Response('ok', { status: 200 });
       }
 
@@ -123,6 +150,10 @@ Deno.serve(async (req: Request) => {
 
       if (inviteError || !invited?.user) {
         console.error('Failed to invite admin user', inviteError);
+        await notifyFounder(
+          'URGENT: Stripe payment succeeded but invite email failed',
+          `Stripe charged ${admin_email} and their organization "${org_name}" (id: ${org.id}) was created, but the admin invite email FAILED to send.\n\nThis customer paid and cannot log in. Needs manual invite or follow-up.\n\nError: ${inviteError?.message || 'unknown'}`
+        );
         return new Response('ok', { status: 200 });
       }
 
@@ -138,6 +169,11 @@ Deno.serve(async (req: Request) => {
         phone: phone || null,
         account_status: 'active',
       });
+
+      await notifyFounder(
+        'New provider signed up',
+        `A new provider just signed up and paid.\n\nOrganization: ${org_name}\nAdmin: ${admin_name} (${admin_email})\nPhone: ${phone || 'not provided'}\n\nThis was fully automatic -- no review happened before they got a working account.`
+      );
     }
 
     if (event.type === 'customer.subscription.updated' || event.type === 'customer.subscription.deleted') {

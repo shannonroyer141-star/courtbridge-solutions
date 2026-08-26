@@ -174,6 +174,8 @@ export default function Calendar() {
     grid: { display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 },
     weekdayCell: { textAlign: 'center', fontSize: 11, color: inkDim, fontWeight: 700, padding: '4px 0', textTransform: 'uppercase', letterSpacing: '0.04em' },
     card: { background: skin.cardBg, border: cardBorder, borderRadius: 14, padding: 20, boxShadow: isClassic ? '0 8px 24px rgba(58,46,34,0.12)' : '0 8px 24px rgba(0,0,0,0.18)' },
+    formCard: { background: skin.cardBg, border: cardBorder, borderRadius: 14, padding: isPhone ? 12 : 20, boxShadow: isClassic ? '0 8px 24px rgba(58,46,34,0.12)' : '0 8px 24px rgba(0,0,0,0.18)' },
+    input: { width: '100%', padding: 12, marginBottom: 12, borderRadius: 8, border: cardBorder, boxSizing: 'border-box', background: isClassic ? 'rgba(58,46,34,0.05)' : 'rgba(255,255,255,0.04)', color: ink },
   };
 
   return (
@@ -195,21 +197,21 @@ export default function Calendar() {
       </div>
 
       {showForm && (
-        <div style={{ ...s.calCard, marginBottom: 20 }}>
+        <div style={{ ...s.formCard, marginBottom: 20 }}>
           <input placeholder="Event Title *" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })}
-            style={{ width: '100%', padding: 12, marginBottom: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT }} />
+            style={s.input} />
           <input type="datetime-local" value={form.event_date} onChange={e => setForm({ ...form, event_date: e.target.value })}
-            style={{ width: '100%', padding: 12, marginBottom: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT, colorScheme: 'dark' }} />
+            style={{ ...s.input, colorScheme: isClassic ? 'light' : 'dark' }} />
           <select value={form.event_type} onChange={e => setForm({ ...form, event_type: e.target.value })}
-            style={{ width: '100%', padding: 12, marginBottom: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, background: 'rgba(255,255,255,0.04)', color: TEXT }}>
-            <option value="" style={{ background: '#1E2A3A', color: '#fff' }}>Select Type</option>
-            {EVENT_TYPE_OPTIONS.map(o => <option key={o.value} value={o.value} style={{ background: '#1E2A3A', color: '#fff' }}>{o.label}</option>)}
+            style={s.input}>
+            <option value="" style={{ background: isClassic ? '#FBF7EE' : '#1E2A3A', color: ink }}>Select Type</option>
+            {EVENT_TYPE_OPTIONS.map(o => <option key={o.value} value={o.value} style={{ background: isClassic ? '#FBF7EE' : '#1E2A3A', color: ink }}>{o.label}</option>)}
           </select>
           <input placeholder="Client Name (optional)" value={form.client_name} onChange={e => setForm({ ...form, client_name: e.target.value })}
-            style={{ width: '100%', padding: 12, marginBottom: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT }} />
+            style={s.input} />
           <NotesWarning />
           <textarea placeholder="Notes" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })}
-            style={{ width: '100%', padding: 12, marginBottom: 15, borderRadius: 8, border: `0.5px solid ${BORDER}`, boxSizing: 'border-box', minHeight: 70, background: 'rgba(255,255,255,0.04)', color: TEXT }} />
+            style={{ ...s.input, minHeight: 70, marginBottom: 15 }} />
           {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}
           <button onClick={handleSave} disabled={saving || !form.title.trim() || !form.event_date}
             style={{ padding: '12px 25px', background: GREEN, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 15, fontWeight: 600 }}>

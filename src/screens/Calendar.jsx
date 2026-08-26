@@ -262,7 +262,7 @@ export default function Calendar() {
                   <div style={{ fontSize: 12, color: isToday ? skin.accent : ink, fontWeight: isToday ? 800 : 500 }}>{d}</div>
                   {items.length > 0 && (
                     <div style={{ marginTop: 4 }}>
-                      <div style={{ fontSize: 9, fontWeight: 700, color: dayColor, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: isClassic ? ink : dayColor, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {items.length === 1 ? items[0].type : `${items.length} items`}
                       </div>
                     </div>

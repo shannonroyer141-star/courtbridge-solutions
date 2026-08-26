@@ -159,6 +159,28 @@ function StatCard({ label, value, sub, valueColor = ACCENT }) {
   )
 }
 
+// Client-facing InterventionConnect mark -- wordmark in two colors, a small
+// bridge-arc underneath (nods to the CourtBridge name it sits on top of), and
+// a "Powered by" line making the CourtBridge Solutions relationship explicit.
+function InterventionConnectLogo({ small = false }) {
+  const wordmarkSize = small ? 15 : 19
+  const arcWidth = small ? 150 : 190
+  return (
+    <div>
+      <div style={{ fontSize: wordmarkSize, fontWeight: 800, letterSpacing: '-0.01em', whiteSpace: 'nowrap', lineHeight: 1 }}>
+        <span style={{ color: TEXT }}>Intervention</span><span style={{ color: ACCENT }}>Connect</span>
+        <span style={{ fontSize: '0.5em', verticalAlign: 'super', color: TEXT_MUTED, marginLeft: 1 }}>&trade;</span>
+      </div>
+      <svg width={arcWidth} height="6" viewBox="0 0 220 10" preserveAspectRatio="none" style={{ display: 'block', marginTop: 3 }}>
+        <path d="M2 2C40 12 180 12 218 2" stroke={ACCENT} strokeWidth="2.4" strokeLinecap="round" fill="none" />
+      </svg>
+      <div style={{ fontSize: small ? 8.5 : 9.5, color: TEXT_DIM, marginTop: 4, letterSpacing: '0.01em' }}>
+        Powered by CourtBridge Solutions
+      </div>
+    </div>
+  )
+}
+
 function InnerCard({ children, style = {} }) {
   return (
     <div style={{ background: CARD_BG, borderRadius: 8, padding: '13px 14px', border: `0.5px solid ${BORDER}`, ...style }}>
@@ -891,7 +913,7 @@ export default function ClientAppDashboard({ session, onLogout }) {
             padding: showLabels ? '0 6px 0 14px' : 0,
             flexShrink: 0, borderBottom: `0.5px solid rgba(255,255,255,0.06)`,
           }}>
-            {showLabels && <img src="/cb-logo.png" alt="CourtBridge Solutions" style={{ height: 24, width: 'auto' }} />}
+            {showLabels && <InterventionConnectLogo small />}
             <div
               onClick={toggleSidebar}
               style={{
@@ -981,7 +1003,7 @@ export default function ClientAppDashboard({ session, onLogout }) {
 
         <div style={{ padding: '20px 22px 0', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <div>
-            {isMobile && <img src="/cb-logo.png" alt="CourtBridge Solutions" style={{ height: 20, width: 'auto', marginBottom: 8, display: 'block' }} />}
+            {isMobile && <div style={{ marginBottom: 10 }}><InterventionConnectLogo small /></div>}
             <div style={{ fontSize: 19, fontWeight: 500, color: TEXT }}>{getGreeting()}, {firstName}</div>
             <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 3 }}>{today} · Day {daysEnrolled} of your program</div>
           </div>
@@ -1722,8 +1744,10 @@ function FirstTimeWelcome({ name, lang, onDone }) {
   const isLast = step === steps.length - 1
   return (
     <div style={{ minHeight: '100vh', background: DARK_BG, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 24px', fontFamily: NAV_FONT }}>
-      <div style={{ fontSize: 15, fontWeight: 500, color: TEXT, marginBottom: 4 }}>InterventionConnect<span style={{ fontSize: '0.6em', verticalAlign: 'super' }}>™</span></div>
-      <div style={{ fontSize: 12, color: TEXT_MUTED, marginBottom: 40 }}>{w.portalSubtitle}</div>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 4 }}>
+        <InterventionConnectLogo />
+      </div>
+      <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 10, marginBottom: 40 }}>{w.portalSubtitle}</div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 32 }}>
         {steps.map((_, i) => (
           <div key={i} style={{ width: i === step ? 24 : 8, height: 8, borderRadius: 4, background: i === step ? ACCENT : 'rgba(255,255,255,0.2)', transition: 'all 0.3s ease' }} />

@@ -2,31 +2,36 @@ import { useState } from 'react';
 import { supabase } from '../supabase';
 import { RED, TEXT, TEXT_MUTED, NAV_FONT } from '../theme';
 
-const warningBox = {
-  background: 'rgba(248,113,113,0.1)',
-  border: `0.5px solid ${RED}`,
-  borderRadius: 8,
-  padding: '10px 14px',
-  marginBottom: 10,
-  fontSize: 12.5,
-  color: TEXT,
-  lineHeight: 1.5,
+// lightBg: pass true when this renders on a light/cream surface (e.g. the Calendar's
+// Classic style) so the text stays readable instead of the near-white default every
+// other (dark-themed) screen in the app relies on.
+// Kept deliberately quiet -- a thin colored accent line instead of a filled/bordered
+// box, smaller text -- the warning still has to stay, just not shout.
+const warningBox = (lightBg) => ({
+  background: 'transparent',
+  borderLeft: `2px solid ${RED}`,
+  borderRadius: 0,
+  padding: '3px 10px',
+  marginBottom: 8,
+  fontSize: 11,
+  color: lightBg ? 'rgba(58,46,34,0.6)' : TEXT_MUTED,
+  lineHeight: 1.4,
   fontFamily: NAV_FONT,
-};
+});
 
 // Shown above every free-text field where participant notes or compliance information can be entered.
-export function NotesWarning() {
+export function NotesWarning({ lightBg = false } = {}) {
   return (
-    <div style={warningBox}>
+    <div style={warningBox(lightBg)}>
       <strong>Do not enter victim information.</strong> Use this field only for information about the program participant. Do not include victim names, contact information, addresses, locations, identifying details, safety information, or information about a victim's children or household members.
     </div>
   );
 }
 
 // Shown above every document upload control.
-export function UploadWarning() {
+export function UploadWarning({ lightBg = false } = {}) {
   return (
-    <div style={warningBox}>
+    <div style={warningBox(lightBg)}>
       <strong>Do not upload victim information.</strong> CourtBridge does not collect or maintain victim names, contact information, addresses, locations, safety plans, identifying details, or documents containing victim information. All documents must be properly redacted before upload.
     </div>
   );

@@ -209,7 +209,7 @@ export default function Calendar() {
           </select>
           <input placeholder="Client Name (optional)" value={form.client_name} onChange={e => setForm({ ...form, client_name: e.target.value })}
             style={s.input} />
-          <NotesWarning />
+          <NotesWarning lightBg={isClassic} />
           <textarea placeholder="Notes" value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })}
             style={{ ...s.input, minHeight: 70, marginBottom: 15 }} />
           {saveError && <div style={{ color: RED, fontSize: 13, marginBottom: 12 }}>{saveError}</div>}

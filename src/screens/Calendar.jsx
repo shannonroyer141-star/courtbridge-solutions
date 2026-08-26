@@ -46,7 +46,7 @@ export default function Calendar() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
   const [width, setWidth] = useState(window.innerWidth);
-  const [calendarStyle, setCalendarStyle] = useState('modern');
+  const [calendarStyle, setCalendarStyle] = useState('classic');
 
   useEffect(() => { fetchAll(); }, []);
   useEffect(() => {
@@ -171,7 +171,7 @@ export default function Calendar() {
     monthNav: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
     monthLabel: { color: ink, fontSize: 17, fontWeight: 700, letterSpacing: '-0.2px' },
     navBtn: { background: isClassic ? 'rgba(58,46,34,0.06)' : 'rgba(255,255,255,0.06)', border: cardBorder, color: inkMuted, borderRadius: 8, padding: '5px 12px', cursor: 'pointer', fontSize: 14 },
-    grid: { display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 5 },
+    grid: { display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 },
     weekdayCell: { textAlign: 'center', fontSize: 11, color: inkDim, fontWeight: 700, padding: '4px 0', textTransform: 'uppercase', letterSpacing: '0.04em' },
     card: { background: skin.cardBg, border: cardBorder, borderRadius: 14, padding: 20, boxShadow: isClassic ? '0 8px 24px rgba(58,46,34,0.12)' : '0 8px 24px rgba(0,0,0,0.18)' },
   };
@@ -251,7 +251,7 @@ export default function Calendar() {
               const isSpecial = d === specialDay;
               return (
                 <div key={key} onClick={() => setSelectedDay(key)} style={{
-                  minHeight: isPhone ? 44 : 62, borderRadius: 10, padding: '6px 6px', cursor: 'pointer',
+                  minHeight: isPhone ? 28 : 38, borderRadius: 7, padding: '3px 3px', cursor: 'pointer',
                   background: isSelected ? skin.accentSoft : dayColor ? `${dayColor}14` : skin.cellBg,
                   border: isSelected ? `1.5px solid ${skin.accent}` : isToday ? `1px solid ${skin.accent}55` : dayColor ? '1px solid transparent' : `1px dotted ${skin.accent}55`,
                   borderLeft: dayColor && !isSelected ? `3px solid ${dayColor}` : isSelected ? `1.5px solid ${skin.accent}` : dayColor ? '1px solid transparent' : `1px dotted ${skin.accent}55`,

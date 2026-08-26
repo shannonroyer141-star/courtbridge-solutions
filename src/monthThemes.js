@@ -12,18 +12,18 @@
 // is computed, not hardcoded, since its date moves every year); months with no
 // well-known fixed holiday just get the color+icon.
 export const MONTH_THEMES = [
-  { name: 'January', accent: '#7FB3E8', classicPrimary: '#4A7FB5', classicSecondary: '#8FB3D9', icon: '❄️' },
-  { name: 'February', accent: '#E88FAE', classicPrimary: '#C9607E', classicSecondary: '#E8A9BC', icon: '💗', specialDay: 14 },
-  { name: 'March', accent: '#5FAE6B', classicPrimary: '#3D8B4C', classicSecondary: '#E08A2E', icon: '🍀', specialDay: 17 },
-  { name: 'April', accent: '#7EC8E3', classicPrimary: '#4A9FB0', classicSecondary: '#8FCBD6', icon: '🌧️' },
-  { name: 'May', accent: '#C99FE0', classicPrimary: '#9B6FB5', classicSecondary: '#D6B3E8', icon: '🌸' },
-  { name: 'June', accent: '#F2C572', classicPrimary: '#D9A02E', classicSecondary: '#F2D18A', icon: '☀️' },
-  { name: 'July', accent: '#E86A5D', classicPrimary: '#C0392B', classicSecondary: '#5B7DB1', icon: '🎆', specialDay: 4 },
+  { name: 'January', accent: '#7FB3E8', classicPrimary: '#4A7FB5', classicSecondary: '#8FB3D9', icon: '❄️', image: '/calendar-icons/january.jpg' },
+  { name: 'February', accent: '#E88FAE', classicPrimary: '#C9607E', classicSecondary: '#E8A9BC', icon: '💗', specialDay: 14, image: '/calendar-icons/february.jpg' },
+  { name: 'March', accent: '#5FAE6B', classicPrimary: '#3D8B4C', classicSecondary: '#E08A2E', icon: '🍀', specialDay: 17, image: '/calendar-icons/march.jpg' },
+  { name: 'April', accent: '#7EC8E3', classicPrimary: '#4A9FB0', classicSecondary: '#8FCBD6', icon: '🌧️', image: '/calendar-icons/april.jpg' },
+  { name: 'May', accent: '#C99FE0', classicPrimary: '#9B6FB5', classicSecondary: '#D6B3E8', icon: '🌸', image: '/calendar-icons/may.jpg' },
+  { name: 'June', accent: '#F2C572', classicPrimary: '#D9A02E', classicSecondary: '#F2D18A', icon: '☀️', image: '/calendar-icons/june.jpg' },
+  { name: 'July', accent: '#E86A5D', classicPrimary: '#C0392B', classicSecondary: '#5B7DB1', icon: '🎆', specialDay: 4, image: '/calendar-icons/july.jpg' },
   { name: 'August', accent: '#F2A65A', classicPrimary: '#D97D2E', classicSecondary: '#F2C572', icon: '🌻', image: '/calendar-icons/august.jpg' },
-  { name: 'September', accent: '#C98A4B', classicPrimary: '#A0672E', classicSecondary: '#D9A65C', icon: '🍂' },
-  { name: 'October', accent: '#E08A3C', classicPrimary: '#C0631E', classicSecondary: '#4A3B5C', icon: '🎃', specialDay: 31 },
-  { name: 'November', accent: '#B5793D', classicPrimary: '#8B5A2B', classicSecondary: '#C0631E', icon: '🦃' },
-  { name: 'December', accent: '#6FA88F', classicPrimary: '#3D6B4F', classicSecondary: '#B03A3A', icon: '🎄', specialDay: 25 },
+  { name: 'September', accent: '#C98A4B', classicPrimary: '#A0672E', classicSecondary: '#D9A65C', icon: '🍂', image: '/calendar-icons/september.jpg' },
+  { name: 'October', accent: '#E08A3C', classicPrimary: '#C0631E', classicSecondary: '#4A3B5C', icon: '🎃', specialDay: 31, image: '/calendar-icons/october.jpg' },
+  { name: 'November', accent: '#B5793D', classicPrimary: '#8B5A2B', classicSecondary: '#C0631E', icon: '🦃', image: '/calendar-icons/november.jpg' },
+  { name: 'December', accent: '#6FA88F', classicPrimary: '#3D6B4F', classicSecondary: '#B03A3A', icon: '🎄', specialDay: 25, image: '/calendar-icons/december.jpg' },
 ];
 
 // Nth occurrence of a weekday in a month (e.g. 4th Thursday) -- used for

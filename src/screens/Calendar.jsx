@@ -258,11 +258,7 @@ export default function Calendar() {
                   transition: 'background 0.12s ease',
                   position: 'relative',
                 }}>
-                  {isSpecial && (theme.image ? (
-                    <img src={theme.image} alt="" style={{ position: 'absolute', top: 4, right: 6, width: 14, height: 14, borderRadius: '50%', objectFit: 'cover' }} />
-                  ) : (
-                    <div style={{ position: 'absolute', top: 4, right: 6, fontSize: 12, opacity: 0.85 }}>{theme.icon}</div>
-                  ))}
+                  {isSpecial && <div style={{ position: 'absolute', top: 4, right: 6, fontSize: 12, opacity: 0.85 }}>{theme.icon}</div>}
                   <div style={{ fontSize: 12, color: isToday ? skin.accent : ink, fontWeight: isToday ? 800 : 500 }}>{d}</div>
                   {items.length > 0 && (
                     <div style={{ marginTop: 4 }}>

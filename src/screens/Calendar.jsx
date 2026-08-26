@@ -29,12 +29,8 @@ const TYPE_COLORS = {
 };
 const TYPE_PRIORITY = ['Court Date', 'Reporting Due', 'Task', 'Check-In Due', 'Program Review', 'Appointment', 'Other'];
 
-const SKINS = {
-  navy:     { name: 'Navy',     accent: '#5B9BF0', accentSoft: 'rgba(91,155,240,0.16)',  pageBg: 'linear-gradient(160deg, #1A2434 0%, #202D40 100%)', cardBg: '#212E42' },
-  forest:   { name: 'Forest',   accent: '#4CAF7D', accentSoft: 'rgba(76,175,125,0.16)',  pageBg: 'linear-gradient(160deg, #17241D 0%, #1D2E24 100%)', cardBg: '#1E2E26' },
-  sunset:   { name: 'Sunset',   accent: '#E0954F', accentSoft: 'rgba(224,149,79,0.16)',  pageBg: 'linear-gradient(160deg, #291D14 0%, #33251A 100%)', cardBg: '#2C2119' },
-  midnight: { name: 'Midnight', accent: '#9B7FE0', accentSoft: 'rgba(155,127,224,0.16)', pageBg: 'linear-gradient(160deg, #1C1830 0%, #251F3D 100%)', cardBg: '#221C38' },
-};
+// Fixed calendar theme -- no per-provider color picker, no seasonal variation.
+const SKIN = { accent: '#5B9BF0', accentSoft: 'rgba(91,155,240,0.16)', pageBg: 'linear-gradient(160deg, #1A2434 0%, #202D40 100%)', cardBg: '#212E42' };
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -53,7 +49,6 @@ export default function Calendar() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
   const [width, setWidth] = useState(window.innerWidth);
-  const [skinKey, setSkinKey] = useState('navy');
 
   useEffect(() => { fetchAll(); }, []);
   useEffect(() => {
@@ -62,26 +57,18 @@ export default function Calendar() {
     return () => window.removeEventListener('resize', onResize);
   }, []);
   const isPhone = width < 640;
-  const skin = SKINS[skinKey] || SKINS.navy;
+  const skin = SKIN;
 
   async function fetchAll() {
     const { data: { user } } = await supabase.auth.getUser();
-    const [{ data: ev }, { data: cd }, { data: tk }, { data: profile }] = await Promise.all([
+    const [{ data: ev }, { data: cd }, { data: tk }] = await Promise.all([
       supabase.from('calendar_events').select('*').order('event_date', { ascending: true }),
       supabase.from('court_dates').select('*, clients(name)').order('hearing_date', { ascending: true }),
       supabase.from('tasks').select('*').eq('provider_id', user.id).order('due_date', { ascending: true }),
-      supabase.from('profiles').select('calendar_skin').eq('id', user.id).single(),
     ]);
     setManualEvents(ev || []);
     setCourtDates(cd || []);
     setTasks((tk || []).filter(t => t.due_date));
-    if (profile?.calendar_skin && SKINS[profile.calendar_skin]) setSkinKey(profile.calendar_skin);
-  }
-
-  async function changeSkin(key) {
-    setSkinKey(key);
-    const { data: { user } } = await supabase.auth.getUser();
-    await supabase.from('profiles').update({ calendar_skin: key }).eq('id', user.id);
   }
 
   async function handleSave() {
@@ -179,20 +166,6 @@ export default function Calendar() {
       <div style={s.header}>
         <div>
           <h1 style={s.title}>Calendar</h1>
-          <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
-            {Object.entries(SKINS).map(([key, sk]) => (
-              <div
-                key={key}
-                onClick={() => changeSkin(key)}
-                title={sk.name}
-                style={{
-                  width: 20, height: 20, borderRadius: '50%', background: sk.accent, cursor: 'pointer',
-                  border: skinKey === key ? '2px solid white' : '2px solid transparent',
-                  boxShadow: skinKey === key ? `0 0 0 2px ${sk.accent}` : 'none',
-                }}
-              />
-            ))}
-          </div>
         </div>
         <button style={s.addBtn} onClick={() => setShowForm(!showForm)}>+ Add Event</button>
       </div>

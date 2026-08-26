@@ -162,7 +162,12 @@ export default function Calendar() {
     styleToggle: { display: 'flex', background: 'rgba(255,255,255,0.06)', border: `0.5px solid ${BORDER}`, borderRadius: 8, padding: 2, gap: 2 },
     styleToggleBtn: active => ({ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, background: active ? theme.accent : 'transparent', color: active ? 'white' : TEXT_MUTED }),
     layout: { display: 'grid', gridTemplateColumns: isPhone ? '1fr' : '1.4fr 1fr', gap: 20 },
-    calCard: { background: skin.cardBg, border: cardBorder, borderRadius: 14, padding: isPhone ? 12 : 20, boxShadow: isClassic ? '0 8px 24px rgba(58,46,34,0.12)' : '0 8px 24px rgba(0,0,0,0.18)' },
+    calCard: {
+      background: theme.image
+        ? `${isClassic ? 'linear-gradient(180deg, rgba(251,247,238,0.4), rgba(251,247,238,0.85) 55%, rgba(251,247,238,0.93))' : 'linear-gradient(180deg, rgba(26,36,52,0.3), rgba(26,36,52,0.82) 55%, rgba(26,36,52,0.92))'}, url(${theme.image}) center/cover no-repeat`
+        : skin.cardBg,
+      border: cardBorder, borderRadius: 14, padding: isPhone ? 12 : 20, boxShadow: isClassic ? '0 8px 24px rgba(58,46,34,0.12)' : '0 8px 24px rgba(0,0,0,0.18)',
+    },
     monthNav: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
     monthLabel: { color: ink, fontSize: 17, fontWeight: 700, letterSpacing: '-0.2px' },
     navBtn: { background: isClassic ? 'rgba(58,46,34,0.06)' : 'rgba(255,255,255,0.06)', border: cardBorder, color: inkMuted, borderRadius: 8, padding: '5px 12px', cursor: 'pointer', fontSize: 14 },
@@ -176,9 +181,7 @@ export default function Calendar() {
       <div style={s.header}>
         <div>
           <h1 style={s.title}>Calendar</h1>
-          {theme.image ? (
-            <img src={theme.image} alt="" style={{ width: 30, height: 30, borderRadius: '50%', objectFit: 'cover', marginTop: 5, border: `2px solid ${theme.accent}` }} />
-          ) : (
+          {!theme.image && (
             <div style={{ fontSize: 13, letterSpacing: 6, marginTop: 2, opacity: 0.8 }}>{theme.icon} {theme.icon} {theme.icon}</div>
           )}
         </div>

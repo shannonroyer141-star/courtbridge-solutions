@@ -608,6 +608,20 @@
 </script>
 <script>
 window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+
+// Visit this page once with ?owner=1 on any device to stop that device
+// from being counted in analytics going forward (e.g. courtbridgesolutions.com/?owner=1).
+// Visit with ?owner=0 to turn tracking back on for that device.
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('owner') === '1') { localStorage.setItem('cbs-owner-notrack', '1'); }
+  if (params.get('owner') === '0') { localStorage.removeItem('cbs-owner-notrack'); }
+})();
+
+window.va('beforeSend', function (event) {
+  if (localStorage.getItem('cbs-owner-notrack')) { return null; }
+  return event;
+});
 </script>
 <script defer src="/_vercel/insights/script.js"></script>
 </body>

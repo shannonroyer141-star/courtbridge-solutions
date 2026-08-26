@@ -46,6 +46,7 @@ export default function Calendar() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
   const [width, setWidth] = useState(window.innerWidth);
+  const [calendarStyle, setCalendarStyle] = useState('modern');
 
   useEffect(() => { fetchAll(); }, []);
   useEffect(() => {
@@ -131,7 +132,14 @@ export default function Calendar() {
   const todayKey = dateKey(new Date());
 
   const theme = MONTH_THEMES[month];
-  const skin = { ...SKIN, accent: theme.accent, accentSoft: `${theme.accent}29` };
+  const isClassic = calendarStyle === 'classic';
+  const skin = isClassic
+    ? { ...SKIN, accent: theme.classicPrimary, secondary: theme.classicSecondary, accentSoft: `${theme.classicPrimary}22`, cardBg: '#FBF7EE', cellBg: '#FFFDF8' }
+    : { ...SKIN, accent: theme.accent, accentSoft: `${theme.accent}29`, cellBg: 'rgba(255,255,255,0.02)' };
+  const ink = isClassic ? '#3A2E22' : TEXT;
+  const inkMuted = isClassic ? 'rgba(58,46,34,0.55)' : TEXT_MUTED;
+  const inkDim = isClassic ? 'rgba(58,46,34,0.4)' : TEXT_DIM;
+  const cardBorder = isClassic ? '1px solid rgba(58,46,34,0.14)' : `0.5px solid ${BORDER}`;
   const specialDay = specialDayFor(year, month);
 
   const cells = [];
@@ -147,18 +155,20 @@ export default function Calendar() {
   const selectedItems = itemsByDay[selectedDay] || [];
 
   const s = {
-    page: { padding: isPhone ? '20px 16px' : '30px', fontFamily: NAV_FONT, background: skin.pageBg, minHeight: '100%', margin: -1 * (isPhone ? 20 : 30), paddingTop: isPhone ? 20 : 30 },
+    page: { padding: isPhone ? '20px 16px' : '30px', fontFamily: NAV_FONT, background: SKIN.pageBg, minHeight: '100%', margin: -1 * (isPhone ? 20 : 30), paddingTop: isPhone ? 20 : 30 },
     header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 },
     title: { color: TEXT, margin: 0, fontSize: 22, fontWeight: 700 },
-    addBtn: { padding: '10px 18px', background: skin.accent, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 },
+    addBtn: { padding: '10px 18px', background: theme.accent, color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer', fontSize: 14, fontWeight: 600 },
+    styleToggle: { display: 'flex', background: 'rgba(255,255,255,0.06)', border: `0.5px solid ${BORDER}`, borderRadius: 8, padding: 2, gap: 2 },
+    styleToggleBtn: active => ({ padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600, background: active ? theme.accent : 'transparent', color: active ? 'white' : TEXT_MUTED }),
     layout: { display: 'grid', gridTemplateColumns: isPhone ? '1fr' : '1.4fr 1fr', gap: 20 },
-    calCard: { background: skin.cardBg, border: `0.5px solid ${BORDER}`, borderRadius: 14, padding: isPhone ? 12 : 20, boxShadow: '0 8px 24px rgba(0,0,0,0.18)' },
+    calCard: { background: skin.cardBg, border: cardBorder, borderRadius: 14, padding: isPhone ? 12 : 20, boxShadow: isClassic ? '0 8px 24px rgba(58,46,34,0.12)' : '0 8px 24px rgba(0,0,0,0.18)' },
     monthNav: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-    monthLabel: { color: TEXT, fontSize: 17, fontWeight: 700, letterSpacing: '-0.2px' },
-    navBtn: { background: 'rgba(255,255,255,0.06)', border: `0.5px solid ${BORDER}`, color: TEXT_MUTED, borderRadius: 8, padding: '5px 12px', cursor: 'pointer', fontSize: 14 },
+    monthLabel: { color: ink, fontSize: 17, fontWeight: 700, letterSpacing: '-0.2px' },
+    navBtn: { background: isClassic ? 'rgba(58,46,34,0.06)' : 'rgba(255,255,255,0.06)', border: cardBorder, color: inkMuted, borderRadius: 8, padding: '5px 12px', cursor: 'pointer', fontSize: 14 },
     grid: { display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 5 },
-    weekdayCell: { textAlign: 'center', fontSize: 11, color: TEXT_DIM, fontWeight: 700, padding: '4px 0', textTransform: 'uppercase', letterSpacing: '0.04em' },
-    card: { background: skin.cardBg, border: `0.5px solid ${BORDER}`, borderRadius: 14, padding: 20, boxShadow: '0 8px 24px rgba(0,0,0,0.18)' },
+    weekdayCell: { textAlign: 'center', fontSize: 11, color: inkDim, fontWeight: 700, padding: '4px 0', textTransform: 'uppercase', letterSpacing: '0.04em' },
+    card: { background: skin.cardBg, border: cardBorder, borderRadius: 14, padding: 20, boxShadow: isClassic ? '0 8px 24px rgba(58,46,34,0.12)' : '0 8px 24px rgba(0,0,0,0.18)' },
   };
 
   return (
@@ -166,9 +176,19 @@ export default function Calendar() {
       <div style={s.header}>
         <div>
           <h1 style={s.title}>Calendar</h1>
-          <div style={{ fontSize: 13, letterSpacing: 6, marginTop: 2, opacity: 0.8 }}>{theme.icon} {theme.icon} {theme.icon}</div>
+          {theme.image ? (
+            <img src={theme.image} alt="" style={{ width: 30, height: 30, borderRadius: '50%', objectFit: 'cover', marginTop: 5, border: `2px solid ${theme.accent}` }} />
+          ) : (
+            <div style={{ fontSize: 13, letterSpacing: 6, marginTop: 2, opacity: 0.8 }}>{theme.icon} {theme.icon} {theme.icon}</div>
+          )}
         </div>
-        <button style={s.addBtn} onClick={() => setShowForm(!showForm)}>+ Add Event</button>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <div style={s.styleToggle}>
+            <button style={s.styleToggleBtn(!isClassic)} onClick={() => setCalendarStyle('modern')}>Modern</button>
+            <button style={s.styleToggleBtn(isClassic)} onClick={() => setCalendarStyle('classic')}>Classic</button>
+          </div>
+          <button style={s.addBtn} onClick={() => setShowForm(!showForm)}>+ Add Event</button>
+        </div>
       </div>
 
       {showForm && (
@@ -207,7 +227,17 @@ export default function Calendar() {
             <button style={s.navBtn} onClick={() => changeMonth(1)}>→</button>
           </div>
           <div style={s.grid}>
-            {WEEKDAYS.map(w => <div key={w} style={s.weekdayCell}>{isPhone ? w[0] : w}</div>)}
+            {WEEKDAYS.map((w, wi) => {
+              const isWeekend = wi === 0 || wi === 6;
+              const bandColor = isWeekend ? skin.secondary : skin.accent;
+              return (
+                <div key={w} style={isClassic
+                  ? { textAlign: 'center', fontSize: 11, color: 'white', fontWeight: 700, padding: '5px 0', textTransform: 'uppercase', letterSpacing: '0.04em', background: bandColor, borderRadius: 5 }
+                  : s.weekdayCell}>
+                  {isPhone ? w[0] : w}
+                </div>
+              );
+            })}
             {cells.map((d, i) => {
               if (d === null) return <div key={`e${i}`} />;
               const key = dateKey(new Date(year, month, d));
@@ -219,14 +249,18 @@ export default function Calendar() {
               return (
                 <div key={key} onClick={() => setSelectedDay(key)} style={{
                   minHeight: isPhone ? 44 : 62, borderRadius: 10, padding: '6px 6px', cursor: 'pointer',
-                  background: isSelected ? skin.accentSoft : dayColor ? `${dayColor}14` : 'rgba(255,255,255,0.02)',
-                  border: isSelected ? `1.5px solid ${skin.accent}` : isToday ? `1px solid ${skin.accent}55` : dayColor ? '1px solid transparent' : `1px dotted ${theme.accent}55`,
-                  borderLeft: dayColor && !isSelected ? `3px solid ${dayColor}` : isSelected ? `1.5px solid ${skin.accent}` : dayColor ? '1px solid transparent' : `1px dotted ${theme.accent}55`,
+                  background: isSelected ? skin.accentSoft : dayColor ? `${dayColor}14` : skin.cellBg,
+                  border: isSelected ? `1.5px solid ${skin.accent}` : isToday ? `1px solid ${skin.accent}55` : dayColor ? '1px solid transparent' : `1px dotted ${skin.accent}55`,
+                  borderLeft: dayColor && !isSelected ? `3px solid ${dayColor}` : isSelected ? `1.5px solid ${skin.accent}` : dayColor ? '1px solid transparent' : `1px dotted ${skin.accent}55`,
                   transition: 'background 0.12s ease',
                   position: 'relative',
                 }}>
-                  {isSpecial && <div style={{ position: 'absolute', top: 4, right: 6, fontSize: 12, opacity: 0.85 }}>{theme.icon}</div>}
-                  <div style={{ fontSize: 12, color: isToday ? skin.accent : TEXT, fontWeight: isToday ? 800 : 500 }}>{d}</div>
+                  {isSpecial && (theme.image ? (
+                    <img src={theme.image} alt="" style={{ position: 'absolute', top: 4, right: 6, width: 14, height: 14, borderRadius: '50%', objectFit: 'cover' }} />
+                  ) : (
+                    <div style={{ position: 'absolute', top: 4, right: 6, fontSize: 12, opacity: 0.85 }}>{theme.icon}</div>
+                  ))}
+                  <div style={{ fontSize: 12, color: isToday ? skin.accent : ink, fontWeight: isToday ? 800 : 500 }}>{d}</div>
                   {items.length > 0 && (
                     <div style={{ marginTop: 4 }}>
                       <div style={{ fontSize: 9, fontWeight: 700, color: dayColor, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -241,14 +275,14 @@ export default function Calendar() {
         </div>
 
         <div style={s.card}>
-          <div style={{ color: TEXT, fontSize: 15, fontWeight: 700, marginBottom: 4 }}>
+          <div style={{ color: ink, fontSize: 15, fontWeight: 700, marginBottom: 4 }}>
             {new Date(selectedDay + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </div>
-          <div style={{ color: TEXT_DIM, fontSize: 12, marginBottom: 14 }}>{selectedItems.length} item{selectedItems.length === 1 ? '' : 's'}</div>
+          <div style={{ color: inkDim, fontSize: 12, marginBottom: 14 }}>{selectedItems.length} item{selectedItems.length === 1 ? '' : 's'}</div>
           {selectedItems.length === 0 ? (
             <div style={{ padding: '28px 10px', textAlign: 'center' }}>
               <div style={{ fontSize: 28, marginBottom: 8, opacity: 0.5 }}>🗓️</div>
-              <p style={{ color: TEXT_DIM, fontSize: 13, margin: 0 }}>Nothing scheduled this day.</p>
+              <p style={{ color: inkDim, fontSize: 13, margin: 0 }}>Nothing scheduled this day.</p>
             </div>
           ) : (
             selectedItems.map((it, i) => (
@@ -258,11 +292,11 @@ export default function Calendar() {
               }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: TYPE_COLORS[it.type] || skin.accent, marginTop: 5, flexShrink: 0 }} />
                 <div>
-                  <div style={{ color: TEXT, fontSize: 14, fontWeight: 600 }}>{it.title}</div>
-                  <div style={{ color: TEXT_DIM, fontSize: 12, marginTop: 2 }}>
+                  <div style={{ color: ink, fontSize: 14, fontWeight: 600 }}>{it.title}</div>
+                  <div style={{ color: inkDim, fontSize: 12, marginTop: 2 }}>
                     {it.type}{it.time ? ` · ${it.time}` : ''}{it.sub ? ` · ${it.sub}` : ''}
                   </div>
-                  {it.notes && <div style={{ color: TEXT_MUTED, fontSize: 12, marginTop: 4 }}>{it.notes}</div>}
+                  {it.notes && <div style={{ color: inkMuted, fontSize: 12, marginTop: 4 }}>{it.notes}</div>}
                 </div>
               </div>
             ))

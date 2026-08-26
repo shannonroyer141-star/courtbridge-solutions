@@ -3,6 +3,7 @@ import { supabase } from '../supabase'
 import { LANGUAGES, getTranslator } from '../i18n'
 import { DARK_BG, CARD_BG, SIDEBAR_BG, BLUE, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme'
 import { NotesWarning, UploadWarning, UploadConfirmCheckbox } from '../components/VictimInfoWarning'
+import ClientCalendar from './ClientCalendar'
 
 function escapeHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
@@ -89,6 +90,7 @@ const LINE_ICONS = {
   forms:      <><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z"/></>,
   messages:   <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/>,
   courtdates: <><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></>,
+  calendar:   <><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="8" cy="15" r="1"/><circle cx="12" cy="15" r="1"/><circle cx="16" cy="15" r="1"/></>,
   settings:   <><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></>,
   checkin:    <><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></>,
   more:       <><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></>,
@@ -104,9 +106,10 @@ const Ic = ({ d, size = 17 }) => (
 )
 const NAV_ICONS = {
   dashboard: <Ic d={LINE_ICONS.dashboard} />, journey: <Ic d={LINE_ICONS.journey} />, documents: <Ic d={LINE_ICONS.documents} />,
-  forms: <Ic d={LINE_ICONS.forms} />, messages: <Ic d={LINE_ICONS.messages} />, courtdates: <Ic d={LINE_ICONS.courtdates} />, settings: <Ic d={LINE_ICONS.settings} />,
+  forms: <Ic d={LINE_ICONS.forms} />, messages: <Ic d={LINE_ICONS.messages} />, courtdates: <Ic d={LINE_ICONS.courtdates} />,
+  calendar: <Ic d={LINE_ICONS.calendar} />, settings: <Ic d={LINE_ICONS.settings} />,
 }
-const NAV_KEY_MAP = { dashboard: 'home', journey: 'journey', documents: 'documents', forms: 'forms', messages: 'messages', courtdates: 'courtdates', settings: 'progress' }
+const NAV_KEY_MAP = { dashboard: 'home', journey: 'journey', documents: 'documents', forms: 'forms', messages: 'messages', courtdates: 'courtdates', calendar: 'calendar', settings: 'progress' }
 
 function buildNavItems(t) {
   return Object.keys(NAV_ICONS).map(id => ({ id, icon: NAV_ICONS[id], label: t('dashboard', 'nav')[NAV_KEY_MAP[id]] }))
@@ -1642,6 +1645,8 @@ export default function ClientAppDashboard({ session, onLogout }) {
             </InnerCard>
           </div>
         )}
+
+        {activeTab === 'calendar' && client?.id && <ClientCalendar clientId={client.id} />}
       </div>
 
       {/* MORE MENU — mobile only, overlay listing tabs that don't fit the bottom bar */}

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabase';
 import { GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
 import { NotesWarning } from '../components/VictimInfoWarning';
+import { MONTH_THEMES, specialDayFor, dateKey } from '../monthThemes';
 
 // calendar_events.event_type has a DB check constraint requiring these exact
 // lowercase values -- 'court_date' is excluded from the manual form since
@@ -29,14 +30,10 @@ const TYPE_COLORS = {
 };
 const TYPE_PRIORITY = ['Court Date', 'Reporting Due', 'Task', 'Check-In Due', 'Program Review', 'Appointment', 'Other'];
 
-// Fixed calendar theme -- no per-provider color picker, no seasonal variation.
-const SKIN = { accent: '#5B9BF0', accentSoft: 'rgba(91,155,240,0.16)', pageBg: 'linear-gradient(160deg, #1A2434 0%, #202D40 100%)', cardBg: '#212E42' };
+// Base chrome stays constant -- only accent + a small decorative touch shift per month below.
+const SKIN = { pageBg: 'linear-gradient(160deg, #1A2434 0%, #202D40 100%)', cardBg: '#212E42' };
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-function dateKey(d) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
 
 export default function Calendar() {
   const [viewDate, setViewDate] = useState(() => { const d = new Date(); d.setDate(1); return d; });
@@ -57,7 +54,6 @@ export default function Calendar() {
     return () => window.removeEventListener('resize', onResize);
   }, []);
   const isPhone = width < 640;
-  const skin = SKIN;
 
   async function fetchAll() {
     const { data: { user } } = await supabase.auth.getUser();
@@ -134,6 +130,10 @@ export default function Calendar() {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const todayKey = dateKey(new Date());
 
+  const theme = MONTH_THEMES[month];
+  const skin = { ...SKIN, accent: theme.accent, accentSoft: `${theme.accent}29` };
+  const specialDay = specialDayFor(year, month);
+
   const cells = [];
   for (let i = 0; i < firstWeekday; i++) cells.push(null);
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
@@ -166,6 +166,7 @@ export default function Calendar() {
       <div style={s.header}>
         <div>
           <h1 style={s.title}>Calendar</h1>
+          <div style={{ fontSize: 13, letterSpacing: 6, marginTop: 2, opacity: 0.8 }}>{theme.icon} {theme.icon} {theme.icon}</div>
         </div>
         <button style={s.addBtn} onClick={() => setShowForm(!showForm)}>+ Add Event</button>
       </div>
@@ -214,14 +215,17 @@ export default function Calendar() {
               const isToday = key === todayKey;
               const isSelected = key === selectedDay;
               const dayColor = primaryColorFor(items);
+              const isSpecial = d === specialDay;
               return (
                 <div key={key} onClick={() => setSelectedDay(key)} style={{
                   minHeight: isPhone ? 44 : 62, borderRadius: 10, padding: '6px 6px', cursor: 'pointer',
                   background: isSelected ? skin.accentSoft : dayColor ? `${dayColor}14` : 'rgba(255,255,255,0.02)',
-                  border: isSelected ? `1.5px solid ${skin.accent}` : isToday ? `1px solid ${skin.accent}55` : '1px solid transparent',
-                  borderLeft: dayColor && !isSelected ? `3px solid ${dayColor}` : isSelected ? `1.5px solid ${skin.accent}` : '1px solid transparent',
+                  border: isSelected ? `1.5px solid ${skin.accent}` : isToday ? `1px solid ${skin.accent}55` : dayColor ? '1px solid transparent' : `1px dotted ${theme.accent}55`,
+                  borderLeft: dayColor && !isSelected ? `3px solid ${dayColor}` : isSelected ? `1.5px solid ${skin.accent}` : dayColor ? '1px solid transparent' : `1px dotted ${theme.accent}55`,
                   transition: 'background 0.12s ease',
+                  position: 'relative',
                 }}>
+                  {isSpecial && <div style={{ position: 'absolute', top: 4, right: 6, fontSize: 12, opacity: 0.85 }}>{theme.icon}</div>}
                   <div style={{ fontSize: 12, color: isToday ? skin.accent : TEXT, fontWeight: isToday ? 800 : 500 }}>{d}</div>
                   {items.length > 0 && (
                     <div style={{ marginTop: 4 }}>

@@ -53,7 +53,7 @@ export const translations = {
       languagePickerLabel: 'Language',
     },
     dashboard: {
-      nav: { home: 'Home', checkin: 'Check In', journey: 'My Journey', documents: 'My Documents', forms: 'Forms to Sign', messages: 'Messages', courtdates: 'Court Dates', progress: 'My Progress', more: 'More', signOut: 'Sign out' },
+      nav: { home: 'Home', checkin: 'Check In', journey: 'My Journey', documents: 'My Documents', forms: 'Forms to Sign', messages: 'Messages', courtdates: 'Court Dates', calendar: 'Calendar', progress: 'My Progress', more: 'More', signOut: 'Sign out' },
       population: {
         catch_court: { label: 'CATCH Court', checkInLabel: 'I Am Safe Today', affirmations: [
           'You are stronger than anything that has tried to break you.',
@@ -273,7 +273,7 @@ export const translations = {
       languagePickerLabel: 'Idioma',
     },
     dashboard: {
-      nav: { home: 'Inicio', checkin: 'Registrar Entrada', journey: 'Mi Trayectoria', documents: 'Mis Documentos', forms: 'Formularios para Firmar', messages: 'Mensajes', courtdates: 'Fechas de Corte', progress: 'Mi Progreso', more: 'Más', signOut: 'Cerrar sesión' },
+      nav: { home: 'Inicio', checkin: 'Registrar Entrada', journey: 'Mi Trayectoria', documents: 'Mis Documentos', forms: 'Formularios para Firmar', messages: 'Mensajes', courtdates: 'Fechas de Corte', calendar: 'Calendario', progress: 'Mi Progreso', more: 'Más', signOut: 'Cerrar sesión' },
       population: {
         catch_court: { label: 'CATCH Court', checkInLabel: 'Estoy segura/o hoy', affirmations: [
           'Eres más fuerte que cualquier cosa que haya intentado quebrarte.',
@@ -493,7 +493,7 @@ export const translations = {
       languagePickerLabel: 'Lang',
     },
     dashboard: {
-      nav: { home: 'Akèy', checkin: 'Antre', journey: 'Vwayaj Mwen', documents: 'Dokiman Mwen', forms: 'Fòm pou Siyen', messages: 'Mesaj', courtdates: 'Dat Tribinal', progress: 'Pwogrè Mwen', more: 'Plis', signOut: 'Dekonekte' },
+      nav: { home: 'Akèy', checkin: 'Antre', journey: 'Vwayaj Mwen', documents: 'Dokiman Mwen', forms: 'Fòm pou Siyen', messages: 'Mesaj', courtdates: 'Dat Tribinal', calendar: 'Kalandriye', progress: 'Pwogrè Mwen', more: 'Plis', signOut: 'Dekonekte' },
       population: {
         catch_court: { label: 'CATCH Court', checkInLabel: 'Mwen an sekirite jodi a', affirmations: [
           'Ou pi fò pase nenpòt bagay ki te eseye kraze ou.',

@@ -9,12 +9,15 @@ const TYPE_COLORS = { 'Court Date': RED, 'Task': WARNING }
 
 // Read-only month view for the client portal -- shows the client's own court
 // dates and open tasks. No add/edit here; those stay provider-only.
+// Mirrors the provider Calendar screen's seasonal-photo + Modern/Classic
+// treatment so the two calendars stay visually in sync.
 export default function ClientCalendar({ clientId }) {
   const [viewDate, setViewDate] = useState(() => { const d = new Date(); d.setDate(1); return d })
   const [selectedDay, setSelectedDay] = useState(() => dateKey(new Date()))
   const [courtDates, setCourtDates] = useState([])
   const [tasks, setTasks] = useState([])
   const [width, setWidth] = useState(window.innerWidth)
+  const [calendarStyle, setCalendarStyle] = useState('classic')
 
   async function fetchAll() {
     const [{ data: cd }, { data: tk }] = await Promise.all([
@@ -70,8 +73,20 @@ export default function ClientCalendar({ clientId }) {
   const todayKey = dateKey(new Date())
 
   const theme = MONTH_THEMES[month]
-  const accent = theme.accent
+  const isClassic = calendarStyle === 'classic'
+  const accent = isClassic ? theme.classicPrimary : theme.accent
+  const secondary = isClassic ? theme.classicSecondary : theme.accent
+  const cardBg = isClassic ? '#FBF7EE' : CARD_BG
+  const cellBg = isClassic ? '#FFFDF8' : 'rgba(255,255,255,0.02)'
+  const ink = isClassic ? '#3A2E22' : TEXT
+  const inkMuted = isClassic ? 'rgba(58,46,34,0.55)' : TEXT_MUTED
+  const inkDim = isClassic ? 'rgba(58,46,34,0.4)' : TEXT_DIM
+  const cardBorder = isClassic ? '1px solid rgba(58,46,34,0.14)' : `0.5px solid ${BORDER}`
   const specialDay = specialDayFor(year, month)
+
+  const calCardBg = theme.image
+    ? `${isClassic ? 'linear-gradient(180deg, rgba(251,247,238,0.4), rgba(251,247,238,0.85) 55%, rgba(251,247,238,0.93))' : 'linear-gradient(180deg, rgba(26,36,52,0.3), rgba(26,36,52,0.82) 55%, rgba(26,36,52,0.92))'}, url(${theme.image}) center/cover no-repeat`
+    : cardBg
 
   const cells = []
   for (let i = 0; i < firstWeekday; i++) cells.push(null)
@@ -85,28 +100,44 @@ export default function ClientCalendar({ clientId }) {
 
   const selectedItems = itemsByDay[selectedDay] || []
 
+  const styleToggleBtn = active => ({ padding: '7px 12px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, background: active ? theme.accent : 'transparent', color: active ? 'white' : TEXT_MUTED })
+
   return (
     <div style={{ margin: '16px 22px', paddingBottom: isPhone ? 80 : 20, fontFamily: NAV_FONT }}>
-      <div style={{ marginBottom: 14 }}>
-        <div style={{ fontSize: 13, fontWeight: 500, color: TEXT }}>Calendar</div>
-        <div style={{ fontSize: 13, letterSpacing: 6, marginTop: 2, opacity: 0.8 }}>{theme.icon} {theme.icon} {theme.icon}</div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 500, color: TEXT }}>Calendar</div>
+          {!theme.image && (
+            <div style={{ fontSize: 13, letterSpacing: 6, marginTop: 2, opacity: 0.8 }}>{theme.icon} {theme.icon} {theme.icon}</div>
+          )}
+        </div>
+        <div style={{ display: 'flex', background: 'rgba(255,255,255,0.06)', border: `0.5px solid ${BORDER}`, borderRadius: 8, padding: 2, gap: 2 }}>
+          <button style={styleToggleBtn(!isClassic)} onClick={() => setCalendarStyle('modern')}>Modern</button>
+          <button style={styleToggleBtn(isClassic)} onClick={() => setCalendarStyle('classic')}>Classic</button>
+        </div>
       </div>
 
       <div style={{
         display: 'grid', gridTemplateColumns: isPhone ? '1fr' : '1.4fr 1fr', gap: 16,
       }}>
-        <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 14, padding: isPhone ? 12 : 18 }}>
+        <div style={{ background: calCardBg, border: cardBorder, borderRadius: 14, padding: isPhone ? 12 : 18, boxShadow: isClassic ? '0 8px 24px rgba(58,46,34,0.12)' : '0 8px 24px rgba(0,0,0,0.18)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-            <button onClick={() => changeMonth(-1)} style={{ background: 'rgba(255,255,255,0.06)', border: `0.5px solid ${BORDER}`, color: TEXT_MUTED, borderRadius: 8, padding: '5px 12px', cursor: 'pointer', fontSize: 14 }}>←</button>
-            <div style={{ color: TEXT, fontSize: 16, fontWeight: 700 }}>{viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</div>
-            <button onClick={() => changeMonth(1)} style={{ background: 'rgba(255,255,255,0.06)', border: `0.5px solid ${BORDER}`, color: TEXT_MUTED, borderRadius: 8, padding: '5px 12px', cursor: 'pointer', fontSize: 14 }}>→</button>
+            <button onClick={() => changeMonth(-1)} style={{ background: isClassic ? 'rgba(58,46,34,0.06)' : 'rgba(255,255,255,0.06)', border: cardBorder, color: inkMuted, borderRadius: 8, padding: '5px 12px', cursor: 'pointer', fontSize: 14 }}>←</button>
+            <div style={{ color: ink, fontSize: 16, fontWeight: 700 }}>{viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</div>
+            <button onClick={() => changeMonth(1)} style={{ background: isClassic ? 'rgba(58,46,34,0.06)' : 'rgba(255,255,255,0.06)', border: cardBorder, color: inkMuted, borderRadius: 8, padding: '5px 12px', cursor: 'pointer', fontSize: 14 }}>→</button>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 5 }}>
-            {WEEKDAYS.map(w => (
-              <div key={w} style={{ textAlign: 'center', fontSize: 11, color: TEXT_DIM, fontWeight: 700, padding: '4px 0', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                {isPhone ? w[0] : w}
-              </div>
-            ))}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
+            {WEEKDAYS.map((w, wi) => {
+              const isWeekend = wi === 0 || wi === 6
+              const bandColor = isWeekend ? secondary : accent
+              return (
+                <div key={w} style={isClassic
+                  ? { textAlign: 'center', fontSize: 11, color: 'white', fontWeight: 700, padding: '5px 0', textTransform: 'uppercase', letterSpacing: '0.04em', background: bandColor, borderRadius: 5 }
+                  : { textAlign: 'center', fontSize: 11, color: inkDim, fontWeight: 700, padding: '4px 0', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  {isPhone ? w[0] : w}
+                </div>
+              )
+            })}
             {cells.map((d, i) => {
               if (d === null) return <div key={`e${i}`} />
               const key = dateKey(new Date(year, month, d))
@@ -117,15 +148,15 @@ export default function ClientCalendar({ clientId }) {
               const isSpecial = d === specialDay
               return (
                 <div key={key} onClick={() => setSelectedDay(key)} style={{
-                  minHeight: isPhone ? 40 : 56, borderRadius: 10, padding: '6px 6px', cursor: 'pointer', position: 'relative',
-                  background: isSelected ? `${accent}29` : dayColor ? `${dayColor}14` : 'rgba(255,255,255,0.02)',
+                  minHeight: isPhone ? 28 : 38, borderRadius: 7, padding: '3px 3px', cursor: 'pointer', position: 'relative',
+                  background: isSelected ? `${accent}29` : dayColor ? `${dayColor}14` : cellBg,
                   border: isSelected ? `1.5px solid ${accent}` : isToday ? `1px solid ${accent}55` : dayColor ? '1px solid transparent' : `1px dotted ${accent}55`,
                   borderLeft: dayColor && !isSelected ? `3px solid ${dayColor}` : isSelected ? `1.5px solid ${accent}` : dayColor ? '1px solid transparent' : `1px dotted ${accent}55`,
                 }}>
                   {isSpecial && <div style={{ position: 'absolute', top: 4, right: 6, fontSize: 11, opacity: 0.85 }}>{theme.icon}</div>}
-                  <div style={{ fontSize: 12, color: isToday ? accent : TEXT, fontWeight: isToday ? 800 : 500 }}>{d}</div>
+                  <div style={{ fontSize: 12, color: isToday ? accent : ink, fontWeight: isToday ? 800 : 500 }}>{d}</div>
                   {items.length > 0 && (
-                    <div style={{ fontSize: 9, fontWeight: 700, color: dayColor, marginTop: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: isClassic ? ink : dayColor, marginTop: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {items.length === 1 ? items[0].type : `${items.length} items`}
                     </div>
                   )}
@@ -135,15 +166,15 @@ export default function ClientCalendar({ clientId }) {
           </div>
         </div>
 
-        <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 14, padding: 18 }}>
-          <div style={{ color: TEXT, fontSize: 14, fontWeight: 700, marginBottom: 4 }}>
+        <div style={{ background: cardBg, border: cardBorder, borderRadius: 14, padding: 18, boxShadow: isClassic ? '0 8px 24px rgba(58,46,34,0.12)' : '0 8px 24px rgba(0,0,0,0.18)' }}>
+          <div style={{ color: ink, fontSize: 14, fontWeight: 700, marginBottom: 4 }}>
             {new Date(selectedDay + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </div>
-          <div style={{ color: TEXT_DIM, fontSize: 12, marginBottom: 12 }}>{selectedItems.length} item{selectedItems.length === 1 ? '' : 's'}</div>
+          <div style={{ color: inkDim, fontSize: 12, marginBottom: 12 }}>{selectedItems.length} item{selectedItems.length === 1 ? '' : 's'}</div>
           {selectedItems.length === 0 ? (
             <div style={{ padding: '20px 6px', textAlign: 'center' }}>
               <div style={{ fontSize: 24, marginBottom: 6, opacity: 0.5 }}>🗓️</div>
-              <p style={{ color: TEXT_DIM, fontSize: 13, margin: 0 }}>Nothing scheduled this day.</p>
+              <p style={{ color: inkDim, fontSize: 13, margin: 0 }}>Nothing scheduled this day.</p>
             </div>
           ) : (
             selectedItems.map((it, i) => (
@@ -153,8 +184,8 @@ export default function ClientCalendar({ clientId }) {
               }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: TYPE_COLORS[it.type], marginTop: 5, flexShrink: 0 }} />
                 <div>
-                  <div style={{ color: TEXT, fontSize: 13, fontWeight: 600 }}>{it.title}</div>
-                  <div style={{ color: TEXT_DIM, fontSize: 12, marginTop: 2 }}>
+                  <div style={{ color: ink, fontSize: 13, fontWeight: 600 }}>{it.title}</div>
+                  <div style={{ color: inkDim, fontSize: 12, marginTop: 2 }}>
                     {it.type}{it.time ? ` · ${it.time}` : ''}{it.sub ? ` · ${it.sub}` : ''}
                   </div>
                 </div>

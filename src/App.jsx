@@ -565,9 +565,7 @@ export default function App() {
             <div style={subItem('checkin')} onClick={() => navTo('checkin')}>Check-Ins</div>
             <div style={subItem('clientintake')} onClick={() => navTo('clientintake')}>Client Intake</div>
             <div style={subItem('mapview')} onClick={() => navTo('mapview')}>Map View</div>
-            <div style={subItem('programs')} onClick={() => navTo('programs')}>Programs</div>
             <div style={subItem('smsalerts')} onClick={() => navTo('smsalerts')}>SMS Alerts</div>
-            <div style={subItem('tasks')} onClick={() => navTo('tasks')}>Tasks</div>
 
             <div style={subGroupRow('sensitive')} onClick={() => toggleMenu('sensitive')}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

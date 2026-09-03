@@ -17,13 +17,7 @@ export default function StaffOnboarding() {
   const token = new URLSearchParams(window.location.search).get('token')
 
   async function validateToken() {
-    const { data, error } = await supabase
-      .from('staff_invites')
-      .select('*')
-      .eq('token', token)
-      .eq('accepted', false)
-      .gt('expires_at', new Date().toISOString())
-      .single()
+    const { data, error } = await supabase.rpc('get_staff_invite_by_token', { p_token: token })
 
     if (error || !data) { setStep('invalid'); return }
     setInvite(data)
@@ -67,10 +61,7 @@ export default function StaffOnboarding() {
     })
     if (profileError) { setError('Could not finish setting up your profile: ' + profileError.message); setSubmitting(false); return }
 
-    await supabase.from('staff_invites').update({
-      accepted: true,
-      accepted_at: new Date().toISOString(),
-    }).eq('token', token)
+    await supabase.rpc('accept_staff_invite', { p_token: token })
 
     setSubmitting(false)
     setStep('success')

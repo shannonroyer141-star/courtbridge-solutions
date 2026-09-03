@@ -16,13 +16,7 @@ export default function ClientOnboarding() {
   const token = new URLSearchParams(window.location.search).get('token')
 
   async function validateToken() {
-    const { data, error } = await supabase
-      .from('invites')
-      .select('*')
-      .eq('token', token)
-      .eq('accepted', false)
-      .gt('expires_at', new Date().toISOString())
-      .single()
+    const { data, error } = await supabase.rpc('get_client_invite_by_token', { p_token: token })
 
     if (error || !data) { setStep('invalid'); return }
     setInvite(data)
@@ -100,11 +94,7 @@ export default function ClientOnboarding() {
       notes: invite.reporting_requirements || null,
     })
 
-    await supabase.from('invites').update({
-      accepted: true,
-      accepted_at: new Date().toISOString(),
-      client_id: newClient.id
-    }).eq('token', token)
+    await supabase.rpc('accept_client_invite', { p_token: token, p_client_id: newClient.id })
 
     setSubmitting(false)
     setStep('success')

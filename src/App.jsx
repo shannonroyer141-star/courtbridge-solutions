@@ -34,6 +34,7 @@ import ComplianceChart from './screens/ComplianceChart';
 import MapView from './screens/MapView';
 import MeetingLog from './screens/MeetingLog';
 import OrgAdmin from './screens/OrgAdmin';
+import Billing from './screens/Billing';
 import ClientProfile from './screens/ClientProfile';
 import Messages from './screens/Messages';
 import ClientInvite from './screens/ClientInvite';
@@ -42,6 +43,7 @@ import CourtReporting from './screens/CourtReporting';
 import VictimInfoReview from './screens/VictimInfoReview';
 import FounderDocs from './screens/FounderDocs';
 import PlatformActivity from './screens/PlatformActivity';
+import AuditLog from './screens/AuditLog';
 import BusinessOrganizer from './screens/BusinessOrganizer';
 import ProviderOnboarding from './screens/ProviderOnboarding';
 import DocumentUpload from './screens/DocumentUpload';
@@ -375,6 +377,7 @@ export default function App() {
       case 'mapview': return <MapView session={session} />;
       case 'meetinglog': return <MeetingLog session={session} />;
       case 'orgadmin': return <OrgAdmin session={session} />;
+      case 'billing': return <Billing session={session} />;
       case 'clientprofile': return <ClientProfile session={session} clientId={activeClientId} onNavigate={navTo} isFounder={isFounder} onImpersonate={startImpersonation} impersonateError={impersonateError} />;
       case 'messages': return <Messages session={session} clientId={activeClientId} />;
       case 'clientinvite': return <ClientInvite session={session} />;
@@ -383,6 +386,7 @@ export default function App() {
       case 'victiminforeview': return <VictimInfoReview session={session} />;
       case 'founderdocs': return <FounderDocs session={session} />;
       case 'platformactivity': return <PlatformActivity session={session} />;
+      case 'auditlog': return <AuditLog session={session} isFounder={isFounder} />;
       case 'businessorganizer': return <BusinessOrganizer session={session} />;
       case 'provideronboarding': return <ProviderOnboarding session={session} />;
       case 'documents': return <DocumentUpload session={session} />;
@@ -633,9 +637,11 @@ export default function App() {
                 </div>
                 {expandedMenus.orgwide && <>
                   <div style={subSubItem('orgadmin')} onClick={() => navTo('orgadmin')}>Org Settings</div>
+                  <div style={subSubItem('billing')} onClick={() => navTo('billing')}>Billing</div>
                   <div style={subSubItem('userrolemanagement')} onClick={() => navTo('userrolemanagement')}>User &amp; Role Management</div>
                   <div style={subSubItem('compliancerequirements')} onClick={() => navTo('compliancerequirements')}>Compliance Requirements</div>
                   <div style={subSubItem('auditreadiness')} onClick={() => navTo('auditreadiness')}>Audit Readiness</div>
+                  <div style={subSubItem('auditlog')} onClick={() => navTo('auditlog')}>Audit Log</div>
                   <div style={subSubItem('fundingsources')} onClick={() => navTo('fundingsources')}>Funding Sources</div>
                   <div style={subSubItem('staffcredentialing')} onClick={() => navTo('staffcredentialing')}>Staff Credentialing</div>
                 </>}

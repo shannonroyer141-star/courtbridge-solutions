@@ -1,35 +1,6 @@
 import { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { supabase } from '../supabase';
 import { DARK_BG, CARD_BG, ACCENT, GREEN, WARNING, RED, TEXT, TEXT_MUTED, TEXT_DIM, BORDER, NAV_FONT } from '../theme';
-
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-});
-
-const DEFAULT_CENTER = [39.8283, -98.5795];
-const DEFAULT_ZOOM = 4;
-
-function FitToMarkers({ points }) {
-  const map = useMap();
-  useEffect(() => {
-    if (points.length === 0) return;
-    if (points.length === 1) {
-      map.setView([points[0].latitude, points[0].longitude], 13);
-    } else {
-      map.fitBounds(points.map(p => [p.latitude, p.longitude]), { padding: [30, 30] });
-    }
-  }, [points, map]);
-  return null;
-}
 
 const S = {
   page: {
@@ -295,10 +266,8 @@ function StatCard({ label, value, sub, valueColor = TEXT, accentColor = ACCENT, 
 export default function ProviderDashboard({ onNavigate }) {
   const [stats, setStats] = useState({ activeClients: 0, checkedInToday: 0, missedLast24: 0, urgentCount: 0 });
   const [missedClients, setMissedClients] = useState([]);
-  const [recentActivity, setRecentActivity] = useState([]);
   const [complianceRate, setComplianceRate] = useState(0);
   const [urgentMessages, setUrgentMessages] = useState([]);
-  const [mapPoints, setMapPoints] = useState([]);
   const [upcoming, setUpcoming] = useState([]);
   const [loading, setLoading] = useState(true);
   const [width, setWidth] = useState(window.innerWidth);
@@ -343,8 +312,6 @@ export default function ProviderDashboard({ onNavigate }) {
 
     const { data: todayCheckIns } = await supabase.from('checkins').select('*').in('client_id', clientIds).gte('checked_in_at', todayStr);
     const { data: weekCheckIns } = await supabase.from('checkins').select('*').in('client_id', clientIds).gte('checked_in_at', new Date(Date.now() - 7 * 86400000).toISOString());
-    const { data: recentCheckins } = await supabase.from('checkins').select('*, clients(name)').in('client_id', clientIds).order('checked_in_at', { ascending: false }).limit(10);
-    const { data: locatedCheckins } = await supabase.from('checkins').select('*, clients(name)').in('client_id', clientIds).not('latitude', 'is', null).not('longitude', 'is', null).order('checked_in_at', { ascending: false }).limit(200);
     const { data: recentMessages } = await supabase.from('messages').select('*, clients(name)').in('client_id', clientIds).order('created_at', { ascending: false }).limit(200);
     const { data: upcomingCourtDates } = await supabase.from('court_dates').select('*, clients(name)').in('client_id', clientIds).gte('hearing_date', todayDateStr).lte('hearing_date', in7DaysStr).order('hearing_date');
     const { data: upcomingTasks } = await supabase.from('tasks').select('*').eq('provider_id', user.id).eq('completed', false).gte('due_date', todayStr).lte('due_date', in7DaysStr + 'T23:59:59').order('due_date');
@@ -372,16 +339,8 @@ export default function ProviderDashboard({ onNavigate }) {
 
     setStats({ activeClients, checkedInToday: todayCheckIns?.length || 0, missedLast24: missed.length, urgentCount: urgentMsgs.length });
     setMissedClients(missed.slice(0, 5));
-    setRecentActivity(recentCheckins || []);
     setComplianceRate(Math.min(rate, 100));
     setUrgentMessages(urgentMsgs.slice(0, 5));
-
-    const seenMapClients = new Set();
-    setMapPoints((locatedCheckins || []).filter(ci => {
-      if (seenMapClients.has(ci.client_id)) return false;
-      seenMapClients.add(ci.client_id);
-      return true;
-    }));
 
     const courtItems = (upcomingCourtDates || []).map(cd => ({
       id: `court-${cd.id}`, date: cd.hearing_date, label: `${cd.clients?.name || 'Unknown'} — ${cd.hearing_type || 'Court date'}`,

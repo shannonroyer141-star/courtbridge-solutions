@@ -201,6 +201,28 @@
     .mission-list li { display: flex; align-items: flex-start; gap: 0.75rem; font-size: 0.9rem; color: var(--text-light); line-height: 1.6; }
     .mission-list li::before { content: '—'; color: var(--accent); flex-shrink: 0; margin-top: 0.05em; }
 
+    /* PODCAST TEASER */
+    #podcast-teaser { background: var(--slate); }
+    .podcast-teaser-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; }
+    .podcast-teaser-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem; display: flex; align-items: center; gap: 1.75rem; }
+    .podcast-teaser-card img { width: 96px; height: 96px; border-radius: 18px; object-fit: cover; box-shadow: 0 12px 30px rgba(0,0,0,0.4); flex-shrink: 0; }
+    .podcast-teaser-card-title { font-family: 'DM Serif Display', serif; font-size: 1.3rem; color: var(--white); margin-bottom: 0.4rem; }
+    .podcast-teaser-card-sub { font-size: 0.85rem; color: var(--text-muted); }
+    .coming-soon-badge { display: inline-flex; margin-top: 1.5rem; font-family: 'DM Mono', monospace; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-light); border: 1px solid var(--accent); border-radius: 999px; padding: 0.6rem 1.5rem; }
+    .coming-soon-badge .letter { display: inline-block; animation: float-letter 2.6s ease-in-out infinite; }
+    .coming-soon-badge .space { display: inline-block; width: 0.4em; }
+    @keyframes float-letter {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .coming-soon-badge .letter { animation: none; }
+    }
+    @media (max-width: 900px) {
+      .podcast-teaser-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+      .podcast-teaser-card { flex-direction: column; text-align: center; }
+    }
+
     /* LEGISLATIVE */
     #legislative { background: var(--bg-section); }
     .legis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-top: 3rem; align-items: start; }
@@ -540,6 +562,28 @@
   </div>
 </section>
 
+<!-- PODCAST TEASER -->
+<section id="podcast-teaser">
+  <div class="section-inner">
+    <div class="podcast-teaser-grid">
+      <div>
+        <p class="section-eyebrow">From Our Founder</p>
+        <h2 class="section-headline">Introducing ShanBanter.</h2>
+        <p class="about-body">A new podcast from Shannon Royer, Founder &amp; CEO of CourtBridge Solutions — conversations from someone who's seen the specialty court system from both sides. More on air date and where to listen dropping soon.</p>
+        <a href="/podcast/" class="btn-primary">Visit the Podcast Page</a>
+      </div>
+      <div class="podcast-teaser-card">
+        <img src="/podcast/shanbanter-logo.png" alt="ShanBanter"/>
+        <div>
+          <div class="podcast-teaser-card-title">ShanBanter</div>
+          <div class="podcast-teaser-card-sub">The Podcast</div>
+          <span class="coming-soon-badge">Coming Soon</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- LEGISLATIVE -->
 <section id="legislative">
   <div class="section-inner">
@@ -611,6 +655,24 @@
 <script>
   function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
   window.addEventListener('scroll', () => document.getElementById('mobileMenu').classList.remove('open'));
+
+  (function floatBadgeLetters() {
+    document.querySelectorAll('.coming-soon-badge').forEach(function (badge) {
+      var text = badge.textContent;
+      badge.textContent = '';
+      text.split('').forEach(function (ch, i) {
+        var span = document.createElement('span');
+        if (ch === ' ') {
+          span.className = 'space';
+        } else {
+          span.className = 'letter';
+          span.style.animationDelay = (i * 0.08) + 's';
+          span.textContent = ch;
+        }
+        badge.appendChild(span);
+      });
+    });
+  })();
 </script>
 <script>
 window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };

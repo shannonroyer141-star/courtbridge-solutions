@@ -2,8 +2,54 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://courtbridgesolutions.com/</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-09-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://courtbridgesolutions.com/resources/</loc>
+    <lastmod>2026-09-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://courtbridgesolutions.com/resources/domestic-violence/</loc>
+    <lastmod>2026-09-16</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://courtbridgesolutions.com/resources/domestic-violence/the-numbers-behind-the-need.html</loc>
+    <lastmod>2026-09-16</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://courtbridgesolutions.com/resources/domestic-violence/nearly-half.html</loc>
+    <lastmod>2026-09-16</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://courtbridgesolutions.com/resources/domestic-violence/the-tactics-are-often-invisible-the-impact-is-not.html</loc>
+    <lastmod>2026-09-16</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://courtbridgesolutions.com/resources/domestic-violence/the-data-is-newer-the-numbers-remain-alarming.html</loc>
+    <lastmod>2026-09-16</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://courtbridgesolutions.com/resources/domestic-violence/behind-every-number-is-a-person.html</loc>
+    <lastmod>2026-09-16</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://courtbridgesolutions.com/resources/domestic-violence/what-happens-next-matters.html</loc>
+    <lastmod>2026-09-16</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://courtbridgesolutions.com/podcast/</loc>
+    <lastmod>2026-09-16</lastmod>
+    <priority>0.4</priority>
   </url>
 </urlset>

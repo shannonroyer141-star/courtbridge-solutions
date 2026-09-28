@@ -32,12 +32,15 @@ const TABLE_LABELS = {
   violation_reports: 'Violation Report',
   records_access_requests: 'Records Access Request',
   profiles: 'Staff / Permissions',
+  victim_contacts: 'Victim Contact (details withheld)',
+  victim_notifications: 'Victim Notice',
 };
 
 const ACTION_STYLE = {
   insert: { label: 'Created', bg: 'rgba(76,175,125,0.15)', color: GREEN },
   update: { label: 'Updated', bg: 'rgba(61,111,168,0.2)', color: WARNING },
   delete: { label: 'Deleted', bg: 'rgba(248,113,113,0.15)', color: RED },
+  view: { label: 'Viewed', bg: 'rgba(255,255,255,0.08)', color: TEXT_MUTED },
 };
 
 function timeAgo(iso) {

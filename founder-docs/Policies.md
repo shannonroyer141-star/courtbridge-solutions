@@ -25,8 +25,23 @@ DRAFT, written by Claude at Shannon's direction 2026-07-31. Not reviewed by an a
 ## 4. Record Retention
 - Not yet decided. How long check-in/compliance data should be kept (and when/whether it's ever deleted) depends on state law and individual program/funder requirements, which haven't been researched yet. Do not delete client history without a real answer here first -- when in doubt, keep it. Needs a real decision from Shannon (and likely a quick legal check), not a guess.
 
-## 5. Victim Information Prohibition
-- CourtBridge is not a victim-services system and must never create victim profiles or knowingly collect, store, process, display, export, or transmit victim-identifying information (names, contact info, addresses, locations, safety plans, medical/behavioral-health info, or info about a victim's children/household members).
+## 5. Victim Information: Notification Records Only
+- CourtBridge is not a victim-services system. It does not keep victim profiles, safety plans, locations, shelter information, medical/counseling/behavioral-health info, or info about a victim's children/household members.
+- **Exception -- certified Batterers' Intervention Programs (BIPs) only.** Florida Rule 65H-2.016(8), F.A.C., requires BIPs to notify the victim within 3 business days of a participant's enrollment and within 24 hours of discharge, and to keep a dated record of each notice. To meet that rule, a BIP provider may record only:
+  - The victim's name.
+  - One contact method (mailing address, email, or phone).
+  - Where that contact information came from. It must come from the referral source, court documents, or the police report -- never from the participant (65H-2.016(8)(a)).
+  - Whether the victim wants updates on the participant's progress, non-compliance, and discharge.
+  - Each notice: date, method, sent or attempted, and confirmation that the required contacts and statements were included.
+- **How notification records are protected:**
+  - Kept in their own restricted Victim Notifications section, separate from the participant file.
+  - Visible only to provider staff given victim-notification permission.
+  - Never visible to participants -- enforced at the database level, not just hidden in the screen.
+  - Never shown in notes, messages, court reports, rosters, DCF monitoring exports, or any participant-facing screen.
+  - The copy of each notice kept in the participant file leaves out the victim's contact information (65H-2.016(8)(d)).
+  - Every view or change is written to the audit log.
+  - Kept at least 5 years after the participant's discharge, matching the participant-file rule (65H-2.016(9)(c)).
+- **Everything else is still prohibited.** No victim information in notes, messages, check-ins, or uploads outside the Victim Notifications section.
 - Participant records are limited to the participant's own program requirements, attendance, compliance, completion, and authorized administrative info.
 - If victim information is submitted by mistake, it gets flagged Restricted, hidden from ordinary users immediately, and reviewed by an authorized privacy administrator -- never auto-deleted, in case of a legal-preservation requirement.
 - Every notes field and document upload in the app shows a standing warning against entering victim information; uploads require an explicit reviewed-and-redacted confirmation before they're allowed to complete.

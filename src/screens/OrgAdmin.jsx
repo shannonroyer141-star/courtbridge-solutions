@@ -294,6 +294,8 @@ export default function OrgAdmin({ session }) {
             <li>Information concerning children or other protected household members</li>
             <li>Documents or narrative notes containing victim-identifying information</li>
           </ul>
+          <strong>Exception for certified Batterers' Intervention Programs:</strong> to meet Florida Rule 65H-2.016(8), F.A.C., a BIP provider may record the victim's name, one contact method, the source of that contact information (referral source, court documents, or police report, never the participant), the victim's preference for updates, and a dated record of each enrollment and discharge notice. This information may be entered only in the restricted Victim Notifications section. It is never visible to participants, never included in reports or exports, and every access is logged.
+          <br /><br />
           Participant records must be limited to the participant's program requirements, attendance, compliance, completion status, and other authorized administrative information.
           <br /><br />
           If victim-identifying information is submitted inadvertently, CourtBridge Solutions will restrict access to the information and follow its incident-review and secure-removal procedures, subject to applicable legal-preservation requirements. The submitting organization may be required to provide a properly redacted replacement.

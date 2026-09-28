@@ -41,6 +41,11 @@ import ClientInvite from './screens/ClientInvite';
 import ViolationReport from './screens/ViolationReport';
 import CourtReporting from './screens/CourtReporting';
 import VictimInfoReview from './screens/VictimInfoReview';
+import VictimNotifications from './screens/VictimNotifications';
+import BipParticipantFile from './screens/BipParticipantFile';
+import BipGroups from './screens/BipGroups';
+import BipDischarges from './screens/BipDischarges';
+import DcfReviewPacket from './screens/DcfReviewPacket';
 import FounderDocs from './screens/FounderDocs';
 import PlatformActivity from './screens/PlatformActivity';
 import AuditLog from './screens/AuditLog';
@@ -87,7 +92,7 @@ export default function App() {
   const [expandedMenus, setExpandedMenus] = useState({
     clients: false, sensitive: false, founder: false,
     workflow: false, orgwide: false, operational: false, personal: false,
-    jcx: false
+    jcx: false, bip: false
   });
   const [pendingInvites, setPendingInvites] = useState(0);
   const [isFounder, setIsFounder] = useState(false);
@@ -384,6 +389,11 @@ export default function App() {
       case 'violationreport': return <ViolationReport session={session} />;
       case 'courtreporting': return <CourtReporting session={session} />;
       case 'victiminforeview': return <VictimInfoReview session={session} />;
+      case 'victimnotifications': return <VictimNotifications session={session} />;
+      case 'bipfile': return <BipParticipantFile session={session} />;
+      case 'bipgroups': return <BipGroups session={session} />;
+      case 'bipdischarges': return <BipDischarges session={session} />;
+      case 'dcfpacket': return <DcfReviewPacket session={session} />;
       case 'founderdocs': return <FounderDocs session={session} />;
       case 'platformactivity': return <PlatformActivity session={session} />;
       case 'auditlog': return <AuditLog session={session} isFounder={isFounder} />;
@@ -612,6 +622,19 @@ export default function App() {
           <div style={navItem('courtreporting')} onClick={() => navTo('courtreporting')}>
             <Ic d={ICONS.compliance} /><span>Court Reporting</span>
           </div>
+          <div style={groupRow('bip')} onClick={() => toggleMenu('bip')}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Ic d={ICONS.compliance} /><span>BIP Compliance</span>
+            </div>
+            <Ic d={expandedMenus.bip ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
+          </div>
+          {expandedMenus.bip && <>
+            <div style={subItem('bipfile')} onClick={() => navTo('bipfile')}>Participant File</div>
+            <div style={subItem('bipgroups')} onClick={() => navTo('bipgroups')}>Groups &amp; Attendance</div>
+            <div style={subItem('bipdischarges')} onClick={() => navTo('bipdischarges')}>Discharges</div>
+            <div style={subItem('victimnotifications')} onClick={() => navTo('victimnotifications')}>Victim Notifications</div>
+            <div style={subItem('dcfpacket')} onClick={() => navTo('dcfpacket')}>DCF Review Packet</div>
+          </>}
           {(isOrgAdmin || isFounder) && (
             <div style={navItem('victiminforeview')} onClick={() => navTo('victiminforeview')}>
               <Ic d={ICONS.admin} /><span>Victim Info Review</span>

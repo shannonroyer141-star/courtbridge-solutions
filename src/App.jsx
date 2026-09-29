@@ -57,6 +57,7 @@ import SensitiveNotes from './screens/SensitiveNotes';
 import ClientIntake from './screens/ClientIntake';
 import SMSAlerts from './screens/SMSAlerts';
 import StaffCredentialing from './screens/StaffCredentialing';
+import StaffCredentialingLegacy from './screens/StaffCredentialingLegacy';
 import ComplianceRequirements from './screens/ComplianceRequirements';
 import FundingSources from './screens/FundingSources';
 import AuditReadiness from './screens/AuditReadiness';
@@ -381,7 +382,7 @@ export default function App() {
       case 'compliancechart': return <ComplianceChart session={session} />;
       case 'mapview': return <MapView session={session} />;
       case 'meetinglog': return <MeetingLog session={session} />;
-      case 'orgadmin': return <OrgAdmin session={session} />;
+      case 'orgadmin': return <OrgAdmin session={session} showBipPolicy={isFounder} />;
       case 'billing': return <Billing session={session} />;
       case 'clientprofile': return <ClientProfile session={session} clientId={activeClientId} onNavigate={navTo} isFounder={isFounder} onImpersonate={startImpersonation} impersonateError={impersonateError} />;
       case 'messages': return <Messages session={session} clientId={activeClientId} />;
@@ -389,11 +390,11 @@ export default function App() {
       case 'violationreport': return <ViolationReport session={session} />;
       case 'courtreporting': return <CourtReporting session={session} />;
       case 'victiminforeview': return <VictimInfoReview session={session} />;
-      case 'victimnotifications': return <VictimNotifications session={session} />;
-      case 'bipfile': return <BipParticipantFile session={session} />;
-      case 'bipgroups': return <BipGroups session={session} />;
-      case 'bipdischarges': return <BipDischarges session={session} />;
-      case 'dcfpacket': return <DcfReviewPacket session={session} />;
+      case 'victimnotifications': return isFounder ? <VictimNotifications session={session} /> : null;
+      case 'bipfile': return isFounder ? <BipParticipantFile session={session} /> : null;
+      case 'bipgroups': return isFounder ? <BipGroups session={session} /> : null;
+      case 'bipdischarges': return isFounder ? <BipDischarges session={session} /> : null;
+      case 'dcfpacket': return isFounder ? <DcfReviewPacket session={session} /> : null;
       case 'founderdocs': return <FounderDocs session={session} />;
       case 'platformactivity': return <PlatformActivity session={session} />;
       case 'auditlog': return <AuditLog session={session} isFounder={isFounder} />;
@@ -404,7 +405,8 @@ export default function App() {
       case 'sensitivenotes': return <SensitiveNotes session={session} />;
       case 'clientintake': return <ClientIntake session={session} />;
       case 'smsalerts': return <SMSAlerts session={session} />;
-      case 'staffcredentialing': return <StaffCredentialing session={session} />;
+      // BIP preview is founder-only until the BIP compliance launch.
+      case 'staffcredentialing': return isFounder ? <StaffCredentialing session={session} /> : <StaffCredentialingLegacy session={session} />;
       case 'compliancerequirements': return <ComplianceRequirements session={session} />;
       case 'fundingsources': return <FundingSources session={session} />;
       case 'auditreadiness': return <AuditReadiness session={session} />;
@@ -622,13 +624,14 @@ export default function App() {
           <div style={navItem('courtreporting')} onClick={() => navTo('courtreporting')}>
             <Ic d={ICONS.compliance} /><span>Court Reporting</span>
           </div>
-          <div style={groupRow('bip')} onClick={() => toggleMenu('bip')}>
+          {/* BIP Compliance: founder-only preview until launch. */}
+          {isFounder && <div style={groupRow('bip')} onClick={() => toggleMenu('bip')}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Ic d={ICONS.compliance} /><span>BIP Compliance</span>
             </div>
             <Ic d={expandedMenus.bip ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
-          </div>
-          {expandedMenus.bip && <>
+          </div>}
+          {isFounder && expandedMenus.bip && <>
             <div style={subItem('bipfile')} onClick={() => navTo('bipfile')}>Participant File</div>
             <div style={subItem('bipgroups')} onClick={() => navTo('bipgroups')}>Groups &amp; Attendance</div>
             <div style={subItem('bipdischarges')} onClick={() => navTo('bipdischarges')}>Discharges</div>

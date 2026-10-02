@@ -98,6 +98,7 @@ export default function App() {
   const [pendingInvites, setPendingInvites] = useState(0);
   const [isFounder, setIsFounder] = useState(false);
   const [isOrgAdmin, setIsOrgAdmin] = useState(false);
+  const [orgBipPreviewEnabled, setOrgBipPreviewEnabled] = useState(false);
   const [needsSetup, setNeedsSetup] = useState(false);
   const [accountStatus, setAccountStatus] = useState('active');
   const [activeClientId, setActiveClientId] = useState(null);
@@ -136,7 +137,7 @@ export default function App() {
   }, []);
 
   async function fetchRole(userId) {
-    const { data } = await supabase.from('profiles').select('role, is_founder, is_org_admin, onboarding_complete, account_status').eq('id', userId).single();
+    const { data } = await supabase.from('profiles').select('role, is_founder, is_org_admin, onboarding_complete, account_status, organization_id').eq('id', userId).single();
     setRole(data?.role || 'provider');
     setIsFounder(!!data?.is_founder);
     setIsOrgAdmin(!!data?.is_org_admin);
@@ -144,6 +145,13 @@ export default function App() {
     setNeedsSetup(data?.role !== 'client' && !data?.onboarding_complete && (!!data?.is_org_admin || !!data?.is_founder));
     setLoading(false);
     fetchPendingInvites(userId);
+
+    if (data?.organization_id) {
+      const { data: org } = await supabase.from('organizations').select('bip_compliance_enabled').eq('id', data.organization_id).single();
+      setOrgBipPreviewEnabled(!!org?.bip_compliance_enabled);
+    } else {
+      setOrgBipPreviewEnabled(false);
+    }
   }
 
   function handleSetupDone(goToClients) {
@@ -390,11 +398,11 @@ export default function App() {
       case 'violationreport': return <ViolationReport session={session} />;
       case 'courtreporting': return <CourtReporting session={session} />;
       case 'victiminforeview': return <VictimInfoReview session={session} />;
-      case 'victimnotifications': return isFounder ? <VictimNotifications session={session} /> : null;
-      case 'bipfile': return isFounder ? <BipParticipantFile session={session} /> : null;
-      case 'bipgroups': return isFounder ? <BipGroups session={session} /> : null;
-      case 'bipdischarges': return isFounder ? <BipDischarges session={session} /> : null;
-      case 'dcfpacket': return isFounder ? <DcfReviewPacket session={session} /> : null;
+      case 'victimnotifications': return (isFounder || orgBipPreviewEnabled) ? <VictimNotifications session={session} /> : null;
+      case 'bipfile': return (isFounder || orgBipPreviewEnabled) ? <BipParticipantFile session={session} /> : null;
+      case 'bipgroups': return (isFounder || orgBipPreviewEnabled) ? <BipGroups session={session} /> : null;
+      case 'bipdischarges': return (isFounder || orgBipPreviewEnabled) ? <BipDischarges session={session} /> : null;
+      case 'dcfpacket': return (isFounder || orgBipPreviewEnabled) ? <DcfReviewPacket session={session} /> : null;
       case 'founderdocs': return <FounderDocs session={session} />;
       case 'platformactivity': return <PlatformActivity session={session} />;
       case 'auditlog': return <AuditLog session={session} isFounder={isFounder} />;
@@ -624,14 +632,14 @@ export default function App() {
           <div style={navItem('courtreporting')} onClick={() => navTo('courtreporting')}>
             <Ic d={ICONS.compliance} /><span>Court Reporting</span>
           </div>
-          {/* BIP Compliance: founder-only preview until launch. */}
-          {isFounder && <div style={groupRow('bip')} onClick={() => toggleMenu('bip')}>
+          {/* BIP Compliance: founder-only preview, plus any org with the preview flag enabled. */}
+          {(isFounder || orgBipPreviewEnabled) && <div style={groupRow('bip')} onClick={() => toggleMenu('bip')}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Ic d={ICONS.compliance} /><span>BIP Compliance</span>
             </div>
             <Ic d={expandedMenus.bip ? ICONS.chevronDown : ICONS.chevronRight} size={12} />
           </div>}
-          {isFounder && expandedMenus.bip && <>
+          {(isFounder || orgBipPreviewEnabled) && expandedMenus.bip && <>
             <div style={subItem('bipfile')} onClick={() => navTo('bipfile')}>Participant File</div>
             <div style={subItem('bipgroups')} onClick={() => navTo('bipgroups')}>Groups &amp; Attendance</div>
             <div style={subItem('bipdischarges')} onClick={() => navTo('bipdischarges')}>Discharges</div>

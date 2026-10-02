@@ -14,6 +14,12 @@ export default function Settings() {
   const [saveError, setSaveError] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [pwSaving, setPwSaving] = useState(false);
+  const [pwSaved, setPwSaved] = useState(false);
+  const [pwError, setPwError] = useState(null);
+
   async function loadSettings() {
     const { data: { user } } = await supabase.auth.getUser();
     const { data } = await supabase.from('profiles')
@@ -61,6 +67,26 @@ export default function Settings() {
     setBackupPhone(normalizedBackupPhone);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
+  }
+
+  async function changePassword() {
+    setPwError(null);
+    if (newPassword.length < 8) {
+      setPwError('Password must be at least 8 characters.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPwError('Passwords do not match.');
+      return;
+    }
+    setPwSaving(true);
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setPwSaving(false);
+    if (error) { setPwError('Could not update password: ' + error.message); return; }
+    setNewPassword('');
+    setConfirmPassword('');
+    setPwSaved(true);
+    setTimeout(() => setPwSaved(false), 3000);
   }
 
   const inputStyle = { width: '100%', padding: 12, borderRadius: 8, border: `0.5px solid ${BORDER}`, fontSize: 16, boxSizing: 'border-box', background: 'rgba(255,255,255,0.04)', color: TEXT, fontFamily: NAV_FONT };
@@ -115,6 +141,18 @@ export default function Settings() {
       <button onClick={saveSettings} style={{ width: '100%', padding: 14, background: ACCENT, color: 'white', border: 'none', borderRadius: 8, fontSize: 16, cursor: 'pointer' }}>
         {saved ? '✅ Saved!' : 'Save Settings'}
       </button>
+
+      <div style={{ background: CARD_BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 25, marginTop: 30, marginBottom: 20 }}>
+        <h2 style={{ color: TEXT, marginBottom: 20, fontSize: 16 }}>Change Password</h2>
+        <label style={{ display: 'block', fontWeight: 'bold', color: TEXT_MUTED, marginBottom: 8 }}>New password</label>
+        <input type="password" placeholder="At least 8 characters" value={newPassword} onChange={e => setNewPassword(e.target.value)} style={{ ...inputStyle, marginBottom: 20 }} />
+        <label style={{ display: 'block', fontWeight: 'bold', color: TEXT_MUTED, marginBottom: 8 }}>Confirm new password</label>
+        <input type="password" placeholder="Re-enter new password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} style={inputStyle} />
+        {pwError && <div style={{ color: RED, fontSize: 13, marginTop: 12 }}>{pwError}</div>}
+        <button onClick={changePassword} disabled={pwSaving || !newPassword || !confirmPassword} style={{ width: '100%', padding: 14, marginTop: 20, background: ACCENT, color: 'white', border: 'none', borderRadius: 8, fontSize: 16, cursor: 'pointer', opacity: (!newPassword || !confirmPassword) ? 0.6 : 1 }}>
+          {pwSaving ? 'Updating...' : pwSaved ? '✅ Password Updated!' : 'Update Password'}
+        </button>
+      </div>
     </div>
   );
 }

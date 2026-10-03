@@ -555,14 +555,14 @@ export default function App() {
     <div style={{ fontFamily: NAV_FONT }}>
       {isImpersonatingProvider && (
         <div style={{
-          position: 'sticky', top: 0, zIndex: 500, background: '#1B3A6B', color: '#fff',
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999, background: '#1B3A6B', color: '#fff',
           padding: '8px 16px', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
         }}>
           <span>Viewing as provider: {impersonatingProviderName}</span>
           <span onClick={exitImpersonation} style={{ textDecoration: 'underline', cursor: 'pointer', fontWeight: 600 }}>Exit provider view</span>
         </div>
       )}
-    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: NAV_FONT, background: DARK_BG }}>
+    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: NAV_FONT, background: DARK_BG, paddingTop: isImpersonatingProvider ? 36 : 0 }}>
 
       {!isDesktop && sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 40 }} />}
 
@@ -590,7 +590,7 @@ export default function App() {
           </div>
         </div>
 
-        <div style={{ flex: 1, paddingTop: 8, paddingBottom: 8 }}>
+        <div style={{ flex: 1, paddingTop: 8, paddingBottom: 8, overflowY: 'auto' }}>
 
           <div style={navItem('dashboard')} onClick={() => navTo('dashboard')}>
             <Ic d={ICONS.dashboard} /><span>Dashboard</span>

@@ -43,6 +43,7 @@ import CourtReporting from './screens/CourtReporting';
 import VictimInfoReview from './screens/VictimInfoReview';
 import VictimNotifications from './screens/VictimNotifications';
 import BipParticipantFile from './screens/BipParticipantFile';
+import BipAssessment from './screens/BipAssessment';
 import BipGroups from './screens/BipGroups';
 import BipDischarges from './screens/BipDischarges';
 import DcfReviewPacket from './screens/DcfReviewPacket';
@@ -107,6 +108,8 @@ export default function App() {
   const [impersonatingClientName, setImpersonatingClientName] = useState('');
   const [founderSessionBackup, setFounderSessionBackup] = useState(null);
   const [impersonateError, setImpersonateError] = useState(null);
+  const [isImpersonatingProvider, setIsImpersonatingProvider] = useState(false);
+  const [impersonatingProviderName, setImpersonatingProviderName] = useState('');
 
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 768px)');
@@ -208,6 +211,28 @@ export default function App() {
     setFounderSessionBackup(null);
     setIsImpersonating(false);
     setImpersonatingClientName('');
+    setIsImpersonatingProvider(false);
+    setImpersonatingProviderName('');
+    setActiveScreen('dashboard');
+  }
+
+  async function startProviderImpersonation(provider) {
+    setImpersonateError(null);
+    const { data: { session: currentSession } } = await supabase.auth.getSession();
+    if (!currentSession) return;
+
+    const { data, error } = await supabase.functions.invoke('impersonate-provider', { body: { provider_id: provider.id } });
+    if (error || !data?.success) {
+      setImpersonateError(data?.error || error?.message || 'Could not switch into that provider\'s view.');
+      return;
+    }
+
+    const { error: otpError } = await supabase.auth.verifyOtp({ token_hash: data.token_hash, type: 'recovery' });
+    if (otpError) { setImpersonateError(otpError.message); return; }
+
+    setFounderSessionBackup({ access_token: currentSession.access_token, refresh_token: currentSession.refresh_token });
+    setIsImpersonatingProvider(true);
+    setImpersonatingProviderName(data.provider_name || provider.contact_name || provider.email);
     setActiveScreen('dashboard');
   }
 
@@ -400,11 +425,12 @@ export default function App() {
       case 'victiminforeview': return <VictimInfoReview session={session} />;
       case 'victimnotifications': return (isFounder || orgBipPreviewEnabled) ? <VictimNotifications session={session} /> : null;
       case 'bipfile': return (isFounder || orgBipPreviewEnabled) ? <BipParticipantFile session={session} /> : null;
+      case 'bipassessment': return (isFounder || orgBipPreviewEnabled) ? <BipAssessment session={session} /> : null;
       case 'bipgroups': return (isFounder || orgBipPreviewEnabled) ? <BipGroups session={session} /> : null;
       case 'bipdischarges': return (isFounder || orgBipPreviewEnabled) ? <BipDischarges session={session} /> : null;
       case 'dcfpacket': return (isFounder || orgBipPreviewEnabled) ? <DcfReviewPacket session={session} /> : null;
       case 'founderdocs': return <FounderDocs session={session} />;
-      case 'platformactivity': return <PlatformActivity session={session} />;
+      case 'platformactivity': return <PlatformActivity session={session} onImpersonateProvider={startProviderImpersonation} impersonateError={impersonateError} />;
       case 'auditlog': return <AuditLog session={session} isFounder={isFounder} />;
       case 'businessorganizer': return <BusinessOrganizer session={session} />;
       case 'provideronboarding': return <ProviderOnboarding session={session} />;
@@ -526,6 +552,16 @@ export default function App() {
   const userEmail = session?.user?.email || '';
 
   return (
+    <div style={{ fontFamily: NAV_FONT }}>
+      {isImpersonatingProvider && (
+        <div style={{
+          position: 'sticky', top: 0, zIndex: 500, background: '#1B3A6B', color: '#fff',
+          padding: '8px 16px', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
+        }}>
+          <span>Viewing as provider: {impersonatingProviderName}</span>
+          <span onClick={exitImpersonation} style={{ textDecoration: 'underline', cursor: 'pointer', fontWeight: 600 }}>Exit provider view</span>
+        </div>
+      )}
     <div style={{ display: 'flex', minHeight: '100vh', fontFamily: NAV_FONT, background: DARK_BG }}>
 
       {!isDesktop && sidebarOpen && <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 40 }} />}
@@ -641,6 +677,7 @@ export default function App() {
           </div>}
           {(isFounder || orgBipPreviewEnabled) && expandedMenus.bip && <>
             <div style={subItem('bipfile')} onClick={() => navTo('bipfile')}>Participant File</div>
+            <div style={subItem('bipassessment')} onClick={() => navTo('bipassessment')}>Assessment Form</div>
             <div style={subItem('bipgroups')} onClick={() => navTo('bipgroups')}>Groups &amp; Attendance</div>
             <div style={subItem('bipdischarges')} onClick={() => navTo('bipdischarges')}>Discharges</div>
             <div style={subItem('victimnotifications')} onClick={() => navTo('victimnotifications')}>Victim Notifications</div>
@@ -780,6 +817,7 @@ export default function App() {
           {renderMain()}
         </div>
       </div>
+    </div>
     </div>
   );
 }

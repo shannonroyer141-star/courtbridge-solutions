@@ -26,7 +26,7 @@ function timeAgo(iso) {
   return `${Math.round(hrs / 24)}d ago`;
 }
 
-export default function PlatformActivity() {
+export default function PlatformActivity({ onImpersonateProvider, impersonateError }) {
   const [loading, setLoading] = useState(true);
   const [orgRows, setOrgRows] = useState([]);
   const [recentCheckins, setRecentCheckins] = useState([]);
@@ -38,13 +38,17 @@ export default function PlatformActivity() {
 
     const [{ data: orgs }, { data: profiles }, { data: clients }] = await Promise.all([
       supabase.from('organizations').select('id, organization_name, plan, subscription_status, created_at'),
-      supabase.from('profiles').select('id, organization_id'),
+      supabase.from('profiles').select('id, organization_id, is_org_admin, contact_name, email'),
       supabase.from('clients').select('id, name, provider_id, status'),
     ]);
 
     const orgIdByProviderId = new Map((profiles || []).map(p => [p.id, p.organization_id]));
     const orgById = new Map((orgs || []).map(o => [o.id, o]));
     const clientById = new Map((clients || []).map(c => [c.id, c]));
+    const adminByOrgId = new Map();
+    for (const p of profiles || []) {
+      if (p.is_org_admin && p.organization_id && !adminByOrgId.has(p.organization_id)) adminByOrgId.set(p.organization_id, p);
+    }
 
     function orgForClient(clientId) {
       const client = clientById.get(clientId);
@@ -58,7 +62,7 @@ export default function PlatformActivity() {
       if (!orgId) continue;
       clientCountByOrg.set(orgId, (clientCountByOrg.get(orgId) || 0) + 1);
     }
-    setOrgRows((orgs || []).map(o => ({ ...o, clientCount: clientCountByOrg.get(o.id) || 0 })).sort((a, b) => b.clientCount - a.clientCount));
+    setOrgRows((orgs || []).map(o => ({ ...o, clientCount: clientCountByOrg.get(o.id) || 0, admin: adminByOrgId.get(o.id) || null })).sort((a, b) => b.clientCount - a.clientCount));
 
     const since48h = new Date(Date.now() - 48 * 3600 * 1000).toISOString();
     const { data: checkins } = await supabase
@@ -99,16 +103,27 @@ export default function PlatformActivity() {
       </div>
 
       <h2 style={S.sectionTitle}>Organizations ({orgRows.length})</h2>
+      {impersonateError && <div style={{ ...S.card, padding: 14, color: RED }}>{impersonateError}</div>}
       <div style={S.card}>
         {orgRows.length === 0 ? <div style={S.emptyState}>No organizations yet.</div> : orgRows.map(o => (
           <div key={o.id} style={S.row}>
             <div>
               <div style={S.name}>{o.organization_name || 'Unnamed org'}</div>
-              <div style={S.sub}>{o.clientCount} client{o.clientCount === 1 ? '' : 's'} · joined {timeAgo(o.created_at)}</div>
+              <div style={S.sub}>{o.clientCount} client{o.clientCount === 1 ? '' : 's'} · joined {timeAgo(o.created_at)}{o.admin ? ` · admin: ${o.admin.contact_name || o.admin.email}` : ' · no admin on file'}</div>
             </div>
-            <span style={{ ...S.badge, background: o.subscription_status === 'active' ? 'rgba(76,175,125,0.15)' : 'rgba(255,255,255,0.08)', color: o.subscription_status === 'active' ? GREEN : TEXT_MUTED }}>
-              {o.plan || 'no plan'} · {o.subscription_status || 'unknown'}
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ ...S.badge, background: o.subscription_status === 'active' ? 'rgba(76,175,125,0.15)' : 'rgba(255,255,255,0.08)', color: o.subscription_status === 'active' ? GREEN : TEXT_MUTED }}>
+                {o.plan || 'no plan'} · {o.subscription_status || 'unknown'}
+              </span>
+              {o.admin && onImpersonateProvider && (
+                <button
+                  onClick={() => onImpersonateProvider(o.admin)}
+                  style={{ padding: '6px 12px', background: 'none', border: `0.5px solid ${ACCENT}`, color: ACCENT, borderRadius: 6, fontSize: 11.5, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                >
+                  Log In As Provider
+                </button>
+              )}
+            </div>
           </div>
         ))}
       </div>
